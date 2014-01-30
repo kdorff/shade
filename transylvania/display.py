@@ -29,8 +29,10 @@ from sdl2 import (
     SDL_GL_DEPTH_SIZE, SDL_GL_DOUBLEBUFFER, SDL_INIT_EVERYTHING,
     SDL_WINDOW_OPENGL, SDL_WINDOW_SHOWN, SDL_WINDOWPOS_CENTERED)
 
-from OpenGL.GL import glClear, glEnable, glClearColor, glViewport
+from OpenGL.GL import glClear, glClearColor, glEnable, glViewport
 from OpenGL.GL import GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST
+
+from transylvania.sprite import Sprite
 
 
 class DisplayManager(object):
@@ -58,6 +60,7 @@ class DisplayManager(object):
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24)
 
         self._create_window()
+        self.sprite = Sprite()
 
     def __del__(self):
         """
@@ -103,4 +106,7 @@ class DisplayManager(object):
         Renders the scene.
         """
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        self.sprite.draw()
+
         SDL_GL_SwapWindow(self.window)
