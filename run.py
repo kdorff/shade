@@ -20,11 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 from transylvania import Application
+from transylvania.display import DisplayManager
 
 
 def start_app():
     config = {}
-    app = Application(config)
+    display = DisplayManager(width=800, height=600)
+
+    app = Application(config=config, display=display)
     app.run()
 
 

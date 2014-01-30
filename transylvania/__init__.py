@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import ctypes
+from sdl2 import SDL_Event, SDL_PollEvent, SDL_Quit
+from sdl2 import SDL_QUIT
 
 # Version information (major, minor, revision[, 'dev']).
 version_info = (0, 0, 1)
@@ -33,21 +36,31 @@ class Application(object):
     Application class for the transylvania framework.
     """
 
-    def __init__(self, config):
+    def __init__(self, config=None, display=None):
         """
         Initialize the application.
         """
         self.config = config
-        print '__init__'
+        self.display = display
+
+        self.running = True
 
     def __del__(self):
         """
         Cleanup the application.
         """
-        print '__del__'
+        del self.display
+        SDL_Quit()
 
     def run(self):
         """
         Start the application.
         """
-        print 'run'
+        event = SDL_Event()
+
+        while self.running:
+            while SDL_PollEvent(ctypes.byref(event)) != 0:
+                if event.type == SDL_QUIT:
+                    return
+
+            self.display.render()
