@@ -52,9 +52,13 @@ void main()
 }
 """
 
-vertices = [0.6,  0.6, 0.0, 1.0,
-            -0.6,  0.6, 0.0, 1.0,
-            0.0, -0.6, 0.0, 1.0]
+vertices = [1.0, 1.0, 0.0, 1.0,
+            0.0, 1.0, 0.0, 1.0,
+            0.0, 0.0, 0.0, 1.0,
+            1.0, 1.0, 0.0, 1.0,
+            0.0, 0.0, 0.0, 1.0,
+            1.0, 0.0, 0.0, 0.0]
+
 
 vertices = numpy.array(vertices, dtype=numpy.float32)
 
@@ -90,7 +94,7 @@ class Sprite(object):
             position, 4, GL_FLOAT, False, 0, ctypes.c_void_p(0))
 
         # Send the data over to the buffer
-        glBufferData(GL_ARRAY_BUFFER, 48, vertices, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, 96, vertices, GL_STATIC_DRAW)
 
         # Unbind the VAO first (Important)
         glBindVertexArray(0)
@@ -104,7 +108,7 @@ class Sprite(object):
         glUseProgram(self.shader)
 
         glBindVertexArray(self.vertex_array_object)
-        glDrawArrays(GL_TRIANGLES, 0, 3)
+        glDrawArrays(GL_TRIANGLES, 0, 6)
         glBindVertexArray(0)
 
         glUseProgram(0)

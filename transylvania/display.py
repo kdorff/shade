@@ -30,7 +30,8 @@ from sdl2 import (
     SDL_WINDOW_OPENGL, SDL_WINDOW_SHOWN, SDL_WINDOWPOS_CENTERED)
 
 from OpenGL.GL import glClear, glClearColor, glEnable, glViewport
-from OpenGL.GL import GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT, GL_CULL_FACE, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST)
 
 from transylvania.sprite import Sprite
 
@@ -82,6 +83,7 @@ class DisplayManager(object):
         self.glcontext = SDL_GL_CreateContext(self.window)
         SDL_GL_SetSwapInterval(1)
         glEnable(GL_DEPTH_TEST)
+        glEnable(GL_CULL_FACE)
         glClearColor(0.2, 0.2, 0.2, 1.0)
 
     def resize(self, width, height):
