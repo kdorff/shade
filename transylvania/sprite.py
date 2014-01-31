@@ -26,7 +26,8 @@ import OpenGL.GL.shaders
 from OpenGL.GL import (
     glBindBuffer, glBindVertexArray, glBufferData, glDrawArrays,
     glEnableVertexAttribArray, glGenBuffers, glGenVertexArrays,
-    glGetAttribLocation, glUseProgram, glVertexAttribPointer)
+    glGetAttribLocation, glGetUniformLocation, glUniform4f, glUseProgram,
+    glVertexAttribPointer)
 from OpenGL.GL import (
     GL_ARRAY_BUFFER, GL_FLOAT, GL_FRAGMENT_SHADER, GL_TRIANGLES,
     GL_STATIC_DRAW, GL_VERTEX_SHADER)
@@ -34,10 +35,12 @@ from OpenGL.GL import (
 vertex_shader = """
 #version 330
 
+uniform vec4 offset;
 in vec4 position;
 void main()
 {
-   gl_Position = position;
+
+   gl_Position = position + offset;
 }
 """
 
@@ -59,7 +62,6 @@ vertices = [1.0, 1.0, 0.0, 1.0,
             0.0, 0.0, 0.0, 1.0,
             1.0, 0.0, 0.0, 0.0]
 
-
 vertices = numpy.array(vertices, dtype=numpy.float32)
 
 
@@ -70,6 +72,10 @@ class Sprite(object):
     def __init__(self):
         """
         """
+        self.pos_x = 0
+        self.pos_y = 0
+        self.pos_z = 0
+
         # Create a new VAO (Vertex Array Object) and bind it
         self.vertex_array_object = glGenVertexArrays(1)
         glBindVertexArray(self.vertex_array_object)
@@ -106,6 +112,9 @@ class Sprite(object):
         """
         """
         glUseProgram(self.shader)
+
+        offset = glGetUniformLocation(self.shader, 'offset')
+        glUniform4f(offset, self.pos_x, self.pos_y, self.pos_z, 0.0)
 
         glBindVertexArray(self.vertex_array_object)
         glDrawArrays(GL_TRIANGLES, 0, 6)
