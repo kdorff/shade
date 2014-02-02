@@ -47,6 +47,11 @@ class DisplayManager(object):
     def __init__(self, width=0, height=0):
         """
         Initialize the display manager.
+
+        @param width: Width in pixels of the display.
+        @type width: int
+        @param height: Height in pixels of the display.
+        @type height: int
         """
         self.width = width
         self.height = height
@@ -79,6 +84,7 @@ class DisplayManager(object):
 
         U{Modern glOrtho2d<http://stackoverflow.com/questions/21323743/
         modern-equivalent-of-gluortho2d>}
+
         U{Orthographic Projection<http://en.wikipedia.org/wiki/
         Orthographic_projection_(geometry)>}
 
@@ -132,9 +138,9 @@ class DisplayManager(object):
         """
         Resize the display.
 
-        @param width: pixel count horizontally
+        @param width: Width in pixels to change the display to.
         @type width: int
-        @param height: pixel count vertically
+        @param height: Height in pixels to change the display to.
         @type height: int
         """
         self.width = width

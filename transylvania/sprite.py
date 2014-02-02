@@ -70,11 +70,16 @@ vertices = numpy.array(vertices, dtype=numpy.float32)
 
 class Sprite(object):
     """
+    Handles texturing images on a polygon.
     """
 
     def __init__(self):
         """
+        Initialize the OpenGL things needed to render the polygon.
         """
+        # TODO(hurricanerix): should also actually load a texture.
+        # TODO(hurricanerix): position stuff should probably be moved outside
+        # of the sprite class.
         self.pos_x = 0
         self.pos_y = 0
         self.pos_z = 0
@@ -114,6 +119,10 @@ class Sprite(object):
 
     def draw(self, proj_mat):
         """
+        Draw the sprite.
+
+        @param proj_mat: projection matrix to be passed to the shader.
+        @type proj_mat: 4x4 matrix
         """
         glUseProgram(self.shader)
 

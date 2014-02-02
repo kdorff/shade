@@ -2,3 +2,4 @@ PyOpenGL
 PySDL2
 numpy
 gameobjects
+epydoc

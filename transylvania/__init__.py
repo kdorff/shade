@@ -33,12 +33,17 @@ version = __version__ = ".".join(map(str, version_info))
 
 class Application(object):
     """
-    Application class for the transylvania framework.
+    Application class for the Transylvania Engine.
     """
 
     def __init__(self, config=None, display=None):
         """
         Initialize the application.
+
+        @param config: Application configuration.
+        @type config: dict
+        @param display: Display Manager to be used.
+        @type display: DisplayManager
         """
         self.config = config
         self.display = display
@@ -54,7 +59,7 @@ class Application(object):
 
     def run(self):
         """
-        Start the application.
+        Start the application event loop.
         """
         event = SDL_Event()
 
