@@ -23,11 +23,17 @@ from transylvania import Application
 from transylvania.display import DisplayManager
 
 
+class ReferenceApp(Application):
+    """
+    Example Game using the Transylvania Engine.
+    """
+
+
 def start_app():
     config = {}
     display = DisplayManager(width=800, height=600)
 
-    app = Application(config=config, display=display)
+    app = ReferenceApp(config=config, display=display)
     app.run()
 
 
