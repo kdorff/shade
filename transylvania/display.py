@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+#from math import cos, sin, tan, sqrt, pi
 from sdl2 import (
     SDL_CreateWindow, SDL_DestroyWindow, SDL_GL_CreateContext,
     SDL_GL_SetAttribute, SDL_GL_SetSwapInterval, SDL_GL_SwapWindow, SDL_Init)
@@ -32,6 +33,8 @@ from sdl2 import (
 from OpenGL.GL import glClear, glClearColor, glEnable, glViewport
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT, GL_CULL_FACE, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST)
+
+from gameobjects.matrix44 import Matrix44
 
 from transylvania.sprite import Sprite
 
@@ -47,6 +50,7 @@ class DisplayManager(object):
         """
         self.width = width
         self.height = height
+        self.proj_mat = None
         self.window = None
         self.glcontext = None
 
@@ -69,6 +73,41 @@ class DisplayManager(object):
         """
         SDL_DestroyWindow(self.window)
 
+    def _get_projection_matrix(self, left, right, bottom, top):
+        """
+        Create a  orthographic projection matrix.
+
+        U{Modern glOrtho2d<http://stackoverflow.com/questions/21323743/
+        modern-equivalent-of-gluortho2d>}
+        U{Orthographic Projection<http://en.wikipedia.org/wiki/
+        Orthographic_projection_(geometry)>}
+
+        @param left:
+        @type left:
+        @param right:
+        @type right:
+        @param bottom:
+        @type bottom:
+        @param top:
+        @type top:
+
+        @return:
+        @rtype:
+        """
+        zNear = -25.0
+        zFar = 25.0
+        inv_z = 1.0 / (zFar - zNear)
+        inv_y = 1.0 / (top - bottom)
+        inv_x = 1.0 / (right - left)
+
+        mat = Matrix44()
+        mat.set_row(0, [(2.0 * inv_x), 0.0, 0.0, (-(right + left) * inv_x)])
+        mat.set_row(1, [0.0, (2.0 * inv_y), 0.0, (-(top + bottom) * inv_y)])
+        mat.set_row(2, [0.0, 0.0, (-2.0 * inv_z), (-(zFar + zNear) * inv_z)])
+        mat.set_row(3, [0.0, 0.0, 0.0, 1.0])
+
+        return mat
+
     def _create_window(self):
         """
         Handles creating the SDL window and creating a GL context for it.
@@ -79,6 +118,9 @@ class DisplayManager(object):
             SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN)
         if not self.window:
             raise Exception('Could not create window')
+
+        self.proj_mat = self._get_projection_matrix(0.0, self.width,
+                                                    0.0, self.height)
 
         self.glcontext = SDL_GL_CreateContext(self.window)
         SDL_GL_SetSwapInterval(1)
@@ -109,6 +151,6 @@ class DisplayManager(object):
         """
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        self.sprite.draw()
+        self.sprite.draw(self.proj_mat)
 
         SDL_GL_SwapWindow(self.window)

@@ -26,21 +26,24 @@ import OpenGL.GL.shaders
 from OpenGL.GL import (
     glBindBuffer, glBindVertexArray, glBufferData, glDrawArrays,
     glEnableVertexAttribArray, glGenBuffers, glGenVertexArrays,
-    glGetAttribLocation, glGetUniformLocation, glUniform4f, glUseProgram,
-    glVertexAttribPointer)
+    glGetAttribLocation, glGetUniformLocation, glUniform4f, glUniformMatrix4fv,
+    glUseProgram, glVertexAttribPointer)
 from OpenGL.GL import (
-    GL_ARRAY_BUFFER, GL_FLOAT, GL_FRAGMENT_SHADER, GL_TRIANGLES,
+    GL_ARRAY_BUFFER, GL_FALSE, GL_FLOAT, GL_FRAGMENT_SHADER, GL_TRIANGLES,
     GL_STATIC_DRAW, GL_VERTEX_SHADER)
 
 vertex_shader = """
 #version 330
 
+uniform mat4 proj_mat;
 uniform vec4 offset;
+
 in vec4 position;
+
 void main()
 {
-
-   gl_Position = position + offset;
+   //gl_Position = position + offset;
+   gl_Position = position * proj_mat;
 }
 """
 
@@ -60,7 +63,7 @@ vertices = [1.0, 1.0, 0.0, 1.0,
             0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 0.0, 1.0,
             0.0, 0.0, 0.0, 1.0,
-            1.0, 0.0, 0.0, 0.0]
+            1.0, 0.0, 0.0, 1.0]
 
 vertices = numpy.array(vertices, dtype=numpy.float32)
 
@@ -100,7 +103,8 @@ class Sprite(object):
             position, 4, GL_FLOAT, False, 0, ctypes.c_void_p(0))
 
         # Send the data over to the buffer
-        glBufferData(GL_ARRAY_BUFFER, 96, vertices, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, 4 * len(vertices),
+                     vertices, GL_STATIC_DRAW)
 
         # Unbind the VAO first (Important)
         glBindVertexArray(0)
@@ -108,16 +112,19 @@ class Sprite(object):
         # Unbind other stuff
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-    def draw(self):
+    def draw(self, proj_mat):
         """
         """
         glUseProgram(self.shader)
 
-        offset = glGetUniformLocation(self.shader, 'offset')
-        glUniform4f(offset, self.pos_x, self.pos_y, self.pos_z, 0.0)
+        loc_proj_mat = glGetUniformLocation(self.shader, 'proj_mat')
+        glUniformMatrix4fv(loc_proj_mat, 1, GL_FALSE, proj_mat.to_opengl())
+
+        #offset = glGetUniformLocation(self.shader, 'offset')
+        #glUniform4f(offset, self.pos_x, self.pos_y, self.pos_z, 0.0)
 
         glBindVertexArray(self.vertex_array_object)
-        glDrawArrays(GL_TRIANGLES, 0, 6)
+        glDrawArrays(GL_TRIANGLES, 0, int(len(vertices) / 4.0))
         glBindVertexArray(0)
 
         glUseProgram(0)
