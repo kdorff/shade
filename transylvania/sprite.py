@@ -26,24 +26,25 @@ import OpenGL.GL.shaders
 from OpenGL.GL import (
     glBindBuffer, glBindVertexArray, glBufferData, glDrawArrays,
     glEnableVertexAttribArray, glGenBuffers, glGenVertexArrays,
-    glGetAttribLocation, glGetUniformLocation, glUniform4f, glUniformMatrix4fv,
+    glGetAttribLocation, glGetUniformLocation, glUniformMatrix4fv,
     glUseProgram, glVertexAttribPointer)
 from OpenGL.GL import (
     GL_ARRAY_BUFFER, GL_FALSE, GL_FLOAT, GL_FRAGMENT_SHADER, GL_TRIANGLES,
     GL_STATIC_DRAW, GL_VERTEX_SHADER)
 
+from gameobjects.matrix44 import Matrix44
+
 vertex_shader = """
 #version 330
 
 uniform mat4 proj_mat;
-uniform vec4 offset;
+uniform mat4 offset;
 
 in vec4 position;
 
 void main()
 {
-   //gl_Position = position + offset;
-   gl_Position = position * proj_mat;
+   gl_Position = position * offset * proj_mat;
 }
 """
 
@@ -80,8 +81,9 @@ class Sprite(object):
         # TODO(hurricanerix): should also actually load a texture.
         # TODO(hurricanerix): position stuff should probably be moved outside
         # of the sprite class.
-        self.pos_x = 0
-        self.pos_y = 0
+        self.size = 10
+        self.pos_x = 100
+        self.pos_y = 100
         self.pos_z = 0
 
         # Create a new VAO (Vertex Array Object) and bind it
@@ -117,6 +119,22 @@ class Sprite(object):
         # Unbind other stuff
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
+    def _get_transform(self):
+        """
+        Transform the from local coordinates to world coordinates.
+
+        @return: transformation matrix used to transform from local coords
+                 to world coords.
+        @rtype: Matrix44
+        """
+        transform = Matrix44()
+        transform.set_row(0, [self.size, 0.0, 0.0, self.pos_x])
+        transform.set_row(1, [0.0, self.size, 0.0, self.pos_y])
+        transform.set_row(2, [0.0, 0.0, 1.0, self.pos_z])
+        transform.set_row(3, [0.0, 0.0, 0.0, 1.0])
+
+        return transform
+
     def draw(self, proj_mat):
         """
         Draw the sprite.
@@ -129,8 +147,9 @@ class Sprite(object):
         loc_proj_mat = glGetUniformLocation(self.shader, 'proj_mat')
         glUniformMatrix4fv(loc_proj_mat, 1, GL_FALSE, proj_mat.to_opengl())
 
-        #offset = glGetUniformLocation(self.shader, 'offset')
-        #glUniform4f(offset, self.pos_x, self.pos_y, self.pos_z, 0.0)
+        offset = self._get_transform()
+        loc_offset = glGetUniformLocation(self.shader, 'offset')
+        glUniformMatrix4fv(loc_offset, 1, GL_FALSE, offset.to_opengl())
 
         glBindVertexArray(self.vertex_array_object)
         glDrawArrays(GL_TRIANGLES, 0, int(len(vertices) / 4.0))

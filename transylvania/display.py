@@ -88,17 +88,17 @@ class DisplayManager(object):
         U{Orthographic Projection<http://en.wikipedia.org/wiki/
         Orthographic_projection_(geometry)>}
 
-        @param left:
-        @type left:
-        @param right:
-        @type right:
-        @param bottom:
-        @type bottom:
-        @param top:
-        @type top:
+        @param left: position of the left side of the display
+        @type left: int
+        @param right: position of the right side of the display
+        @type right: int
+        @param bottom: position of the bottom side of the display
+        @type bottom: int
+        @param top: position of the top side of the display
+        @type top: int
 
-        @return:
-        @rtype:
+        @return: orthographic projection matrix
+        @rtype: Matrix44
         """
         zNear = -25.0
         zFar = 25.0
