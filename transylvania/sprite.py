@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 import ctypes
+import math
 import numpy
 
 import OpenGL.GL.shaders
@@ -28,7 +29,7 @@ from OpenGL.GL import (
     glBlendFunc, glBufferData, glDrawArrays, glEnable,
     glEnableVertexAttribArray, glGenBuffers, glGenTextures, glGenVertexArrays,
     glGetAttribLocation, glGetUniformLocation, glTexImage2D, glTexParameteri,
-    glUniformMatrix4fv, glUseProgram, glVertexAttribPointer)
+    glUniform1i, glUniformMatrix4fv, glUseProgram, glVertexAttribPointer)
 from OpenGL.GL import (
     GL_ARRAY_BUFFER, GL_BLEND, GL_CULL_FACE, GL_FALSE, GL_FLOAT,
     GL_FRAGMENT_SHADER, GL_ONE_MINUS_SRC_ALPHA, GL_LINEAR, GL_REPEAT, GL_RGBA,
@@ -40,11 +41,19 @@ from PIL import Image
 
 from gameobjects.matrix44 import Matrix44
 
+current_frame = 0
+frames = [(0, 0),
+          (1, 0),
+          (2, 0)]
+
 vertex_shader = """
 #version 330
 
 uniform mat4 proj_mat;
 uniform mat4 offset;
+
+uniform int x;
+uniform int y;
 
 in vec2 TexCoord0;
 in vec4 position;
@@ -54,8 +63,6 @@ void main()
 {
    float offset_x = 1.0 / 3.0;
    float offset_y = 1.0 / 10.0;
-   int x = 0;
-   int y = 0;
 
    TexCoord = (TexCoord0.st / vec2(3, 10)) +
         vec2(offset_x * (x), offset_y * (y));
@@ -207,7 +214,22 @@ class Sprite(object):
         @param proj_mat: projection matrix to be passed to the shader.
         @type proj_mat: 4x4 matrix
         """
+        global current_frame
+
+        # TODO: use a timer, but for now, slow things down some.
+        current_frame = current_frame + 1
+        if current_frame == len(frames) * 10:
+            current_frame = 0
+        tmp = int(math.floor(current_frame / 10))
+
+        (x, y) = frames[tmp]
+
         glUseProgram(self.shader)
+
+        loc_sprite_x = glGetUniformLocation(self.shader, 'x')
+        glUniform1i(loc_sprite_x, x)
+        loc_sprite_y = glGetUniformLocation(self.shader, 'y')
+        glUniform1i(loc_sprite_y, y)
 
         loc_proj_mat = glGetUniformLocation(self.shader, 'proj_mat')
         glUniformMatrix4fv(loc_proj_mat, 1, GL_FALSE, proj_mat.to_opengl())
