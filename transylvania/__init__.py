@@ -47,8 +47,11 @@ class Application(object):
         """
         self.config = config
         self.display = display
-
         self.running = True
+        self.objects = []
+
+    def add_object(self, obj):
+        self.objects.append(obj)
 
     def __del__(self):
         """
@@ -68,4 +71,10 @@ class Application(object):
                 if event.type == SDL_QUIT:
                     return
 
-            self.display.render()
+            self.display.start_render()
+            proj_mat = self.display.get_proj_matrix()
+
+            for obj in self.objects:
+                obj.draw(proj_mat)
+
+            self.display.stop_render()

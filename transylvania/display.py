@@ -36,8 +36,6 @@ from OpenGL.GL import (
 
 from gameobjects.matrix44 import Matrix44
 
-from transylvania.sprite import Sprite
-
 
 class DisplayManager(object):
     """
@@ -70,7 +68,6 @@ class DisplayManager(object):
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24)
 
         self._create_window()
-        self.sprite = Sprite()
 
     def __del__(self):
         """
@@ -151,12 +148,17 @@ class DisplayManager(object):
 
         glViewport(0, 0, self.width, self.height)
 
-    def render(self):
+    def get_proj_matrix(self):
+        return self.proj_mat
+
+    def start_render(self):
         """
-        Renders the scene.
+        Setup for scene render.
         """
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        self.sprite.draw(self.proj_mat)
-
+    def stop_render(self):
+        """
+        Cleanup from scene render.
+        """
         SDL_GL_SwapWindow(self.window)

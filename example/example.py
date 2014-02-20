@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 from transylvania import Application
 from transylvania.display import DisplayManager
+from transylvania.sprite import Sprite
 
 
 class ReferenceApp(Application):
@@ -34,6 +35,14 @@ def start_app():
     display = DisplayManager(width=800, height=600)
 
     app = ReferenceApp(config=config, display=display)
+    # TODO(hurricanerix): This should not be a hard coded path which
+    # probably only exists on my computer.
+    app.add_object(Sprite('/Users/rhawkins/workspace/transylvania/example/'
+                          'resources/sprites/bimon_selmont'))
+
+    app.add_object(Sprite('/Users/rhawkins/workspace/transylvania/example/'
+                          'resources/sprites/bimon_selmont', pos_x=100, pos_y=100, layer=-1))
+
     app.run()
 
 

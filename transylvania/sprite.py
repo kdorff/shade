@@ -108,17 +108,16 @@ class Sprite(object):
     Handles texturing images on a polygon.
     """
 
-    def __init__(self):
+    def __init__(self, path, pos_x=0, pos_y=0, layer=0):
         """
         Initialize the OpenGL things needed to render the polygon.
         """
-        # TODO(hurricanerix): should also actually load a texture.
         # TODO(hurricanerix): position stuff should probably be moved outside
         # of the sprite class.
-        #self.size = 400
-        self.pos_x = 100
-        self.pos_y = 100
-        self.pos_z = 0
+        self.path = path
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.layer = layer
         self.width = 308
         self.height = 132
 
@@ -178,16 +177,16 @@ class Sprite(object):
         @rtype: Matrix44
         """
         transform = Matrix44()
+
         transform.set_row(0, [self.width, 0.0, 0.0, self.pos_x])
         transform.set_row(1, [0.0, self.height, 0.0, self.pos_y])
-        transform.set_row(2, [0.0, 0.0, 1.0, self.pos_z])
+        transform.set_row(2, [0.0, 0.0, 1.0, self.layer])
         transform.set_row(3, [0.0, 0.0, 0.0, 1.0])
 
         return transform
 
     def load_2d_texture(self):
-        tex_data = Image.open('/Users/rhawkins/workspace/transylvania/example/'
-                              'resources/sprites/bimon_selmont/color.png')
+        tex_data = Image.open('{0}/color.png'.format(self.path))
         t_id = glGenTextures(1)
         t_width, t_height = tex_data.size
         t_data = tex_data.convert("RGBA").tostring("raw", "RGBA")
@@ -216,7 +215,7 @@ class Sprite(object):
         """
         global current_frame
 
-        # TODO: use a timer, but for now, slow things down some.
+        # TODO(hurricanerix): use a timer, but for now, slow things down some.
         current_frame = current_frame + 1
         if current_frame == len(frames) * 10:
             current_frame = 0
