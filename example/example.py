@@ -19,6 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+from os import path
+
 from transylvania import Application
 from transylvania.display import DisplayManager
 from transylvania.sprite import Sprite
@@ -34,14 +36,21 @@ def start_app():
     config = {}
     display = DisplayManager(width=800, height=600)
 
-    app = ReferenceApp(config=config, display=display)
-    # TODO(hurricanerix): This should not be a hard coded path which
-    # probably only exists on my computer.
-    app.add_object(Sprite('/Users/rhawkins/workspace/transylvania/example/'
-                          'resources/sprites/bimon_selmont'))
+    resource_dir = path.realpath(__file__)
+    resource_dir = resource_dir.split('/')
+    resource_dir.pop()
+    resource_dir.append('resources')
+    resource_dir.append('')
+    resource_dir = '/'.join(resource_dir)
 
-    app.add_object(Sprite('/Users/rhawkins/workspace/transylvania/example/'
-                          'resources/sprites/bimon_selmont', pos_x=100, pos_y=100, layer=-1))
+    app = ReferenceApp(config=config, display=display)
+    app.add_object(Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
+                          pos_x=25, pos_y=25, layer=1))
+
+    app.add_object(Sprite('{0}/sprites/bimon_selmont'.format(resource_dir)))
+
+    app.add_object(Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
+                          pos_x=50, pos_y=50, layer=2))
 
     app.run()
 
