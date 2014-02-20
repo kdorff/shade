@@ -45,13 +45,27 @@ def start_app():
 
     app = ReferenceApp(config=config, display=display)
 
-    app.add_object(Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
-                          pos_x=25, pos_y=25, layer=1))
+    animations = {'default': [(1, 0)],
+                  'walking': [(0, 0), (1, 0), (2, 0)],
+                  'die': [(1, 0), (1, 2), (2, 2)]}
 
-    app.add_object(Sprite('{0}/sprites/bimon_selmont'.format(resource_dir)))
+    sprite1 = Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
+                     pos_x=25, pos_y=25, layer=1, animations=animations)
 
-    app.add_object(Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
-                          pos_x=50, pos_y=50, layer=2))
+    sprite2 = Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
+                     animations=animations)
+    sprite2.set_animation('walking')
+
+    sprite3 = Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
+                     pos_x=50, pos_y=50, layer=2, animations=animations)
+    sprite3.set_animation('die')
+
+    app.add_object(sprite1)
+    app.add_object(sprite2)
+    app.add_object(sprite3)
+
+
+
 
     app.run()
 

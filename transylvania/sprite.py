@@ -42,9 +42,7 @@ from PIL import Image
 from gameobjects.matrix44 import Matrix44
 
 current_frame = 0
-frames = [(0, 0),
-          (1, 0),
-          (2, 0)]
+
 
 vertex_shader = """
 #version 330
@@ -108,7 +106,7 @@ class Sprite(object):
     Handles texturing images on a polygon.
     """
 
-    def __init__(self, path, pos_x=0, pos_y=0, layer=0):
+    def __init__(self, path, pos_x=0, pos_y=0, layer=0, animations=None):
         """
         Initialize the OpenGL things needed to render the polygon.
         """
@@ -120,6 +118,11 @@ class Sprite(object):
         self.layer = layer
         self.width = 308
         self.height = 132
+        self.current_animation = 'default'
+
+        if not animations:
+            animations = {'default': [(0, 0)]}
+        self.animations = animations
 
         glEnable(GL_CULL_FACE)
         glEnable(GL_BLEND)
@@ -167,6 +170,9 @@ class Sprite(object):
         glBindVertexArray(0)
         # Unbind other stuff
         glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+    def set_animation(self, name):
+        self.current_animation = name
 
     def _get_transform(self):
         """
@@ -216,10 +222,11 @@ class Sprite(object):
         global current_frame
 
         # TODO(hurricanerix): use a timer, but for now, slow things down some.
+        frames = self.animations[self.current_animation]
         current_frame = current_frame + 1
-        if current_frame == len(frames) * 10:
+        if current_frame == len(frames) * 30:
             current_frame = 0
-        tmp = int(math.floor(current_frame / 10))
+        tmp = int(math.floor(current_frame / 30) % len(frames))
 
         (x, y) = frames[tmp]
 
@@ -242,9 +249,3 @@ class Sprite(object):
         glBindVertexArray(0)
 
         glUseProgram(0)
-
-    def __repr__(self):
-        new_repr = super(Sprite, self).__repr__()
-        new_repr = new_repr.lstrip('<')
-        new_repr = '<layer {0}, {1}'.format(self.layer, new_repr)
-        return new_repr
