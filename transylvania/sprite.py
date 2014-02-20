@@ -242,3 +242,9 @@ class Sprite(object):
         glBindVertexArray(0)
 
         glUseProgram(0)
+
+    def __repr__(self):
+        new_repr = super(Sprite, self).__repr__()
+        new_repr = new_repr.lstrip('<')
+        new_repr = '<layer {0}, {1}'.format(self.layer, new_repr)
+        return new_repr

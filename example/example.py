@@ -44,6 +44,7 @@ def start_app():
     resource_dir = '/'.join(resource_dir)
 
     app = ReferenceApp(config=config, display=display)
+
     app.add_object(Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
                           pos_x=25, pos_y=25, layer=1))
 

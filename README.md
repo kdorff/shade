@@ -10,5 +10,3 @@ the creation of advanced effects using GLSL.
 TODO
 ----
 * Time based render rather than incrementing the frame in the draw method.
-* Fix Sprite transparency (draw method must be called in order of depth, from
-  furthest to nearest).

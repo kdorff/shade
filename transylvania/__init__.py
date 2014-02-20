@@ -72,6 +72,7 @@ class Application(object):
                     return
 
             self.display.start_render()
+            self.objects.sort(key=lambda obj: obj.layer)
             proj_mat = self.display.get_proj_matrix()
 
             for obj in self.objects:
