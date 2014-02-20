@@ -49,12 +49,16 @@ uniform mat4 offset;
 in vec2 TexCoord0;
 in vec4 position;
 smooth out vec2 TexCoord;
-//out vec2 TexCoord;
 
 void main()
 {
-   TexCoord = TexCoord0.st / vec2(3, 10);
-   //TexCoord = vec2(0.0f, 0.0f);
+   float offset_x = 1.0 / 3.0;
+   float offset_y = 1.0 / 10.0;
+   int x = 0;
+   int y = 0;
+
+   TexCoord = (TexCoord0.st / vec2(3, 10)) +
+        vec2(offset_x * (x), offset_y * (y));
    gl_Position = position * offset * proj_mat;
 }
 """
@@ -69,12 +73,8 @@ uniform sampler2D ColorMap;
 
 void main()
 {
-   //vec4 color = texture(ColorMap, TexCoord.st).rgba;
-   //vec4 color = vec4(texture(ColorMap, TexCoord.st).a, 0.0, 0.0, 1.0);
    vec4 color = vec4(texture(ColorMap, TexCoord.st).rgba);
-   //MyFragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
    MyFragColor = vec4(color);
-   //MyFragColor = vec4(TexCoord.st, 0.0, 1.0);
 }
 """
 
