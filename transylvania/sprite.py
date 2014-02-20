@@ -25,17 +25,18 @@ import numpy
 import OpenGL.GL.shaders
 from OpenGL.GL import (
     glActiveTexture, glBindBuffer, glBindVertexArray, glBindTexture,
-    glBufferData, glDrawArrays, glEnable, glEnableVertexAttribArray,
-    glGenBuffers, glGenTextures, glGenVertexArrays, glGetAttribLocation,
-    glGetUniformLocation, glTexImage2D, glTexParameteri, glUniformMatrix4fv,
-    glUseProgram, glVertexAttribPointer)
+    glBlendFunc, glBufferData, glDrawArrays, glEnable,
+    glEnableVertexAttribArray, glGenBuffers, glGenTextures, glGenVertexArrays,
+    glGetAttribLocation, glGetUniformLocation, glTexImage2D, glTexParameteri,
+    glUniformMatrix4fv, glUseProgram, glVertexAttribPointer)
 from OpenGL.GL import (
-    GL_ARRAY_BUFFER, GL_CULL_FACE, GL_FALSE, GL_FLOAT, GL_FRAGMENT_SHADER,
-    GL_LINEAR, GL_REPEAT, GL_RGBA, GL_TEXTURE0, GL_TEXTURE_2D,
-    GL_TEXTURE_BASE_LEVEL, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_LEVEL,
-    GL_TEXTURE_MIN_FILTER, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TRIANGLES,
-    GL_STATIC_DRAW, GL_UNSIGNED_BYTE, GL_VERTEX_SHADER)
-from Image import open as pil_open
+    GL_ARRAY_BUFFER, GL_BLEND, GL_CULL_FACE, GL_FALSE, GL_FLOAT,
+    GL_FRAGMENT_SHADER, GL_ONE_MINUS_SRC_ALPHA, GL_LINEAR, GL_REPEAT, GL_RGBA,
+    GL_SRC_ALPHA, GL_TEXTURE0, GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL,
+    GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_LEVEL, GL_TEXTURE_MIN_FILTER,
+    GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TRIANGLES, GL_STATIC_DRAW,
+    GL_UNSIGNED_BYTE, GL_VERTEX_SHADER)
+from PIL import Image
 
 from gameobjects.matrix44 import Matrix44
 
@@ -52,7 +53,7 @@ smooth out vec2 TexCoord;
 
 void main()
 {
-   TexCoord = TexCoord0.st;
+   TexCoord = TexCoord0.st / vec2(3, 10);
    //TexCoord = vec2(0.0f, 0.0f);
    gl_Position = position * offset * proj_mat;
 }
@@ -68,7 +69,9 @@ uniform sampler2D ColorMap;
 
 void main()
 {
-   vec4 color = texture(ColorMap, TexCoord.st).rgba;
+   //vec4 color = texture(ColorMap, TexCoord.st).rgba;
+   //vec4 color = vec4(texture(ColorMap, TexCoord.st).a, 0.0, 0.0, 1.0);
+   vec4 color = vec4(texture(ColorMap, TexCoord.st).rgba);
    //MyFragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
    MyFragColor = vec4(color);
    //MyFragColor = vec4(TexCoord.st, 0.0, 1.0);
@@ -105,12 +108,16 @@ class Sprite(object):
         # TODO(hurricanerix): should also actually load a texture.
         # TODO(hurricanerix): position stuff should probably be moved outside
         # of the sprite class.
-        self.size = 400
+        #self.size = 400
         self.pos_x = 100
         self.pos_y = 100
         self.pos_z = 0
+        self.width = 308
+        self.height = 132
 
         glEnable(GL_CULL_FACE)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         # Create a new VAO (Vertex Array Object) and bind it
         self.vertex_array_object = glGenVertexArrays(1)
@@ -164,20 +171,19 @@ class Sprite(object):
         @rtype: Matrix44
         """
         transform = Matrix44()
-        transform.set_row(0, [self.size, 0.0, 0.0, self.pos_x])
-        transform.set_row(1, [0.0, self.size, 0.0, self.pos_y])
+        transform.set_row(0, [self.width, 0.0, 0.0, self.pos_x])
+        transform.set_row(1, [0.0, self.height, 0.0, self.pos_y])
         transform.set_row(2, [0.0, 0.0, 1.0, self.pos_z])
         transform.set_row(3, [0.0, 0.0, 0.0, 1.0])
 
         return transform
 
     def load_2d_texture(self):
-        tex_data = pil_open('/Users/rhawkins/workspace/transylvania/example/'
-                            'resources/sprites/bimon_selmont/color.png')
-
+        tex_data = Image.open('/Users/rhawkins/workspace/transylvania/example/'
+                              'resources/sprites/bimon_selmont/color.png')
         t_id = glGenTextures(1)
         t_width, t_height = tex_data.size
-        t_data = tex_data.convert("RGBA").tostring("raw", "RGBA")  # , 0, -1)
+        t_data = tex_data.convert("RGBA").tostring("raw", "RGBA")
 
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, t_id)
