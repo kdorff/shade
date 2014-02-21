@@ -53,8 +53,8 @@ def start_app():
     sprite4 = SpriteBuilder.build(sprite_path, pos_x=250, pos_y=250, layer=2)
 
     sprite2.set_animation('walking')
-    sprite3.set_animation('die') # black
-    sprite4.set_animation('attack') # balck
+    sprite3.set_animation('die')
+    sprite4.set_animation('attack')
 
     app.add_object(sprite1) # black
     app.add_object(sprite2) # blue
