@@ -47,10 +47,12 @@ from gameobjects.matrix44 import Matrix44
 vertex_shader = """
 #version 330
 
+uniform int debug;
 in vec3 TexCoord0;
 uniform mat3 tex_trans_mat;
 uniform int use_alt_tex;
 uniform mat3 alt_tex_trans_mat;
+smooth out vec4 debug_position;
 smooth out vec2 TexCoord;
 smooth out vec2 AltTexCoord;
 
@@ -64,6 +66,10 @@ void main()
   if (use_alt_tex == 1) {
     AltTexCoord = vec3(TexCoord0 * alt_tex_trans_mat).st;
   }
+
+  if (debug == 1) {
+    debug_position = position;
+  }
   gl_Position = position * offset * proj_mat;
 }
 """
@@ -71,8 +77,11 @@ void main()
 fragment_shader = """
 #version 330
 
+uniform int debug;
 uniform int use_alt_tex;
+uniform int layer;
 uniform sampler2D ColorMap;
+in vec4 debug_position;
 in vec2 TexCoord;
 in vec2 AltTexCoord;
 out vec4 MyFragColor;
@@ -86,6 +95,29 @@ void main()
     color = alt_color;
     } else {
     color = color + alt_color;
+    }
+  }
+  if (debug == 1) {
+    if (debug_position.x >= 0.995 || debug_position.x <= 0.005 ||
+        debug_position.y >= 0.995 || debug_position.y <= 0.005) {
+      color = vec4(1.0, 1.0, 1.0, 1.0);
+      if (layer < 0) {
+        color = vec4(0.0, 0.0, 0.0, 1.0);
+      } else if (layer == 0) {
+        color = vec4(0.0, 0.0, 1.0, 1.0);
+      } else if (layer == 1) {
+        color = vec4(0.0, 1.0, 0.0, 1.0);
+      } else if (layer == 2) {
+        color = vec4(0.0, 1.0, 1.0, 1.0);
+      } else if (layer == 3) {
+        color = vec4(1.0, 0.0, 0.0, 1.0);
+      } else if (layer == 4) {
+        color = vec4(1.0, 0.0, 1.0, 1.0);
+      } else if (layer == 5) {
+        color = vec4(1.0, 1.0, 0.0, 1.0);
+      } else if (layer == 6) {
+        color = vec4(1.0, 1.0, 1.0, 1.0);
+      }
     }
   }
   MyFragColor = color;
@@ -141,6 +173,7 @@ class Sprite(object):
         self.pos_y = pos_y
         self.layer = layer
         self.data = data
+        self.debug = True
 
         self.current_frame = 0
         self.current_animation = 'default'
@@ -209,11 +242,11 @@ class Sprite(object):
         @rtype: Matrix44
         """
         transform = Matrix44()
+        width = self.data['frame']['size']['width']
+        height = self.data['frame']['size']['height']
 
-        transform.set_row(0, [self.data['frame']['size']['width'], 0.0, 0.0,
-                          self.pos_x])
-        transform.set_row(1, [0.0, self.data['frame']['size']['height'], 0.0,
-                          self.pos_y])
+        transform.set_row(0, [width, 0.0, 0.0, self.pos_x])
+        transform.set_row(1, [0.0, height, 0.0, self.pos_y])
         transform.set_row(2, [0.0, 0.0, 1.0, self.layer])
         transform.set_row(3, [0.0, 0.0, 0.0, 1.0])
 
@@ -295,6 +328,12 @@ class Sprite(object):
                 self.shader, 'alt_tex_trans_mat')
             glUniformMatrix3fv(
                 loc_alt_tex_trans_mat, 1, GL_FALSE, alt_tex_trans_mat)
+
+        loc_debug = glGetUniformLocation(self.shader, 'debug')
+        glUniform1i(loc_debug, self.debug)
+
+        loc_layer = glGetUniformLocation(self.shader, 'layer')
+        glUniform1i(loc_layer, self.layer)
 
         loc_use_alt_tex = glGetUniformLocation(self.shader, 'use_alt_tex')
         glUniform1i(loc_use_alt_tex, use_alt != None)
