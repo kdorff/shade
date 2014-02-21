@@ -1,5 +1,6 @@
 PyOpenGL
 PySDL2
+PIL
 numpy
 gameobjects
 epydoc
