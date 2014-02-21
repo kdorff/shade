@@ -43,8 +43,6 @@ from PIL import Image
 from gameobjects.matrix44 import Matrix44
 
 
-current_frame = 0
-
 vertex_shader = """
 #version 330
 
@@ -105,6 +103,7 @@ class Sprite(object):
         """
         # TODO(hurricanerix): position stuff should probably be moved outside
         # of the sprite class.
+        self.current_frame = 0
         self.path = path
         self.pos_x = pos_x
         self.pos_y = pos_y
@@ -114,6 +113,7 @@ class Sprite(object):
         self.width = 308
         self.height = 132
         self.current_animation = 'default'
+        self.animate = True
 
         if not animations:
             animations = {'default': [(0, 0)]}
@@ -167,6 +167,7 @@ class Sprite(object):
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
     def set_animation(self, name):
+        self.animate = True
         self.current_animation = name
 
     def _get_transform(self):
@@ -231,15 +232,19 @@ class Sprite(object):
         @param proj_mat: projection matrix to be passed to the shader.
         @type proj_mat: 4x4 matrix
         """
-        global current_frame
-
         # TODO(hurricanerix): use a timer, but for now, slow things down some.
         frames = self.animations[self.current_animation]
-        current_frame = current_frame + 1
-        if current_frame == len(frames) * 30:
-            current_frame = 0
-        tmp = int(math.floor(current_frame / 30) % len(frames))
-        (x, y) = frames[tmp]
+        if self.animate:
+            self.current_frame = self.current_frame + 1
+            if self.current_frame == len(frames) * 10:
+                self.current_frame = 0
+        tmp = int(math.floor(self.current_frame / 10) % len(frames))
+
+        if frames[tmp]:
+            (x, y) = frames[tmp]
+        else:
+            self.animate = False
+            (x, y) = frames[tmp - 1]
 
         tex_trans_mat = self._get_tex_trans_matrix(x, y)
 
