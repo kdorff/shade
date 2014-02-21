@@ -54,7 +54,7 @@ def start_app():
 
     sprite2.set_animation('walking')
     sprite3.set_animation('die')
-    sprite4.set_animation('climb_up')
+    sprite4.set_animation('attack')
 
     app.add_object(sprite1)
     app.add_object(sprite2)
