@@ -29,7 +29,8 @@ from OpenGL.GL import (
     glBlendFunc, glBufferData, glDrawArrays, glEnable,
     glEnableVertexAttribArray, glGenBuffers, glGenTextures, glGenVertexArrays,
     glGetAttribLocation, glGetUniformLocation, glTexImage2D, glTexParameteri,
-    glUniform1i, glUniformMatrix4fv, glUseProgram, glVertexAttribPointer)
+    glUniformMatrix3fv, glUniformMatrix4fv, glUseProgram,
+    glVertexAttribPointer)
 from OpenGL.GL import (
     GL_ARRAY_BUFFER, GL_BLEND, GL_CULL_FACE, GL_FALSE, GL_FLOAT,
     GL_FRAGMENT_SHADER, GL_ONE_MINUS_SRC_ALPHA, GL_LINEAR, GL_REPEAT, GL_RGBA,
@@ -41,29 +42,23 @@ from PIL import Image
 
 from gameobjects.matrix44 import Matrix44
 
-current_frame = 0
 
+current_frame = 0
 
 vertex_shader = """
 #version 330
 
+uniform mat3 tex_trans_mat;
+in vec3 TexCoord0;
+smooth out vec2 TexCoord;
+
+in vec4 position;
 uniform mat4 proj_mat;
 uniform mat4 offset;
 
-uniform int x;
-uniform int y;
-
-in vec2 TexCoord0;
-in vec4 position;
-smooth out vec2 TexCoord;
-
 void main()
 {
-   float offset_x = 1.0 / 3.0;
-   float offset_y = 1.0 / 10.0;
-
-   TexCoord = (TexCoord0.st / vec2(3, 10)) +
-        vec2(offset_x * (x), offset_y * (y));
+   TexCoord = vec3(TexCoord0 * tex_trans_mat).st;
    gl_Position = position * offset * proj_mat;
 }
 """
@@ -71,15 +66,13 @@ void main()
 fragment_shader = """
 #version 330
 
-out vec4 MyFragColor;
-in vec2 TexCoord;
-
 uniform sampler2D ColorMap;
+in vec2 TexCoord;
+out vec4 MyFragColor;
 
 void main()
 {
-   vec4 color = vec4(texture(ColorMap, TexCoord.st).rgba);
-   MyFragColor = vec4(color);
+   MyFragColor = texture(ColorMap, TexCoord.st).rgba;
 }
 """
 
@@ -90,12 +83,12 @@ vertices = [0.0, 0.0, 0.0, 1.0,
             0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 0.0, 1.0]
 
-tex_coords = [0.0, 1.0,
-              1.0, 1.0,
-              1.0, 0.0,
-              0.0, 0.0,
-              0.0, 1.0,
-              1.0, 0.0]
+tex_coords = [0.0, 1.0, 1.0,
+              1.0, 1.0, 1.0,
+              1.0, 0.0, 1.0,
+              0.0, 0.0, 1.0,
+              0.0, 1.0, 1.0,
+              1.0, 0.0, 1.0]
 
 vertices = numpy.array(vertices, dtype=numpy.float32)
 tex_coords = numpy.array(tex_coords, dtype=numpy.float32)
@@ -116,6 +109,8 @@ class Sprite(object):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.layer = layer
+        self.frames_x = 3
+        self.frames_y = 10
         self.width = 308
         self.height = 132
         self.current_animation = 'default'
@@ -159,7 +154,7 @@ class Sprite(object):
         tex_coords_loc = glGetAttribLocation(self.shader, "TexCoord0")
         glEnableVertexAttribArray(tex_coords_loc)
         glVertexAttribPointer(
-            tex_coords_loc, 2, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+            tex_coords_loc, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
 
         self.load_2d_texture()
 
@@ -189,6 +184,23 @@ class Sprite(object):
         transform.set_row(2, [0.0, 0.0, 1.0, self.layer])
         transform.set_row(3, [0.0, 0.0, 0.0, 1.0])
 
+        return transform
+
+    def _get_tex_trans_matrix(self, frame_x, frame_y):
+        """
+        Transform the tex coords to shrink the texutre down to a single frame.
+
+        @return: matrix used to transform texture coords to the current
+                 frame in the texture to be displayed.
+        @rtype: list
+        """
+        scale_x = 1.0/self.frames_x
+        scale_y = 1.0/self.frames_y
+        trans_x = frame_x * scale_x
+        trans_y = frame_y * scale_y
+        transform = [scale_x, 0.0, trans_x,
+                     0.0, scale_y, trans_y,
+                     0.0, 0.0, 1.0]
         return transform
 
     def load_2d_texture(self):
@@ -227,15 +239,14 @@ class Sprite(object):
         if current_frame == len(frames) * 30:
             current_frame = 0
         tmp = int(math.floor(current_frame / 30) % len(frames))
-
         (x, y) = frames[tmp]
+
+        tex_trans_mat = self._get_tex_trans_matrix(x, y)
 
         glUseProgram(self.shader)
 
-        loc_sprite_x = glGetUniformLocation(self.shader, 'x')
-        glUniform1i(loc_sprite_x, x)
-        loc_sprite_y = glGetUniformLocation(self.shader, 'y')
-        glUniform1i(loc_sprite_y, y)
+        loc_tex_trans_mat = glGetUniformLocation(self.shader, 'tex_trans_mat')
+        glUniformMatrix3fv(loc_tex_trans_mat, 1, GL_FALSE, tex_trans_mat)
 
         loc_proj_mat = glGetUniformLocation(self.shader, 'proj_mat')
         glUniformMatrix4fv(loc_proj_mat, 1, GL_FALSE, proj_mat.to_opengl())
