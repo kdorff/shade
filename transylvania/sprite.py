@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 import ctypes
+import json
 import math
 import numpy
 
@@ -92,32 +93,44 @@ vertices = numpy.array(vertices, dtype=numpy.float32)
 tex_coords = numpy.array(tex_coords, dtype=numpy.float32)
 
 
+class SpriteBuilder(object):
+    """
+    Handles reading in sprite resources and creating a sprite from them.
+    """
+
+    @staticmethod
+    def build(path, pos_x=0, pos_y=0, layer=0):
+        data_path = '{0}/data.json'.format(path)
+        # TODO: Test if file exists first
+        data = json.loads(open(data_path).read())
+        # TODO: create shader and pass it to the sprite.
+        # TODO: Read in color data and pass it to the sprite.
+        return Sprite(path, pos_x=pos_x, pos_y=pos_y, layer=layer, data=data)
+
+
 class Sprite(object):
     """
     Handles texturing images on a polygon.
     """
 
-    def __init__(self, path, pos_x=0, pos_y=0, layer=0, animations=None):
+    def __init__(self, path, pos_x=0, pos_y=0, layer=0, data=None):
         """
         Initialize the OpenGL things needed to render the polygon.
         """
         # TODO(hurricanerix): position stuff should probably be moved outside
         # of the sprite class.
-        self.current_frame = 0
         self.path = path
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.layer = layer
-        self.frames_x = 3
-        self.frames_y = 10
-        self.width = 308
-        self.height = 132
+        self.data = data
+
+        self.current_frame = 0
         self.current_animation = 'default'
         self.animate = True
 
-        if not animations:
-            animations = {'default': [(0, 0)]}
-        self.animations = animations
+        if 'animations' not in data:
+            self.data['animations'] = {'default': [[0, 0]]}
 
         glEnable(GL_CULL_FACE)
         glEnable(GL_BLEND)
@@ -180,8 +193,10 @@ class Sprite(object):
         """
         transform = Matrix44()
 
-        transform.set_row(0, [self.width, 0.0, 0.0, self.pos_x])
-        transform.set_row(1, [0.0, self.height, 0.0, self.pos_y])
+        transform.set_row(0, [self.data['frame']['size']['width'], 0.0, 0.0,
+                          self.pos_x])
+        transform.set_row(1, [0.0, self.data['frame']['size']['height'], 0.0,
+                          self.pos_y])
         transform.set_row(2, [0.0, 0.0, 1.0, self.layer])
         transform.set_row(3, [0.0, 0.0, 0.0, 1.0])
 
@@ -195,8 +210,8 @@ class Sprite(object):
                  frame in the texture to be displayed.
         @rtype: list
         """
-        scale_x = 1.0/self.frames_x
-        scale_y = 1.0/self.frames_y
+        scale_x = 1.0/self.data['frame']['count']['x']
+        scale_y = 1.0/self.data['frame']['count']['y']
         trans_x = frame_x * scale_x
         trans_y = frame_y * scale_y
         transform = [scale_x, 0.0, trans_x,
@@ -233,7 +248,7 @@ class Sprite(object):
         @type proj_mat: 4x4 matrix
         """
         # TODO(hurricanerix): use a timer, but for now, slow things down some.
-        frames = self.animations[self.current_animation]
+        frames = self.data['animations'][self.current_animation]
         if self.animate:
             self.current_frame = self.current_frame + 1
             if self.current_frame == len(frames) * 10:

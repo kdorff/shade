@@ -23,7 +23,7 @@ from os import path
 
 from transylvania import Application
 from transylvania.display import DisplayManager
-from transylvania.sprite import Sprite
+from transylvania.sprite import SpriteBuilder
 
 
 class ReferenceApp(Application):
@@ -45,32 +45,15 @@ def start_app():
 
     app = ReferenceApp(config=config, display=display)
 
-    animations = {'default': [(0, 0)],
-                  'walking': [(1, 0), (2, 0)],
-                  'duck': [(1, 2), None],
-                  'climb_down': [(0, 1), (1, 0)],
-                  'climb_up': [(0, 1), (1, 1)],
-                  'falling_back': [(0, 2)],
-                  'die': [(1, 0), (1, 2), (2, 2), None],
-                  'whip': [(0, 3), (1, 3), (2, 3)],
-                  'whip_climb_up': [(0, 4), (1, 4), (2, 4)],
-                  'whip_climb_down': [(0, 5), (1, 5), (2, 5)],
-                  'whip_duck': [(0, 6), (1, 6), (2, 6)],
-                  'look_up': [(3, 9), None]}
+    sprite_path = '{0}/sprites/bimon_selmont'.format(resource_dir)
 
-    sprite1 = Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
-                     pos_x=25, pos_y=25, layer=1, animations=animations)
+    sprite1 = SpriteBuilder.build(sprite_path, pos_x=25, pos_y=25, layer=1)
+    sprite2 = SpriteBuilder.build(sprite_path)
+    sprite3 = SpriteBuilder.build(sprite_path, pos_x=50, pos_y=50, layer=2)
+    sprite4 = SpriteBuilder.build(sprite_path, pos_x=250, pos_y=250, layer=2)
 
-    sprite2 = Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
-                     animations=animations)
     sprite2.set_animation('walking')
-
-    sprite3 = Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
-                     pos_x=50, pos_y=50, layer=2, animations=animations)
     sprite3.set_animation('die')
-
-    sprite4 = Sprite('{0}/sprites/bimon_selmont'.format(resource_dir),
-                     pos_x=250, pos_y=250, layer=2, animations=animations)
     sprite4.set_animation('climb_up')
 
     app.add_object(sprite1)
