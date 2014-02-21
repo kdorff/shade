@@ -64,8 +64,6 @@ class ReferenceApp(Application):
         self.add_object(torch2)
 
 
-
-
 def start_app():
     config = {}
     display = DisplayManager(width=800, height=600)

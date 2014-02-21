@@ -30,7 +30,7 @@ from OpenGL.GL import (
     glBlendFunc, glBufferData, glDrawArrays, glEnable,
     glEnableVertexAttribArray, glGenBuffers, glGenTextures, glGenVertexArrays,
     glGetAttribLocation, glGetUniformLocation, glTexImage2D, glTexParameteri,
-    glUniformMatrix3fv, glUniformMatrix4fv, glUseProgram,
+    glUniform1i, glUniformMatrix3fv, glUniformMatrix4fv, glUseProgram,
     glVertexAttribPointer)
 from OpenGL.GL import (
     GL_ARRAY_BUFFER, GL_BLEND, GL_CULL_FACE, GL_FALSE, GL_FLOAT,
@@ -47,9 +47,12 @@ from gameobjects.matrix44 import Matrix44
 vertex_shader = """
 #version 330
 
-uniform mat3 tex_trans_mat;
 in vec3 TexCoord0;
+uniform mat3 tex_trans_mat;
+uniform int use_alt_tex;
+uniform mat3 alt_tex_trans_mat;
 smooth out vec2 TexCoord;
+smooth out vec2 AltTexCoord;
 
 in vec4 position;
 uniform mat4 proj_mat;
@@ -57,21 +60,35 @@ uniform mat4 offset;
 
 void main()
 {
-   TexCoord = vec3(TexCoord0 * tex_trans_mat).st;
-   gl_Position = position * offset * proj_mat;
+  TexCoord = vec3(TexCoord0 * tex_trans_mat).st;
+  if (use_alt_tex == 1) {
+    AltTexCoord = vec3(TexCoord0 * alt_tex_trans_mat).st;
+  }
+  gl_Position = position * offset * proj_mat;
 }
 """
 
 fragment_shader = """
 #version 330
 
+uniform int use_alt_tex;
 uniform sampler2D ColorMap;
 in vec2 TexCoord;
+in vec2 AltTexCoord;
 out vec4 MyFragColor;
 
 void main()
 {
-   MyFragColor = texture(ColorMap, TexCoord.st).rgba;
+  vec4 color = texture(ColorMap, TexCoord.st).rgba;
+  if (use_alt_tex == 1) {
+    vec4 alt_color = texture(ColorMap, AltTexCoord.st).rgba;
+    if (alt_color.a == 1) {
+    color = alt_color;
+    } else {
+    color = color + alt_color;
+    }
+  }
+  MyFragColor = color;
 }
 """
 
@@ -267,6 +284,18 @@ class Sprite(object):
 
         loc_tex_trans_mat = glGetUniformLocation(self.shader, 'tex_trans_mat')
         glUniformMatrix3fv(loc_tex_trans_mat, 1, GL_FALSE, tex_trans_mat)
+
+        if use_alt:
+            alt_frames = self.data['animations'][use_alt]['frames']
+            (alt_x, alt_y) = alt_frames[tmp - 1]
+            alt_tex_trans_mat = self._get_tex_trans_matrix(alt_x, alt_y)
+            loc_alt_tex_trans_mat = glGetUniformLocation(
+                self.shader, 'alt_tex_trans_mat')
+            glUniformMatrix3fv(
+                loc_alt_tex_trans_mat, 1, GL_FALSE, alt_tex_trans_mat)
+
+        loc_use_alt_tex = glGetUniformLocation(self.shader, 'use_alt_tex')
+        glUniform1i(loc_use_alt_tex, use_alt != None)
 
         loc_proj_mat = glGetUniformLocation(self.shader, 'proj_mat')
         glUniformMatrix4fv(loc_proj_mat, 1, GL_FALSE, proj_mat.to_opengl())
