@@ -297,8 +297,9 @@ class Sprite(object):
         """
         # TODO(hurricanerix): use a timer, but for now, slow things down some.
         self.load_2d_texture()
+        frames = self.data['animations'][self.current_animation]['frames']
+        use_alt = self.data['animations'][self.current_animation].get('alt')
 
-        frames = self.data['animations'][self.current_animation]
         if self.animate:
             self.current_frame = self.current_frame + 1
             if self.current_frame == len(frames) * 10:
