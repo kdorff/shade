@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 
 import ctypes
-from sdl2 import SDL_Event, SDL_PollEvent, SDL_Quit
+from sdl2 import SDL_Event, SDL_PollEvent, SDL_Quit, events
 from sdl2 import SDL_QUIT
 
 # Version information (major, minor, revision[, 'dev']).
@@ -60,6 +60,9 @@ class Application(object):
         del self.display
         SDL_Quit()
 
+    def handle_input(self, key):
+        pass
+
     def run(self):
         """
         Start the application event loop.
@@ -70,6 +73,8 @@ class Application(object):
             while SDL_PollEvent(ctypes.byref(event)) != 0:
                 if event.type == SDL_QUIT:
                     return
+                if event.type == events.SDL_KEYDOWN:
+                    self.handle_input(event.key.keysym.sym)
 
             self.display.start_render()
             self.objects.sort(key=lambda obj: obj.layer)

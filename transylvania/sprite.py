@@ -169,8 +169,6 @@ class Sprite(object):
         glVertexAttribPointer(
             tex_coords_loc, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
 
-        self.load_2d_texture()
-
         #glBindVertexArray(0)
         #glBindBuffer(GL_ARRAY_BUFFER, 0)
 
@@ -248,6 +246,8 @@ class Sprite(object):
         @type proj_mat: 4x4 matrix
         """
         # TODO(hurricanerix): use a timer, but for now, slow things down some.
+        self.load_2d_texture()
+
         frames = self.data['animations'][self.current_animation]
         if self.animate:
             self.current_frame = self.current_frame + 1

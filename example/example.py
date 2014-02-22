@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 from os import path
+from sdl2 import keycode
 
 from transylvania import Application
 from transylvania.display import DisplayManager
@@ -31,36 +32,44 @@ class ReferenceApp(Application):
     Example Game using the Transylvania Engine.
     """
 
+    def handle_input(self, key):
+        if key == keycode.SDLK_LEFT:
+            self.sprite1.pos_x = self.sprite1.pos_x - 15
+            return
+        if key == keycode.SDLK_RIGHT:
+            self.sprite1.pos_x = self.sprite1.pos_x + 15
+            return
+
+    def __init__(self, config=None, display=None):
+        super(ReferenceApp, self).__init__(config=config, display=display)
+
+        resource_dir = path.realpath(__file__)
+        resource_dir = resource_dir.split('/')
+        resource_dir.pop()
+        resource_dir.append('resources')
+        resource_dir.append('')
+        resource_dir = '/'.join(resource_dir)
+
+        sprite_path = '{0}/sprites/bimon_selmont'.format(resource_dir)
+        self.sprite1 = SpriteBuilder.build(
+            sprite_path, pos_x=10, pos_y=50, layer=1)
+        self.sprite1.set_animation('walking')
+
+        torch_path = '{0}/sprites/torch'.format(resource_dir)
+        torch1 = SpriteBuilder.build(torch_path, pos_x=50, pos_y=50, layer=0)
+        torch2 = SpriteBuilder.build(torch_path, pos_x=450, pos_y=50, layer=0)
+
+        self.add_object(self.sprite1)
+        self.add_object(torch1)
+        self.add_object(torch2)
+
+
+
 
 def start_app():
     config = {}
     display = DisplayManager(width=800, height=600)
-
-    resource_dir = path.realpath(__file__)
-    resource_dir = resource_dir.split('/')
-    resource_dir.pop()
-    resource_dir.append('resources')
-    resource_dir.append('')
-    resource_dir = '/'.join(resource_dir)
-
     app = ReferenceApp(config=config, display=display)
-
-    sprite_path = '{0}/sprites/bimon_selmont'.format(resource_dir)
-
-    sprite1 = SpriteBuilder.build(sprite_path, pos_x=25, pos_y=25, layer=1)
-    sprite2 = SpriteBuilder.build(sprite_path)
-    sprite3 = SpriteBuilder.build(sprite_path, pos_x=50, pos_y=50, layer=2)
-    sprite4 = SpriteBuilder.build(sprite_path, pos_x=250, pos_y=250, layer=2)
-
-    sprite2.set_animation('walking')
-    sprite3.set_animation('die')
-    sprite4.set_animation('climb_up')
-
-    app.add_object(sprite1)
-    app.add_object(sprite2)
-    app.add_object(sprite3)
-    app.add_object(sprite4)
-
     app.run()
 
 
