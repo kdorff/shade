@@ -30,9 +30,10 @@ from sdl2 import (
     SDL_GL_DEPTH_SIZE, SDL_GL_DOUBLEBUFFER, SDL_INIT_EVERYTHING,
     SDL_WINDOW_OPENGL, SDL_WINDOW_SHOWN, SDL_WINDOWPOS_CENTERED)
 
-from OpenGL.GL import glClear, glClearColor, glEnable, glViewport
+from OpenGL.GL import glBlendFunc, glClear, glClearColor, glEnable, glViewport
 from OpenGL.GL import (
-    GL_COLOR_BUFFER_BIT, GL_CULL_FACE, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST)
+    GL_BLEND, GL_COLOR_BUFFER_BIT, GL_CULL_FACE, GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 from gameobjects.matrix44 import Matrix44
 
@@ -56,18 +57,6 @@ class DisplayManager(object):
         self.proj_mat = None
         self.window = None
         self.glcontext = None
-
-        SDL_Init(SDL_INIT_EVERYTHING)
-
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3)
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2)
-        SDL_GL_SetAttribute(
-            SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE)
-
-        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1)
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24)
-
-        self._create_window()
 
     def __del__(self):
         """
@@ -111,10 +100,20 @@ class DisplayManager(object):
 
         return mat
 
-    def _create_window(self):
+    def init_window(self):
         """
         Handles creating the SDL window and creating a GL context for it.
         """
+        SDL_Init(SDL_INIT_EVERYTHING)
+
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2)
+        SDL_GL_SetAttribute(
+            SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE)
+
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1)
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24)
+
         self.window = SDL_CreateWindow(
             "Transylvania Engine", SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED, self.width, self.height,
@@ -127,8 +126,10 @@ class DisplayManager(object):
 
         self.glcontext = SDL_GL_CreateContext(self.window)
         SDL_GL_SetSwapInterval(1)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_CULL_FACE)
+        glEnable(GL_BLEND)
         glClearColor(0.2, 0.2, 0.2, 1.0)
 
     def resize(self, width, height):
@@ -144,12 +145,12 @@ class DisplayManager(object):
         self.height = height
 
         SDL_DestroyWindow(self.window)
-        self._create_window()
+        self.init_window()
 
         glViewport(0, 0, self.width, self.height)
 
     def get_proj_matrix(self):
-        return self.proj_mat
+        return self.proj_mat.to_opengl()
 
     def start_render(self):
         """

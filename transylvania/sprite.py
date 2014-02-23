@@ -21,108 +21,35 @@
 # THE SOFTWARE.
 import ctypes
 import json
-import math
 import numpy
+import os.path
 
 import OpenGL.GL.shaders
 from OpenGL.GL import (
-    glActiveTexture, glBindBuffer, glBindVertexArray, glBindTexture,
-    glBlendFunc, glBufferData, glDrawArrays, glEnable,
+    glActiveTexture, glAttachShader, glBindAttribLocation, glBindBuffer,
+    glBindVertexArray,
+    glBindTexture, glBufferData, glCreateProgram, glDrawArrays,
     glEnableVertexAttribArray, glGenBuffers, glGenTextures, glGenVertexArrays,
-    glGetAttribLocation, glGetUniformLocation, glTexImage2D, glTexParameteri,
-    glUniform1i, glUniformMatrix3fv, glUniformMatrix4fv, glUseProgram,
+    glGetProgramInfoLog, glGetProgramiv,
+    glGetUniformLocation, glLinkProgram,
+    glTexImage2D,
+    glTexParameteri,
+    glUniform1i, glUniform3fv, glUniformMatrix3fv, glUniformMatrix4fv,
+    glUseProgram,
     glVertexAttribPointer)
 from OpenGL.GL import (
-    GL_ARRAY_BUFFER, GL_BLEND, GL_CULL_FACE, GL_FALSE, GL_FLOAT,
-    GL_FRAGMENT_SHADER, GL_ONE_MINUS_SRC_ALPHA, GL_LINEAR, GL_REPEAT, GL_RGBA,
-    GL_SRC_ALPHA, GL_TEXTURE0, GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL,
+    GL_ARRAY_BUFFER, GL_FALSE, GL_FLOAT,
+    GL_FRAGMENT_SHADER, GL_LINEAR, GL_LINK_STATUS, GL_REPEAT, GL_RGBA,
+    GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2, GL_TEXTURE_2D,
+    GL_TEXTURE_BASE_LEVEL,
     GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_LEVEL, GL_TEXTURE_MIN_FILTER,
-    GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TRIANGLES, GL_STATIC_DRAW,
+    GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TRIANGLES, GL_TRUE,
+    GL_STATIC_DRAW,
     GL_UNSIGNED_BYTE, GL_VERTEX_SHADER)
 from PIL import Image
 
-from gameobjects.matrix44 import Matrix44
+from transylvania.gmath import get_3x3_transform, get_4x4_transform
 
-
-vertex_shader = """
-#version 330
-
-uniform int debug;
-in vec3 TexCoord0;
-uniform mat3 tex_trans_mat;
-uniform int use_alt_tex;
-uniform mat3 alt_tex_trans_mat;
-smooth out vec4 debug_position;
-smooth out vec2 TexCoord;
-smooth out vec2 AltTexCoord;
-
-in vec4 position;
-uniform mat4 proj_mat;
-uniform mat4 offset;
-
-void main()
-{
-  TexCoord = vec3(TexCoord0 * tex_trans_mat).st;
-  if (use_alt_tex == 1) {
-    AltTexCoord = vec3(TexCoord0 * alt_tex_trans_mat).st;
-  }
-
-  if (debug == 1) {
-    debug_position = position;
-  }
-  gl_Position = position * offset * proj_mat;
-}
-"""
-
-fragment_shader = """
-#version 330
-
-uniform int debug;
-uniform int use_alt_tex;
-uniform int layer;
-uniform sampler2D ColorMap;
-in vec4 debug_position;
-in vec2 TexCoord;
-in vec2 AltTexCoord;
-out vec4 MyFragColor;
-
-void main()
-{
-  vec4 color = texture(ColorMap, TexCoord.st).rgba;
-  if (use_alt_tex == 1) {
-    vec4 alt_color = texture(ColorMap, AltTexCoord.st).rgba;
-    if (alt_color.a == 1) {
-    color = alt_color;
-    } else {
-    color = color + alt_color;
-    }
-  }
-  if (debug == 1) {
-    if (debug_position.x >= 0.995 || debug_position.x <= 0.005 ||
-        debug_position.y >= 0.995 || debug_position.y <= 0.005) {
-      color = vec4(1.0, 1.0, 1.0, 1.0);
-      if (layer < 0) {
-        color = vec4(0.0, 0.0, 0.0, 1.0);
-      } else if (layer == 0) {
-        color = vec4(0.0, 0.0, 1.0, 1.0);
-      } else if (layer == 1) {
-        color = vec4(0.0, 1.0, 0.0, 1.0);
-      } else if (layer == 2) {
-        color = vec4(0.0, 1.0, 1.0, 1.0);
-      } else if (layer == 3) {
-        color = vec4(1.0, 0.0, 0.0, 1.0);
-      } else if (layer == 4) {
-        color = vec4(1.0, 0.0, 1.0, 1.0);
-      } else if (layer == 5) {
-        color = vec4(1.0, 1.0, 0.0, 1.0);
-      } else if (layer == 6) {
-        color = vec4(1.0, 1.0, 1.0, 1.0);
-      }
-    }
-  }
-  MyFragColor = color;
-}
-"""
 
 vertices = [0.0, 0.0, 0.0, 1.0,
             1.0, 0.0, 0.0, 1.0,
@@ -130,6 +57,7 @@ vertices = [0.0, 0.0, 0.0, 1.0,
             0.0, 1.0, 0.0, 1.0,
             0.0, 0.0, 0.0, 1.0,
             1.0, 1.0, 0.0, 1.0]
+vertices = numpy.array(vertices, dtype=numpy.float32)
 
 tex_coords = [0.0, 1.0, 1.0,
               1.0, 1.0, 1.0,
@@ -137,9 +65,135 @@ tex_coords = [0.0, 1.0, 1.0,
               0.0, 0.0, 1.0,
               0.0, 1.0, 1.0,
               1.0, 0.0, 1.0]
-
-vertices = numpy.array(vertices, dtype=numpy.float32)
 tex_coords = numpy.array(tex_coords, dtype=numpy.float32)
+
+
+vertex_shader = """
+#version 330
+
+in vec4 mc_vertex;
+in vec3 TexCoord0;
+
+uniform mat4 view_matrix;
+uniform mat4 proj_matrix;
+uniform mat3 tex_matrix;
+uniform vec3 light_position;
+
+smooth out vec3 light_dir;
+smooth out vec3 eye_dir;
+smooth out vec2 tex_coord;
+
+void main()
+{
+  gl_Position = mc_vertex * view_matrix * proj_matrix;
+  tex_coord = vec3(TexCoord0 * tex_matrix).st;
+
+  vec4 pos = view_matrix * mc_vertex;
+  eye_dir = pos.xyz;
+
+  vec3 n = vec3(0.0, 0.0, 1.0);
+  vec3 t = vec3(0.0, 1.0, 0.0);
+  vec3 b = cross(n, t);
+
+  vec3 v;
+  v.x = dot(light_position, t);
+  v.y = dot(light_position, b);
+  v.z = dot(light_position, n);
+  light_dir = normalize(v);
+
+  v.x = dot(eye_dir, t);
+  v.y = dot(eye_dir, b);
+  v.z = dot(eye_dir, n);
+  eye_dir = normalize(v);
+}
+"""
+
+fragment_shader = """
+#version 330
+
+uniform sampler2D ColorMap;
+uniform sampler2D BumpMap;
+uniform sampler2D NormalMap;
+
+in vec3 light_dir;
+in vec3 eye_dir;
+in vec2 tex_coord;
+out vec4 frag_color;
+
+void main()
+{
+  vec4 color = texture(ColorMap, tex_coord.st).rgba;
+  vec3 normDelta = texture(NormalMap, tex_coord.st).rgb;
+
+  vec3 litColor = color.rgb * max(dot(normDelta, light_dir), 0.0);
+  vec3 reflect_dir = reflect(light_dir, normDelta);
+
+  float spec = max(dot(eye_dir, reflect_dir), 0.0);
+  spec = pow(spec, 6.0);
+  litColor = min(litColor + spec, vec3(1.0));
+  frag_color = vec4(litColor, color.a);
+}
+"""
+
+vao = None
+shader = None
+shader_locs = None
+
+
+def get_vao():
+    global vao
+    global shader_locs
+    if vao:
+        return vao
+    shader_locs = {'mc_vertex': 0, 'TexCoord0': 1}
+    vao = glGenVertexArrays(1)
+    glBindVertexArray(vao)
+
+    vertex_buffer = glGenBuffers(1)
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer)
+    glVertexAttribPointer(shader_locs['mc_vertex'], 4, GL_FLOAT, False, 0,
+                          ctypes.c_void_p(0))
+    glBufferData(GL_ARRAY_BUFFER, 4 * len(vertices), vertices, GL_STATIC_DRAW)
+
+    tex_coords_buf = glGenBuffers(1)
+    glBindBuffer(GL_ARRAY_BUFFER, tex_coords_buf)
+    glVertexAttribPointer(shader_locs['TexCoord0'], 3, GL_FLOAT, False, 0,
+                          ctypes.c_void_p(0))
+    glBufferData(GL_ARRAY_BUFFER, 4 * len(tex_coords), tex_coords,
+                 GL_STATIC_DRAW)
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0)
+    glBindVertexArray(0)
+    return vao
+
+
+def get_shader():
+    global shader
+    global shader_locs
+    if shader:
+        return (shader, shader_locs)
+
+    vert_prog = OpenGL.GL.shaders.compileShader(
+        vertex_shader, GL_VERTEX_SHADER)
+    frag_prog = OpenGL.GL.shaders.compileShader(
+        fragment_shader, GL_FRAGMENT_SHADER)
+
+    shader = glCreateProgram()
+    glAttachShader(shader, vert_prog)
+    glAttachShader(shader, frag_prog)
+
+    for attrib in shader_locs:
+        glBindAttribLocation(shader, shader_locs[attrib], attrib)
+
+    glLinkProgram(shader)
+    if glGetProgramiv(shader, GL_LINK_STATUS) != GL_TRUE:
+        raise RuntimeError(glGetProgramInfoLog(shader))
+
+    for name in ['view_matrix', 'proj_matrix', 'tex_matrix', 'ColorMap',
+                 'BumpMap', 'NormalMap', 'light_position']:
+        shader_locs[name] = glGetUniformLocation(shader, name)
+
+    return (shader, shader_locs)
 
 
 class SpriteBuilder(object):
@@ -148,13 +202,64 @@ class SpriteBuilder(object):
     """
 
     @staticmethod
-    def build(path, pos_x=0, pos_y=0, layer=0):
+    def build(path):
         data_path = '{0}/data.json'.format(path)
-        # TODO: Test if file exists first
+        if not os.path.isfile(data_path):
+            raise Exception('file {0} does not exist.'.format(data_path))
         data = json.loads(open(data_path).read())
-        # TODO: create shader and pass it to the sprite.
-        # TODO: Read in color data and pass it to the sprite.
-        return Sprite(path, pos_x=pos_x, pos_y=pos_y, layer=layer, data=data)
+
+        tex_data = {'color': None, 'normal': None, 'bump': None}
+        color_path = '{0}/color.png'.format(path)
+        if not os.path.isfile(color_path):
+            raise Exception('file {0} does not exist.'.format(color_path))
+        img = Image.open(color_path)
+        width, height = img.size
+        tex_data['color'] = img.convert("RGBA").tostring("raw", "RGBA")
+
+        bump_path = '{0}/bump.png'.format(path)
+        if os.path.isfile(bump_path):
+            img = Image.open(bump_path)
+            tex_data['bump'] = img.convert("RGBA").tostring("raw", "RGBA")
+
+        normal_path = '{0}/normal.png'.format(path)
+        if os.path.isfile(normal_path):
+            img = Image.open(normal_path)
+            tex_data['normal'] = img.convert("RGBA").tostring("raw", "RGBA")
+
+        return Sprite(width, height, data, tex_data)
+
+
+class SpriteManager(object):
+    """
+    Manages sprites such that they can be used many times while only being
+    loaded once.
+    """
+
+    def __init__(self, sprite_dir):
+        """
+        @param sprite_dir:
+        @type sprite_dir: string
+        """
+        self.sprite_dir = sprite_dir
+        self.sprites = {}
+
+    def load(self, *names):
+        """
+        @param names:
+        @type names:
+        """
+        for name in names:
+            path = '{0}/{1}'.format(self.sprite_dir, name)
+            self.sprites[name] = SpriteBuilder.build(path)
+
+    def get_sprite(self, path):
+        """
+        @param path:
+        @type path:
+        @return:
+        @rtype:
+        """
+        return self.sprites[path]
 
 
 class Sprite(object):
@@ -162,190 +267,103 @@ class Sprite(object):
     Handles texturing images on a polygon.
     """
 
-    def __init__(self, path, pos_x=0, pos_y=0, layer=0, data=None):
+    def __init__(self, width, height, data, tex_data):
         """
         Initialize the OpenGL things needed to render the polygon.
+        @param data:
+        @type data:
+        @param tex_data:
+        @type tex_data:
         """
-        # TODO(hurricanerix): position stuff should probably be moved outside
-        # of the sprite class.
-        self.path = path
-        self.pos_x = pos_x
-        self.pos_y = pos_y
-        self.layer = layer
+        self.width = width
+        self.height = height
         self.data = data
-        self.debug = True
+        self.tex_data = tex_data
+        self.texture_ids = None
 
-        self.current_frame = 0
-        self.current_animation = 'default'
-        self.animate = True
+        self.light_position = [0.0, 0.0, 1.0]
+        self.light_dir = 0.01
 
-        if 'animations' not in data:
-            self.data['animations'] = {'default': [[0, 0]]}
+    def _bind_textures(self, data):
+        samplers = {
+            'color': GL_TEXTURE0,
+            'bump': GL_TEXTURE1,
+            'normal': GL_TEXTURE2}
 
-        glEnable(GL_CULL_FACE)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        for map_type in data:
+            if data[map_type] is None:
+                continue
+            if self.texture_ids is None:
+                self.texture_ids = {'color': None, 'bump': None,
+                                    'normal': None}
+            if self.texture_ids[map_type] is not None:
+                glBindTexture(GL_TEXTURE_2D, self.texture_ids[map_type])
+                continue
+            self.texture_ids[map_type] = glGenTextures(1)
+            glActiveTexture(samplers[map_type])
+            glBindTexture(GL_TEXTURE_2D, self.texture_ids[map_type])
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.width, self.height, 0,
+                         GL_RGBA, GL_UNSIGNED_BYTE, data[map_type])
 
-        # Create a new VAO (Vertex Array Object) and bind it
-        self.vertex_array_object = glGenVertexArrays(1)
-        glBindVertexArray(self.vertex_array_object)
-
-        self.shader = OpenGL.GL.shaders.compileProgram(
-            OpenGL.GL.shaders.compileShader(
-                vertex_shader, GL_VERTEX_SHADER),
-            OpenGL.GL.shaders.compileShader(
-                fragment_shader, GL_FRAGMENT_SHADER))
-
-        # Generate buffers to hold our vertices
-        vertex_buffer = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer)
-        # Get the position of the 'position' in
-        # parameter of our shader and bind it.
-        position = glGetAttribLocation(self.shader, 'position')
-        glEnableVertexAttribArray(position)
-        # Describe the position data layout in the buffer
-        glVertexAttribPointer(
-            position, 4, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-        # Send the data over to the buffer
-        glBufferData(
-            GL_ARRAY_BUFFER, 4 * len(vertices), vertices, GL_STATIC_DRAW)
-
-        tex_coords_buf = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, tex_coords_buf)
-        glBufferData(
-            GL_ARRAY_BUFFER, 4 * len(tex_coords), tex_coords, GL_STATIC_DRAW)
-        tex_coords_loc = glGetAttribLocation(self.shader, "TexCoord0")
-        glEnableVertexAttribArray(tex_coords_loc)
-        glVertexAttribPointer(
-            tex_coords_loc, 3, GL_FLOAT, False, 0, ctypes.c_void_p(0))
-
-        #glBindVertexArray(0)
-        #glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-        # Unbind the VAO first (Important)
-        glBindVertexArray(0)
-        # Unbind other stuff
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-    def set_animation(self, name):
-        self.animate = True
-        self.current_animation = name
-
-    def _get_transform(self):
-        """
-        Transform the from local coordinates to world coordinates.
-
-        @return: transformation matrix used to transform from local coords
-                 to world coords.
-        @rtype: Matrix44
-        """
-        transform = Matrix44()
-        width = self.data['frame']['size']['width']
-        height = self.data['frame']['size']['height']
-
-        transform.set_row(0, [width, 0.0, 0.0, self.pos_x])
-        transform.set_row(1, [0.0, height, 0.0, self.pos_y])
-        transform.set_row(2, [0.0, 0.0, 1.0, self.layer])
-        transform.set_row(3, [0.0, 0.0, 0.0, 1.0])
-
-        return transform
-
-    def _get_tex_trans_matrix(self, frame_x, frame_y):
-        """
-        Transform the tex coords to shrink the texutre down to a single frame.
-
-        @return: matrix used to transform texture coords to the current
-                 frame in the texture to be displayed.
-        @rtype: list
-        """
-        scale_x = 1.0/self.data['frame']['count']['x']
-        scale_y = 1.0/self.data['frame']['count']['y']
-        trans_x = frame_x * scale_x
-        trans_y = frame_y * scale_y
-        transform = [scale_x, 0.0, trans_x,
-                     0.0, scale_y, trans_y,
-                     0.0, 0.0, 1.0]
-        return transform
-
-    def load_2d_texture(self):
-        tex_data = Image.open('{0}/color.png'.format(self.path))
-        t_id = glGenTextures(1)
-        t_width, t_height = tex_data.size
-        t_data = tex_data.convert("RGBA").tostring("raw", "RGBA")
-
-        glActiveTexture(GL_TEXTURE0)
-        glBindTexture(GL_TEXTURE_2D, t_id)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-        #glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-        #glPixelStorei(GL_UNPACK_ROW_LENGTH, 0)
-        #glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0)
-        #glPixelStorei(GL_UNPACK_SKIP_ROWS, 0)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, t_width, t_height, 0, GL_RGBA,
-                     GL_UNSIGNED_BYTE, t_data)
-
-    def draw(self, proj_mat):
+    def draw(self, proj_matrix, x, y, layer=0, frame_x=0, frame_y=0):
         """
         Draw the sprite.
 
         @param proj_mat: projection matrix to be passed to the shader.
         @type proj_mat: 4x4 matrix
         """
-        # TODO(hurricanerix): use a timer, but for now, slow things down some.
-        self.load_2d_texture()
-        frames = self.data['animations'][self.current_animation]['frames']
-        use_alt = self.data['animations'][self.current_animation].get('alt')
 
-        if self.animate:
-            self.current_frame = self.current_frame + 1
-            if self.current_frame == len(frames) * 10:
-                self.current_frame = 0
-        tmp = int(math.floor(self.current_frame / 10) % len(frames))
+        vao = get_vao()
+        (shader, shader_locs) = get_shader()
+        self._bind_textures(self.tex_data)
 
-        if frames[tmp]:
-            (x, y) = frames[tmp]
-        else:
-            self.animate = False
-            (x, y) = frames[tmp - 1]
+        glBindVertexArray(vao)
+        glUseProgram(shader)
 
-        tex_trans_mat = self._get_tex_trans_matrix(x, y)
+        glEnableVertexAttribArray(shader_locs['mc_vertex'])
+        glEnableVertexAttribArray(shader_locs['TexCoord0'])
 
-        glUseProgram(self.shader)
+        glUniformMatrix4fv(shader_locs['proj_matrix'], 1, GL_FALSE,
+                           proj_matrix)
 
-        loc_tex_trans_mat = glGetUniformLocation(self.shader, 'tex_trans_mat')
-        glUniformMatrix3fv(loc_tex_trans_mat, 1, GL_FALSE, tex_trans_mat)
+        view_matrix = get_4x4_transform(
+            scale_x=self.data['frame']['size']['width'],
+            scale_y=self.data['frame']['size']['height'],
+            trans_x=0, trans_y=0, layer=0)
+        glUniformMatrix4fv(shader_locs['view_matrix'], 1, GL_FALSE,
+                           view_matrix)
 
-        if use_alt:
-            alt_frames = self.data['animations'][use_alt]['frames']
-            (alt_x, alt_y) = alt_frames[tmp - 1]
-            alt_tex_trans_mat = self._get_tex_trans_matrix(alt_x, alt_y)
-            loc_alt_tex_trans_mat = glGetUniformLocation(
-                self.shader, 'alt_tex_trans_mat')
-            glUniformMatrix3fv(
-                loc_alt_tex_trans_mat, 1, GL_FALSE, alt_tex_trans_mat)
+        scale_x = 1.0/self.data['frame']['count']['x']
+        scale_y = 1.0/self.data['frame']['count']['y']
+        tex_matrix = get_3x3_transform(scale_x, scale_y, frame_x, frame_y)
+        glUniformMatrix3fv(shader_locs['tex_matrix'], 1, GL_FALSE, tex_matrix)
 
-        loc_debug = glGetUniformLocation(self.shader, 'debug')
-        glUniform1i(loc_debug, self.debug)
+        if self.light_position[0] > 1.0:
+            self.light_position[0] = 1.0
+            self.light_dir = -0.01
+        if self.light_position[0] < 0.0:
+            self.light_position[0] = 0.0
+            self.light_dir = 0.01
+        self.light_position[0] = self.light_position[0] + self.light_dir
 
-        loc_layer = glGetUniformLocation(self.shader, 'layer')
-        glUniform1i(loc_layer, self.layer)
+        glUniform3fv(shader_locs['light_position'], 1, self.light_position)
 
-        loc_use_alt_tex = glGetUniformLocation(self.shader, 'use_alt_tex')
-        glUniform1i(loc_use_alt_tex, use_alt != None)
+        if self.tex_data['color']:
+            glUniform1i(shader_locs['ColorMap'], 0)
 
-        loc_proj_mat = glGetUniformLocation(self.shader, 'proj_mat')
-        glUniformMatrix4fv(loc_proj_mat, 1, GL_FALSE, proj_mat.to_opengl())
+        if self.tex_data['bump']:
+            glUniform1i(shader_locs['BumpMap'], 1)
 
-        offset = self._get_transform()
-        loc_offset = glGetUniformLocation(self.shader, 'offset')
-        glUniformMatrix4fv(loc_offset, 1, GL_FALSE, offset.to_opengl())
+        if self.tex_data['normal']:
+            glUniform1i(shader_locs['NormalMap'], 2)
 
-        glBindVertexArray(self.vertex_array_object)
         glDrawArrays(GL_TRIANGLES, 0, int(len(vertices) / 4.0))
-        glBindVertexArray(0)
 
+        glBindVertexArray(0)
         glUseProgram(0)

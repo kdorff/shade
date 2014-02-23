@@ -36,7 +36,7 @@ class Application(object):
     Application class for the Transylvania Engine.
     """
 
-    def __init__(self, config=None, display=None):
+    def __init__(self, config=None, display=None, sprite_manager=None):
         """
         Initialize the application.
 
@@ -47,6 +47,7 @@ class Application(object):
         """
         self.config = config
         self.display = display
+        self.sprite_manager = sprite_manager
         self.running = True
         self.objects = []
 
@@ -67,6 +68,10 @@ class Application(object):
         """
         Start the application event loop.
         """
+        self.display.init_window()
+
+        self.sprite_manager.load('buddah')
+
         event = SDL_Event()
 
         while self.running:
@@ -77,10 +82,13 @@ class Application(object):
                     self.handle_input(event.key.keysym.sym)
 
             self.display.start_render()
-            self.objects.sort(key=lambda obj: obj.layer)
-            proj_mat = self.display.get_proj_matrix()
+            #self.objects.sort(key=lambda obj: obj.layer)
+            proj_matrix = self.display.get_proj_matrix()
 
-            for obj in self.objects:
-                obj.draw(proj_mat)
+            sprite = self.sprite_manager.get_sprite('buddah')
+            sprite.draw(proj_matrix, 0, 0)
+
+            #for obj in self.objects:
+            #    obj.draw(proj_mat)
 
             self.display.stop_render()

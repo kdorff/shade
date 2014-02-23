@@ -24,7 +24,7 @@ from sdl2 import keycode
 
 from transylvania import Application
 from transylvania.display import DisplayManager
-from transylvania.sprite import SpriteBuilder
+from transylvania.sprite import SpriteManager
 
 
 class ReferenceApp(Application):
@@ -40,34 +40,24 @@ class ReferenceApp(Application):
             self.sprite1.pos_x = self.sprite1.pos_x + 15
             return
 
-    def __init__(self, config=None, display=None):
-        super(ReferenceApp, self).__init__(config=config, display=display)
-
-        resource_dir = path.realpath(__file__)
-        resource_dir = resource_dir.split('/')
-        resource_dir.pop()
-        resource_dir.append('resources')
-        resource_dir.append('')
-        resource_dir = '/'.join(resource_dir)
-
-        sprite_path = '{0}/sprites/bimon_selmont'.format(resource_dir)
-        self.sprite1 = SpriteBuilder.build(
-            sprite_path, pos_x=10, pos_y=50, layer=1)
-        self.sprite1.set_animation('walking')
-
-        torch_path = '{0}/sprites/torch'.format(resource_dir)
-        torch1 = SpriteBuilder.build(torch_path, pos_x=50, pos_y=50, layer=0)
-        torch2 = SpriteBuilder.build(torch_path, pos_x=450, pos_y=50, layer=0)
-
-        self.add_object(self.sprite1)
-        self.add_object(torch1)
-        self.add_object(torch2)
+    def __init__(self, config=None, display=None, sprite_manager=None):
+        super(ReferenceApp, self).__init__(config=config, display=display,
+                                           sprite_manager=sprite_manager)
+        # do some custom app stuff here.
 
 
 def start_app():
+    resource_dir = path.realpath(__file__)
+    resource_dir = resource_dir.split('/')
+    resource_dir.pop()
+    resource_dir.append('resources')
+    resource_dir = '/'.join(resource_dir)
+
     config = {}
     display = DisplayManager(width=800, height=600)
-    app = ReferenceApp(config=config, display=display)
+    sprite_manager = SpriteManager('{0}/sprites'.format(resource_dir))
+    app = ReferenceApp(config=config, display=display,
+                       sprite_manager=sprite_manager)
     app.run()
 
 
