@@ -37,13 +37,15 @@ from OpenGL.GL import (
 
 from gameobjects.matrix44 import Matrix44
 
+from transylvania.gmath import get_4x4_transform
+
 
 class DisplayManager(object):
     """
     Manages screen related things.
     """
 
-    def __init__(self, width=0, height=0):
+    def __init__(self, width=0, height=0, left=0, bottom=0):
         """
         Initialize the display manager.
 
@@ -54,7 +56,8 @@ class DisplayManager(object):
         """
         self.width = width
         self.height = height
-        self.proj_mat = None
+        self.proj_matrix = None
+        self.view_matrix = None
         self.window = None
         self.glcontext = None
 
@@ -63,6 +66,14 @@ class DisplayManager(object):
         Cleanup the display manager.
         """
         SDL_DestroyWindow(self.window)
+
+    def _get_view_matrix(self, x, y):
+        scale_x = 1.0
+        scale_y = 1.0
+        trans_x = x
+        trans_y = y
+        layer = 1.0
+        return get_4x4_transform(scale_x, scale_y, trans_x, trans_y, layer)
 
     def _get_projection_matrix(self, left, right, bottom, top):
         """
@@ -98,7 +109,7 @@ class DisplayManager(object):
         mat.set_row(2, [0.0, 0.0, (-2.0 * inv_z), (-(zFar + zNear) * inv_z)])
         mat.set_row(3, [0.0, 0.0, 0.0, 1.0])
 
-        return mat
+        return mat.to_opengl()
 
     def init_window(self):
         """
@@ -121,8 +132,8 @@ class DisplayManager(object):
         if not self.window:
             raise Exception('Could not create window')
 
-        self.proj_mat = self._get_projection_matrix(0.0, self.width,
-                                                    0.0, self.height)
+        self.proj_matrix = self._get_projection_matrix(0.0, self.width,
+                                                       0.0, self.height)
 
         self.glcontext = SDL_GL_CreateContext(self.window)
         SDL_GL_SetSwapInterval(1)
@@ -150,7 +161,11 @@ class DisplayManager(object):
         glViewport(0, 0, self.width, self.height)
 
     def get_proj_matrix(self):
-        return self.proj_mat.to_opengl()
+        return self.proj_matrix
+
+    def get_view_matrix(self, x, y):
+        self.view_matrix = self._get_view_matrix(x, y)
+        return self.view_matrix
 
     def start_render(self):
         """

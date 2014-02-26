@@ -1,0 +1,5 @@
+{
+"frame": {"count": {"x": 1, "y": 1},
+          "size": {"width": 1024, "height": 1024}},
+"animations": {"default": {"frames": [[0, 0]]}}
+}
