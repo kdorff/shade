@@ -156,7 +156,7 @@ out vec4 frag_color;
 
 void main()
 {
-    vec3 light_color = vec3(1.0, 1.0, 1.0);
+    vec3 light_color = vec3(0.0, 1.0, 0.0);
     float light_power = 10000.0;
 
     float alpha = texture(ColorMap, tex_coord.st).a;

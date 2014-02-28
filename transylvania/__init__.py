@@ -71,12 +71,12 @@ class Application(object):
         self.display.init_window()
 
         self.sprite_manager.load('buddah', 'wall_face', 'test')
-        face = self.sprite_manager.get_sprite('test')
+        face = self.sprite_manager.get_sprite('wall_face')
         buddah = self.sprite_manager.get_sprite('buddah')
 
         event = SDL_Event()
 
-        light_position = [0.0, 250.0, 10.0]
+        light_position = [0.0, 400.0, 100.0]
         light_dir = 1.0
 
         while self.running:
@@ -86,8 +86,8 @@ class Application(object):
                 if event.type == events.SDL_KEYDOWN:
                     self.handle_input(event.key.keysym.sym)
 
-            if light_position[0] > 600.0:
-                light_position[0] = 600.0
+            if light_position[0] > 800.0:
+                light_position[0] = 800.0
                 light_dir = -1
             if light_position[0] < -2.0:
                 light_position[0] = -2.0
@@ -103,7 +103,7 @@ class Application(object):
                 for y in xrange(int(self.display.height / 150) + 1):
                     face.draw(proj_matrix, view_matrix, x * 150, y * 150,
                               layer=0, light_position=light_position)
-            buddah.draw(proj_matrix, view_matrix, light_position[0], 250,
+            buddah.draw(proj_matrix, view_matrix, light_position[0] - 120, 200,
                         layer=1, light_position=light_position)
 
             #for obj in self.objects:
