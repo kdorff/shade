@@ -64,17 +64,18 @@ class ReferenceApp(Application):
         self.sprite_manager.load('bimon_selmont', 'buddah', 'wall_face',
                                  'test')
 
+        self.add_object(Actor(self.sprite_manager.get_sprite('test'),
+                              layer=-1))
         for x in xrange(int(self.display.width / 150) + 1):
-            for y in xrange(int(self.display.height / 150) + 1):
                 self.add_object(Actor(
                     self.sprite_manager.get_sprite('wall_face'),
-                    x=x * 150, y=y * 150, layer=0))
+                    x=x * 150, layer=0))
 
         self.add_object(Actor(self.sprite_manager.get_sprite('buddah'),
-                              x=25, y=250, layer=1))
+                              x=25, y=130, layer=1))
 
         bs = BimonSelmontActor(
-            self.sprite_manager.get_sprite('bimon_selmont'), x=300, y=300,
+            self.sprite_manager.get_sprite('bimon_selmont'), x=300, y=150,
             layer=5)
         bs.set_animation('walking')
         self.add_object(bs)
