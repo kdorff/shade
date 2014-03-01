@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+# The MIT License (MIT)
+#
+# Copyright (c) 2014 Richard Hawkins
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+import argparse
+import os
+
+from sdl2 import keycode
+
+from transylvania.actor import Actor
+from transylvania import Application
+from transylvania.display import DisplayManager
+from transylvania.sprite import SpriteManager
+
+
+class SpriteTool(Application):
+    """
+    Tool for viewing sprite animations.
+    """
+
+    def handle_input(self, key):
+        if key == keycode.SDLK_UP:
+            # change animation
+            return
+        if key == keycode.SDLK_DOWN:
+            # change animation
+            return
+        if key == keycode.SDLK_LEFT:
+            # change sprite
+            return
+        if key == keycode.SDLK_RIGHT:
+            # change sprite
+            return
+
+    def __init__(self, config=None, display=None, sprite_manager=None):
+        super(SpriteTool, self).__init__(config=config, display=display,
+                                         sprite_manager=sprite_manager)
+        self.current_sprite = 'test'
+
+    def run(self):
+        self.sprite_manager.load('bimon_selmont')
+        sprite = self.sprite_manager.get_sprite('bimon_selmont')
+        sprite_width = sprite.data['frame']['size']['width']
+        sprite_height = sprite.data['frame']['size']['height']
+
+        sprite_x = self.display.width / 2 - sprite_width / 2
+        sprite_y = self.display.height / 2 - sprite_height / 2
+        self.add_object(Actor(sprite, x=sprite_x, y=sprite_y, layer=0))
+
+        super(SpriteTool, self).run()
+
+
+def start_app():
+    parser = argparse.ArgumentParser(description='Sprite Tool.')
+    parser.add_argument('resources',
+                        help='path to resources dir')
+    args = parser.parse_args()
+
+    resource_dir = '{0}/{1}'.format(os.getcwd(), args.resources)
+
+    config = {}
+    display = DisplayManager(width=800, height=600)
+    sprite_manager = SpriteManager('{0}/sprites'.format(resource_dir))
+    app = SpriteTool(config=config, display=display,
+                     sprite_manager=sprite_manager)
+    app.run()
+
+
+if __name__ == '__main__':
+    start_app()
