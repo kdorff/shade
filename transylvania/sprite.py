@@ -112,7 +112,7 @@ void main()
   gl_Position = proj_matrix * cc_vertex;
   pos = vec3(model_matrix * mc_vertex);
 
-  tex_coord = TexCoord0.st;
+  tex_coord = vec3(tex_matrix * TexCoord0).st;
 
   mat3 normal_matrix = mat3x3(mv_matrix);
   normal_matrix = inverse(normal_matrix);
@@ -285,7 +285,9 @@ class SpriteBuilder(object):
         normal_path = '{0}/normal.png'.format(path)
         if os.path.isfile(normal_path):
             img = Image.open(normal_path)
-            tex_data['normal'] = img.convert("RGBA").tostring("raw", "RGBA")
+        else:
+            img = Image.new("RGBA", [width, height], (128, 128, 255, 255))
+        tex_data['normal'] = img.convert("RGBA").tostring("raw", "RGBA")
 
         return Sprite(width, height, data, tex_data)
 
@@ -404,7 +406,7 @@ class Sprite(object):
         scale_x = 1.0/self.data['frame']['count']['x']
         scale_y = 1.0/self.data['frame']['count']['y']
         tex_matrix = get_3x3_transform(scale_x, scale_y, frame_x, frame_y)
-        glUniformMatrix3fv(shader_locs['tex_matrix'], 1, GL_FALSE, tex_matrix)
+        glUniformMatrix3fv(shader_locs['tex_matrix'], 1, GL_TRUE, tex_matrix)
 
         if self.tex_data['color']:
             glUniform1i(shader_locs['ColorMap'], 0)

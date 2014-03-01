@@ -22,6 +22,7 @@
 from os import path
 from sdl2 import keycode
 
+from transylvania.actor import Actor
 from transylvania import Application
 from transylvania.display import DisplayManager
 from transylvania.sprite import SpriteManager
@@ -44,6 +45,24 @@ class ReferenceApp(Application):
         super(ReferenceApp, self).__init__(config=config, display=display,
                                            sprite_manager=sprite_manager)
         # do some custom app stuff here.
+
+    def run(self):
+        self.sprite_manager.load('bimon_selmont', 'buddah', 'wall_face',
+                                 'test')
+
+        for x in xrange(int(self.display.width / 150) + 1):
+            for y in xrange(int(self.display.height / 150) + 1):
+                self.add_object(Actor(
+                    self.sprite_manager.get_sprite('wall_face'),
+                    x=x * 150, y=y * 150, layer=0))
+
+        self.add_object(Actor(self.sprite_manager.get_sprite('buddah'),
+                              x=25, y=250, layer=1))
+
+        self.add_object(Actor(self.sprite_manager.get_sprite('bimon_selmont'),
+                              x=300, y=300, layer=1))
+
+        super(ReferenceApp, self).run()
 
 
 def start_app():
