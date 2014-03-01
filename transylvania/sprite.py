@@ -112,7 +112,7 @@ void main()
   gl_Position = proj_matrix * cc_vertex;
   pos = vec3(model_matrix * mc_vertex);
 
-  tex_coord = vec3(tex_matrix * TexCoord0).st;
+  tex_coord = vec3(tex_matrix * TexCoord0.stp).st;
 
   mat3 normal_matrix = mat3x3(mv_matrix);
   normal_matrix = inverse(normal_matrix);
@@ -405,7 +405,9 @@ class Sprite(object):
 
         scale_x = 1.0/self.data['frame']['count']['x']
         scale_y = 1.0/self.data['frame']['count']['y']
-        tex_matrix = get_3x3_transform(scale_x, scale_y, frame_x, frame_y)
+        trans_x = frame_x * scale_x
+        trans_y = frame_y * scale_y
+        tex_matrix = get_3x3_transform(scale_x, scale_y, trans_x, trans_y)
         glUniformMatrix3fv(shader_locs['tex_matrix'], 1, GL_TRUE, tex_matrix)
 
         if self.tex_data['color']:

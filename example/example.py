@@ -28,6 +28,20 @@ from transylvania.display import DisplayManager
 from transylvania.sprite import SpriteManager
 
 
+class BimonSelmontActor(Actor):
+    def __init__(self, *args, **kwargs):
+        super(BimonSelmontActor, self).__init__(*args, **kwargs)
+        self.dir_x = 1
+        self.dir_y = 0
+        self.speed = 0.2
+
+    def update(self, timedelta):
+        super(BimonSelmontActor, self).update(timedelta)
+        self.x = self.x + timedelta * self.speed * self.dir_x
+        if self.x > 700 or self.x < -300:
+            self.dir_x = self.dir_x * -1
+
+
 class ReferenceApp(Application):
     """
     Example Game using the Transylvania Engine.
@@ -59,8 +73,11 @@ class ReferenceApp(Application):
         self.add_object(Actor(self.sprite_manager.get_sprite('buddah'),
                               x=25, y=250, layer=1))
 
-        self.add_object(Actor(self.sprite_manager.get_sprite('bimon_selmont'),
-                              x=300, y=300, layer=1))
+        bs = BimonSelmontActor(
+            self.sprite_manager.get_sprite('bimon_selmont'), x=300, y=300,
+            layer=5)
+        bs.set_animation('walking')
+        self.add_object(bs)
 
         super(ReferenceApp, self).run()
 

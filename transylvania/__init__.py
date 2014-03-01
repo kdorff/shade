@@ -23,6 +23,7 @@
 import ctypes
 from sdl2 import SDL_Event, SDL_PollEvent, SDL_Quit, events
 from sdl2 import SDL_QUIT
+import time
 
 # Version information (major, minor, revision[, 'dev']).
 version_info = (0, 0, 1)
@@ -75,8 +76,13 @@ class Application(object):
         light_position = [0.0, 400.0, 100.0]
         light_dir = 1.0
 
-        timedelta = 0
+        prev_time = 0
+        current_time = current_time = int(round(time.time() * 1000))
         while self.running:
+            prev_time = current_time
+            current_time = int(round(time.time() * 1000))
+            timedelta = current_time - prev_time
+
             while SDL_PollEvent(ctypes.byref(event)) != 0:
                 if event.type == SDL_QUIT:
                     return
@@ -91,12 +97,15 @@ class Application(object):
                 light_dir = 1.0
             light_position[0] = light_position[0] + light_dir
 
+            for obj in self.objects:
+                obj.update(timedelta)
+
             self.display.start_render()
             self.objects.sort(key=lambda obj: obj.layer)
             proj_matrix = self.display.get_proj_matrix()
             view_matrix = self.display.get_view_matrix(0, 0)
 
             for obj in self.objects:
-                obj.draw(timedelta, proj_matrix, view_matrix, light_position)
+                obj.draw(proj_matrix, view_matrix, light_position)
 
             self.display.stop_render()

@@ -30,7 +30,30 @@ class Actor(object):
         self.width = width
         self.height = height
         self.layer = layer
+        self.current_animation = 'default'
+        self.animation_speed = 0.4
+        self.current_frame = 0
 
-    def draw(self, timedelta, proj_matrix, view_matrix, light_position=None):
-        self.sprite.draw(proj_matrix, view_matrix, self.x, self.y,
-                         self.layer, light_position=light_position)
+    def _get_frames(self):
+        return self.sprite.data['animations'][self.current_animation]['frames']
+
+    def _get_frame(self):
+        frames = self._get_frames()
+        return frames[int(self.current_frame)]
+
+    def set_animation(self, name):
+        self.current_animation = name
+        self.current_frame = 0
+
+    def update(self, timedelta):
+        frames = self._get_frames()
+        self.current_frame = self.current_frame + 1
+        if self.current_frame > len(frames) - 1:
+            self.current_frame = 0
+
+    def draw(self, proj_matrix, view_matrix, light_position=None):
+        frame_x, frame_y = self._get_frame()
+        self.sprite.draw(proj_matrix, view_matrix,
+                         self.x, self.y, self.layer,
+                         frame_x=frame_x, frame_y=frame_y,
+                         light_position=light_position)
