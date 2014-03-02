@@ -83,109 +83,6 @@ tex_coords = [0.0, 1.0, 1.0,
               1.0, 0.0, 1.0]
 tex_coords = numpy.array(tex_coords, dtype=numpy.float32)
 
-
-vertex_shader = """
-#version 330
-
-uniform mat4 model_matrix;
-uniform mat4 view_matrix;
-uniform mat4 proj_matrix;
-//uniform mat3 normal_matrix;
-uniform mat3 tex_matrix;
-uniform vec3 light_position;
-
-in vec4 mc_vertex;
-in vec3 mc_normal;
-in vec3 mc_tangent;
-in vec3 TexCoord0;
-
-smooth out vec2 tex_coord;
-smooth out vec3 pos;
-smooth out vec3 light_dir;
-smooth out vec3 eye_dir;
-
-
-void main()
-{
-  mat4 mv_matrix = view_matrix * model_matrix;
-  vec4 cc_vertex = mv_matrix * mc_vertex;
-  gl_Position = proj_matrix * cc_vertex;
-  pos = vec3(model_matrix * mc_vertex);
-
-  tex_coord = vec3(tex_matrix * TexCoord0.stp).st;
-
-  mat3 normal_matrix = mat3x3(mv_matrix);
-  normal_matrix = inverse(normal_matrix);
-  normal_matrix = transpose(normal_matrix);
-
-  mat3 mv3_matrix = mat3(mv_matrix);
-  vec3 n = normalize(mv3_matrix * mc_normal);
-  vec3 t = normalize(mv3_matrix * mc_tangent);
-  vec3 b = normalize(mv3_matrix * cross(n, t));
-
-  light_dir = vec3(view_matrix * vec4(light_position, 0.0)) - vec3(cc_vertex);
-
-  vec3 v;
-  v.x = dot(light_dir, t);
-  v.y = dot(light_dir, b);
-  v.z = dot(light_dir, n);
-  light_dir = v;
-
-  eye_dir = vec3(-cc_vertex);
-  v.x = dot(eye_dir, t);
-  v.y = dot(eye_dir, b);
-  v.z = dot(eye_dir, n);
-  eye_dir = v;
-}
-"""
-
-fragment_shader = """
-#version 330
-
-uniform sampler2D ColorMap;
-uniform sampler2D NormalMap;
-uniform vec3 light_position;
-
-smooth in vec3 pos;
-smooth in vec3 light_dir;
-smooth in vec3 eye_dir;
-smooth in vec2 tex_coord;
-
-out vec4 frag_color;
-
-
-void main()
-{
-    vec3 light_color = vec3(0.0, 1.0, 0.0);
-    float light_power = 10000.0;
-
-    float alpha = texture(ColorMap, tex_coord.st).a;
-    vec3 diffuse = texture(ColorMap, tex_coord.st).rgb;
-    vec3 ambient = vec3(0.2, 0.2, 0.2) * diffuse;
-    vec3 specular = diffuse / 8;
-
-    vec3 normal = texture(NormalMap, tex_coord.st).rgb * 2 - 1;
-    float distance = length(light_position - pos);
-
-    vec3 n = normalize(normal);
-    vec3 l = normalize(light_dir);
-
-    float cos_theta = clamp(dot(n, l), 0.0, 1.0);
-
-    vec3 e = normalize(eye_dir);
-    vec3 r = reflect(-l, n);
-
-    float cos_alpha = clamp(dot(e, r), 0.0, 1.0);
-
-    frag_color = vec4(
-        ambient +
-        diffuse * light_color * light_power * cos_theta /
-            (distance * distance) +
-        specular * light_color * light_power * pow(cos_alpha, 5) /
-            (distance * distance), alpha);
-}
-"""
-
 vao = None
 shader = None
 shader_locs = None
@@ -239,10 +136,19 @@ def get_shader():
     if shader:
         return (shader, shader_locs)
 
+    shader_dir = os.path.realpath(__file__)
+    shader_dir = shader_dir.split('/')
+    shader_dir.pop()
+    shader_dir.append('shaders')
+    shader_dir = '/'.join(shader_dir)
+
+    vert_shader_src = open('{0}/sprite.vert'.format(shader_dir)).read()
+    frag_shader_src = open('{0}/sprite.frag'.format(shader_dir)).read()
+
     vert_prog = OpenGL.GL.shaders.compileShader(
-        vertex_shader, GL_VERTEX_SHADER)
+        vert_shader_src, GL_VERTEX_SHADER)
     frag_prog = OpenGL.GL.shaders.compileShader(
-        fragment_shader, GL_FRAGMENT_SHADER)
+        frag_shader_src, GL_FRAGMENT_SHADER)
 
     shader = glCreateProgram()
     glAttachShader(shader, vert_prog)
