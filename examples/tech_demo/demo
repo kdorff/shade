@@ -23,10 +23,29 @@
 from os import path
 from sdl2 import keycode
 
-from transylvania.actor import Actor
 from transylvania import Application
+from transylvania.actor import Actor
 from transylvania.display import DisplayManager
+from transylvania.lights import PointLight
 from transylvania.sprite import SpriteManager
+
+
+class CandleLight(PointLight):
+    """
+    """
+
+    def __init__(self, x=0.0, y=0.0, z=0.0):
+        r = 1.0
+        g = 1.0
+        b = 0.0
+        i = 1000
+        super(CandleLight, self).__init__(x=x, y=y, z=z,
+                                          r=r, g=g, b=b,
+                                          i=i)
+
+    def update(self, timedelta):
+        flicker = [5000, 10000, 7500]
+        self.i = flicker[timedelta % len(flicker) - 1]
 
 
 class BimonSelmontActor(Actor):
@@ -80,6 +99,8 @@ class ReferenceApp(Application):
             layer=5)
         bs.set_animation('walking')
         self.add_object(bs)
+
+        self.add_light(CandleLight(x=300.0, y=300.0, z=10.0))
 
         super(ReferenceApp, self).run()
 

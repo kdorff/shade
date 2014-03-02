@@ -51,9 +51,13 @@ class Application(object):
         self.sprite_manager = sprite_manager
         self.running = True
         self.objects = []
+        self.lights = []
 
     def add_object(self, obj):
         self.objects.append(obj)
+
+    def add_light(self, light):
+        self.lights.append(light)
 
     def __del__(self):
         """
@@ -73,9 +77,6 @@ class Application(object):
 
         event = SDL_Event()
 
-        light_position = [0.0, 400.0, 100.0]
-        light_dir = 1.0
-
         prev_time = 0
         current_time = current_time = int(round(time.time() * 1000))
         while self.running:
@@ -89,13 +90,8 @@ class Application(object):
                 if event.type == events.SDL_KEYDOWN:
                     self.handle_input(event.key.keysym.sym)
 
-            if light_position[0] > 800.0:
-                light_position[0] = 800.0
-                light_dir = -1
-            if light_position[0] < -2.0:
-                light_position[0] = -2.0
-                light_dir = 1.0
-            light_position[0] = light_position[0] + light_dir
+            for light in self.lights:
+                light.update(timedelta)
 
             for obj in self.objects:
                 obj.update(timedelta)
@@ -106,6 +102,6 @@ class Application(object):
             view_matrix = self.display.get_view_matrix(0, 0)
 
             for obj in self.objects:
-                obj.draw(proj_matrix, view_matrix, light_position)
+                obj.draw(proj_matrix, view_matrix, self.lights)
 
             self.display.stop_render()

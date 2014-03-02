@@ -21,39 +21,29 @@
 # THE SOFTWARE.
 
 
-class Actor(object):
-
-    def __init__(self, sprite, x=0, y=0, width=None, height=None, layer=0):
-        self.sprite = sprite
+class PointLight(object):
+    """
+    Point Light
+    """
+    def __init__(self, x=0.0, y=0.0, z=0.0, r=1.0, g=1.0, b=1.0, i=40.0):
         self.x = x
         self.y = y
-        self.width = width
-        self.height = height
-        self.layer = layer
-        self.current_animation = 'default'
-        self.animation_speed = 0.4
-        self.current_frame = 0
-
-    def _get_frames(self):
-        return self.sprite.data['animations'][self.current_animation]['frames']
-
-    def _get_frame(self):
-        frames = self._get_frames()
-        return frames[int(self.current_frame)]
-
-    def set_animation(self, name):
-        self.current_animation = name
-        self.current_frame = 0
+        self.z = z
+        self.r = r
+        self.g = g
+        self.b = b
+        self.i = i
 
     def update(self, timedelta):
-        frames = self._get_frames()
-        self.current_frame = self.current_frame + 1
-        if self.current_frame > len(frames) - 1:
-            self.current_frame = 0
+        """
+        """
+        pass
 
-    def draw(self, proj_matrix, view_matrix, lights=None):
-        frame_x, frame_y = self._get_frame()
-        self.sprite.draw(proj_matrix, view_matrix,
-                         self.x, self.y, self.layer,
-                         frame_x=frame_x, frame_y=frame_y,
-                         lights=lights)
+    def get_position(self):
+        return [self.x, self.y, self.z]
+
+    def get_color(self):
+        return [self.r, self.g, self.b]
+
+    def get_power(self):
+        return self.i

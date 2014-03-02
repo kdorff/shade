@@ -34,11 +34,12 @@ from OpenGL.GL import (
     glGetUniformLocation, glLinkProgram,
     glTexImage2D,
     glTexParameteri,
-    glUniform1i, glUniform3fv, glUniformMatrix3fv, glUniformMatrix4fv,
+    glUniform1i, glUniform1f, glUniform3fv, glUniformMatrix3fv,
+    glUniformMatrix4fv,
     glUseProgram,
     glVertexAttribPointer)
 from OpenGL.GL import (
-    GL_ARRAY_BUFFER, GL_FALSE, GL_FLOAT,
+    GL_ARRAY_BUFFER, GL_FLOAT,
     GL_FRAGMENT_SHADER, GL_LINEAR, GL_LINK_STATUS, GL_REPEAT, GL_RGBA,
     GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE_2D,
     GL_TEXTURE_BASE_LEVEL,
@@ -162,7 +163,8 @@ def get_shader():
         raise RuntimeError(glGetProgramInfoLog(shader))
 
     for name in ['model_matrix', 'view_matrix', 'proj_matrix', 'tex_matrix',
-                 'ColorMap', 'NormalMap', 'light_position']:
+                 'ColorMap', 'NormalMap', 'light_position', 'light_color',
+                 'light_power']:
         shader_locs[name] = glGetUniformLocation(shader, name)
 
     return (shader, shader_locs)
@@ -277,7 +279,7 @@ class Sprite(object):
                          GL_RGBA, GL_UNSIGNED_BYTE, data[map_type])
 
     def draw(self, proj_matrix, view_matrix, x, y, layer=0,
-             frame_x=0, frame_y=0, light_position=None):
+             frame_x=0, frame_y=0, lights=None):
         """
         Draw the sprite.
 
@@ -322,7 +324,12 @@ class Sprite(object):
         if self.tex_data['normal']:
             glUniform1i(shader_locs['NormalMap'], 1)
 
-        glUniform3fv(shader_locs['light_position'], 1, light_position)
+        if lights:
+            glUniform3fv(shader_locs['light_position'], 1,
+                         lights[0].get_position())
+            glUniform3fv(shader_locs['light_color'], 1,
+                         lights[0].get_color())
+            glUniform1f(shader_locs['light_power'], lights[0].get_power())
 
         glDrawArrays(GL_TRIANGLES, 0, int(len(vertices) / 4.0))
 

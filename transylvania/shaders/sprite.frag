@@ -25,6 +25,8 @@
 uniform sampler2D ColorMap;
 uniform sampler2D NormalMap;
 uniform vec3 light_position;
+uniform vec3 light_color;
+uniform float light_power;
 
 smooth in vec3 pos;
 smooth in vec3 light_dir;
@@ -36,9 +38,6 @@ out vec4 frag_color;
 
 void main()
 {
-    vec3 light_color = vec3(0.0, 1.0, 0.0);
-    float light_power = 10000.0;
-
     float alpha = texture(ColorMap, tex_coord.st).a;
     vec3 diffuse = texture(ColorMap, tex_coord.st).rgb;
     vec3 ambient = vec3(0.2, 0.2, 0.2) * diffuse;
