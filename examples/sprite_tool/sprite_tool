@@ -82,10 +82,11 @@ class SpriteTool(Application):
         light.x = motion.x
         light.y = self.display.height - motion.y - 1
 
-    def __init__(self, config=None, display=None, sprite_manager=None):
+    def __init__(self, config=None, display=None, sprite_manager=None,
+                 sprite_name=None):
         super(SpriteTool, self).__init__(config=config, display=display,
                                          sprite_manager=sprite_manager)
-        self.current_sprite = 'test'
+        self.sprite_name = sprite_name
         self.colors = [
             {'r': 0.5, 'g': 0.5, 'b': 0.5},
             {'r': 0.5, 'g': 0.0, 'b': 0.0},
@@ -101,8 +102,7 @@ class SpriteTool(Application):
         self.current_light_power = 3
 
     def run(self):
-        self.sprite_manager.load('bimon_selmont')
-        sprite = self.sprite_manager.get_sprite('bimon_selmont')
+        sprite = self.sprite_manager.get_sprite(self.sprite_name)
         sprite_width = sprite.data['frame']['size']['width']
         sprite_height = sprite.data['frame']['size']['height']
 
@@ -117,17 +117,23 @@ class SpriteTool(Application):
 
 def start_app():
     parser = argparse.ArgumentParser(description='Sprite Tool.')
-    parser.add_argument('resources',
-                        help='path to resources dir')
+    parser.add_argument('sprite',
+                        help='path to sprite dir')
     args = parser.parse_args()
 
-    resource_dir = '{0}/{1}'.format(os.getcwd(), args.resources)
+    sprite_dir = args.sprite
+    sprite_dir = sprite_dir.strip('/')
+    sprite_dir, sprite_name = sprite_dir.rsplit('/', 1)
+    sprite_dir = '{0}/{1}'.format(os.getcwd(), sprite_dir)
 
     config = {}
     display = DisplayManager(width=800, height=600)
-    sprite_manager = SpriteManager('{0}/sprites'.format(resource_dir))
+
+    sprite_manager = SpriteManager(sprite_dir)
+    sprite_manager.load(sprite_name)
+
     app = SpriteTool(config=config, display=display,
-                     sprite_manager=sprite_manager)
+                     sprite_manager=sprite_manager, sprite_name=sprite_name)
     app.run()
 
 
