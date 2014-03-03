@@ -29,6 +29,7 @@ from sdl2 import keycode
 from transylvania.actor import Actor
 from transylvania import Application
 from transylvania.display import DisplayManager
+from transylvania.lights import PointLight
 from transylvania.sprite import SpriteManager
 
 
@@ -37,7 +38,8 @@ class SpriteTool(Application):
     Tool for viewing sprite animations.
     """
 
-    def handle_input(self, key):
+    def handle_keydown(self, key):
+        print key
         if key == keycode.SDLK_UP:
             # change animation
             return
@@ -51,9 +53,19 @@ class SpriteTool(Application):
             # change sprite
             return
 
+    def handle_mousebuttondown(self, button):
+        print button
+
+    def handle_mousemotion(self, motion):
+        light = self.lights[0]
+        light.x = motion.x
+        light.y = self.display.height - motion.y - 1
+
     def __init__(self, config=None, display=None, sprite_manager=None):
         super(SpriteTool, self).__init__(config=config, display=display,
                                          sprite_manager=sprite_manager)
+        self.mouse_x = 0
+        self.mouse_y = 0
         self.current_sprite = 'test'
 
     def run(self):
@@ -65,6 +77,8 @@ class SpriteTool(Application):
         sprite_x = self.display.width / 2 - sprite_width / 2
         sprite_y = self.display.height / 2 - sprite_height / 2
         self.add_object(Actor(sprite, x=sprite_x, y=sprite_y, layer=0))
+
+        self.add_light(PointLight(z=10, i=1000))
 
         super(SpriteTool, self).run()
 

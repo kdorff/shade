@@ -22,7 +22,7 @@
 
 import ctypes
 from sdl2 import SDL_Event, SDL_PollEvent, SDL_Quit, events
-from sdl2 import SDL_QUIT
+from sdl2 import SDL_MOUSEBUTTONDOWN, SDL_MOUSEMOTION, SDL_QUIT
 import time
 
 # Version information (major, minor, revision[, 'dev']).
@@ -66,7 +66,13 @@ class Application(object):
         del self.display
         SDL_Quit()
 
-    def handle_input(self, key):
+    def handle_mousemotion(self, motion):
+        pass
+
+    def handle_mousebuttondown(self, button):
+        pass
+
+    def handle_keydown(self, key):
         pass
 
     def run(self):
@@ -88,7 +94,11 @@ class Application(object):
                 if event.type == SDL_QUIT:
                     return
                 if event.type == events.SDL_KEYDOWN:
-                    self.handle_input(event.key.keysym.sym)
+                    self.handle_keydown(event.key.keysym.sym)
+                if (event.type == SDL_MOUSEMOTION):
+                    self.handle_mousemotion(event.motion)
+                if (event.type == SDL_MOUSEBUTTONDOWN):
+                    self.handle_mousebuttondown(event.button.button)
 
             for light in self.lights:
                 light.update(timedelta)

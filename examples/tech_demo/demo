@@ -67,7 +67,7 @@ class ReferenceApp(Application):
     Example Game using the Transylvania Engine.
     """
 
-    def handle_input(self, key):
+    def handle_keydown(self, key):
         if key == keycode.SDLK_LEFT:
             self.sprite1.pos_x = self.sprite1.pos_x - 15
             return
