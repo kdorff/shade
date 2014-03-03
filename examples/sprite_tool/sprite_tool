@@ -39,17 +39,20 @@ class SpriteTool(Application):
     """
 
     def handle_keydown(self, key):
-        if key == keycode.SDLK_UP:
-            # change animation
-            return
-        if key == keycode.SDLK_DOWN:
-            # change animation
-            return
         if key == keycode.SDLK_LEFT:
-            # change sprite
-            return
+            actor = self.objects[0]
+            animations = actor.get_animations()
+            self.current_animation = self.current_animation - 1
+            if self.current_animation < 0:
+                self.current_animation = len(animations) - 1
+            actor.set_animation(animations[self.current_animation])
         if key == keycode.SDLK_RIGHT:
-            # change sprite
+            actor = self.objects[0]
+            animations = actor.get_animations()
+            self.current_animation = self.current_animation + 1
+            if self.current_animation > len(animations) - 1:
+                self.current_animation = 0
+            actor.set_animation(animations[self.current_animation])
             return
         if key == keycode.SDLK_b:
             self.current_background_color = self.current_background_color + 1
@@ -73,9 +76,6 @@ class SpriteTool(Application):
                 self.current_light_power = 0
             light = self.lights[0]
             light.i = self.light_powers[self.current_light_power]
-
-    def handle_mousebuttondown(self, button):
-        print button
 
     def handle_mousemotion(self, motion):
         light = self.lights[0]
@@ -107,6 +107,7 @@ class SpriteTool(Application):
         self.current_background_color = 0
         self.current_light_color = 0
         self.current_light_power = 3
+        self.current_animation = 0
 
     def run(self):
         sprite = self.sprite_manager.get_sprite(self.sprite_name)

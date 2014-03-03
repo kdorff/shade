@@ -33,6 +33,7 @@ class Actor(object):
         self.current_animation = 'default'
         self.animation_speed = 0.4
         self.current_frame = 0
+        self.running = True
 
     def _get_frames(self):
         return self.sprite.data['animations'][self.current_animation]['frames']
@@ -41,15 +42,24 @@ class Actor(object):
         frames = self._get_frames()
         return frames[int(self.current_frame)]
 
+    def get_animations(self):
+        return [x for x in self.sprite.data['animations'].iterkeys()]
+
     def set_animation(self, name):
         self.current_animation = name
         self.current_frame = 0
+        self.running = True
 
     def update(self, timedelta):
+        if not self.running:
+            return
         frames = self._get_frames()
         self.current_frame = self.current_frame + 1
         if self.current_frame > len(frames) - 1:
             self.current_frame = 0
+        if frames[self.current_frame] is None:
+            self.running = False
+            self.current_frame = len(frames) - 2
 
     def draw(self, proj_matrix, view_matrix, lights=None):
         frame_x, frame_y = self._get_frame()
