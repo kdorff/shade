@@ -141,7 +141,10 @@ class DisplayManager(object):
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_CULL_FACE)
         glEnable(GL_BLEND)
-        glClearColor(0.2, 0.2, 0.2, 1.0)
+        glClearColor(0.3, 0.3, 0.3, 1.0)
+
+    def set_clear_color(self, r=0.0, g=0.0, b=0.0):
+        glClearColor(r, g, b, 1.0)
 
     def resize(self, width, height):
         """
