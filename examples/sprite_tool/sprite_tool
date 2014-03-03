@@ -53,12 +53,20 @@ class SpriteTool(Application):
             return
         if key == keycode.SDLK_b:
             self.current_background_color = self.current_background_color + 1
-            if self.current_background_color > len(self.background_colors) - 1:
+            if self.current_background_color > len(self.colors) - 1:
                 self.current_background_color = 0
-            color = self.background_colors[
-                self.current_background_color]
+            color = self.colors[self.current_background_color]
             self.display.set_clear_color(
                 color['r'], color['g'], color['b'])
+        if key == keycode.SDLK_l:
+            self.current_light_color = self.current_light_color + 1
+            if self.current_light_color > len(self.colors) - 1:
+                self.current_light_color = 0
+            color = self.colors[self.current_light_color]
+            light = self.lights[0]
+            light.r = color['r']
+            light.g = color['g']
+            light.b = color['b']
 
     def handle_mousebuttondown(self, button):
         print button
@@ -72,7 +80,7 @@ class SpriteTool(Application):
         super(SpriteTool, self).__init__(config=config, display=display,
                                          sprite_manager=sprite_manager)
         self.current_sprite = 'test'
-        self.background_colors = [
+        self.colors = [
             {'r': 0.5, 'g': 0.5, 'b': 0.5},
             {'r': 0.5, 'g': 0.0, 'b': 0.0},
             {'r': 0.0, 'g': 0.5, 'b': 0.5},
@@ -82,6 +90,7 @@ class SpriteTool(Application):
             {'r': 1.0, 'g': 1.0, 'b': 1.0},
             {'r': 0.0, 'g': 0.0, 'b': 0.0}]
         self.current_background_color = 0
+        self.current_light_color = 0
 
     def run(self):
         self.sprite_manager.load('bimon_selmont')
