@@ -31,7 +31,8 @@ class Actor(object):
         self.height = height
         self.layer = layer
         self.current_animation = 'default'
-        self.animation_speed = 0.4
+        self.current_time = 0.0
+        self.animation_speed = 0.15
         self.current_frame = 0
         self.running = True
 
@@ -48,13 +49,16 @@ class Actor(object):
     def set_animation(self, name):
         self.current_animation = name
         self.current_frame = 0
+        self.current_time = 0.0
         self.running = True
 
     def update(self, timedelta):
         if not self.running:
             return
+        self.current_time = self.current_time + timedelta
         frames = self._get_frames()
-        self.current_frame = self.current_frame + 1
+        self.current_frame = (
+            int(self.current_time / self.animation_speed) % len(frames))
         if self.current_frame > len(frames) - 1:
             self.current_frame = 0
         if frames[self.current_frame] is None:

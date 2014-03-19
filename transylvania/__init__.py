@@ -84,10 +84,10 @@ class Application(object):
         event = SDL_Event()
 
         prev_time = 0
-        current_time = current_time = int(round(time.time() * 1000))
+        current_time = current_time = time.time()
         while self.running:
             prev_time = current_time
-            current_time = int(round(time.time() * 1000))
+            current_time = time.time()
             timedelta = current_time - prev_time
 
             while SDL_PollEvent(ctypes.byref(event)) != 0:

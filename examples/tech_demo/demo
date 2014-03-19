@@ -39,13 +39,18 @@ class CandleLight(PointLight):
         g = 1.0
         b = 0.0
         i = 1000
+        self.current_time = 0.0
+        self.animation_speed = 0.15
         super(CandleLight, self).__init__(x=x, y=y, z=z,
                                           r=r, g=g, b=b,
                                           i=i)
 
     def update(self, timedelta):
+        super(CandleLight, self).update(timedelta)
+        self.current_time = self.current_time + timedelta
         flicker = [5000, 10000, 7500]
-        self.i = flicker[timedelta % len(flicker) - 1]
+        self.i = flicker[
+            int(self.current_time / self.animation_speed) % len(flicker) - 1]
 
 
 class BimonSelmontActor(Actor):
@@ -53,7 +58,7 @@ class BimonSelmontActor(Actor):
         super(BimonSelmontActor, self).__init__(*args, **kwargs)
         self.dir_x = 1
         self.dir_y = 0
-        self.speed = 0.2
+        self.speed = 100
 
     def update(self, timedelta):
         super(BimonSelmontActor, self).update(timedelta)
