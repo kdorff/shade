@@ -294,7 +294,7 @@ class Sprite(object):
         model_matrix = get_4x4_transform(
             scale_x=self.data['frame']['size']['width'],
             scale_y=self.data['frame']['size']['height'],
-            trans_x=x, trans_y=y, layer=layer)
+            trans_x=x, trans_y=y, trans_z=layer)
         glUniformMatrix4fv(shader_locs['model_matrix'], 1, GL_TRUE,
                            model_matrix)
 

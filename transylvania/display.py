@@ -27,9 +27,7 @@ from OpenGL.GL import (
     GL_BLEND, GL_COLOR_BUFFER_BIT, GL_CULL_FACE, GL_DEPTH_BUFFER_BIT,
     GL_DEPTH_TEST, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-from gameobjects.matrix44 import Matrix44
-
-from transylvania.gmath import get_4x4_transform
+from transylvania.gmath import get_4x4_transform, get_projection_matrix
 
 
 class DisplayManager(object):
@@ -67,42 +65,6 @@ class DisplayManager(object):
         layer = 1.0
         return get_4x4_transform(scale_x, scale_y, trans_x, trans_y, layer)
 
-    def _get_projection_matrix(self, left, right, bottom, top):
-        """
-        Create a  orthographic projection matrix.
-
-        U{Modern glOrtho2d<http://stackoverflow.com/questions/21323743/
-        modern-equivalent-of-gluortho2d>}
-
-        U{Orthographic Projection<http://en.wikipedia.org/wiki/
-        Orthographic_projection_(geometry)>}
-
-        @param left: position of the left side of the display
-        @type left: int
-        @param right: position of the right side of the display
-        @type right: int
-        @param bottom: position of the bottom side of the display
-        @type bottom: int
-        @param top: position of the top side of the display
-        @type top: int
-
-        @return: orthographic projection matrix
-        @rtype: Matrix44
-        """
-        zNear = -25.0
-        zFar = 25.0
-        inv_z = 1.0 / (zFar - zNear)
-        inv_y = 1.0 / (top - bottom)
-        inv_x = 1.0 / (right - left)
-
-        mat = Matrix44()
-        mat.set_row(0, [(2.0 * inv_x), 0.0, 0.0, (-(right + left) * inv_x)])
-        mat.set_row(1, [0.0, (2.0 * inv_y), 0.0, (-(top + bottom) * inv_y)])
-        mat.set_row(2, [0.0, 0.0, (-2.0 * inv_z), (-(zFar + zNear) * inv_z)])
-        mat.set_row(3, [0.0, 0.0, 0.0, 1.0])
-
-        return mat.to_opengl()
-
     def init_window(self):
         """
         Handles creating the SDL window and creating a GL context for it.
@@ -124,8 +86,8 @@ class DisplayManager(object):
         if not self.window:
             raise Exception('Could not create window')
 
-        self.proj_matrix = self._get_projection_matrix(0.0, self.width,
-                                                       0.0, self.height)
+        self.proj_matrix = get_projection_matrix(0.0, self.width,
+                                                 0.0, self.height)
 
         self.glcontext = SDL_GL_CreateContext(self.window)
         SDL_GL_SetSwapInterval(1)
