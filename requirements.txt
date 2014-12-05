@@ -1,5 +1,0 @@
-PyOpenGL
-PySDL2
-PIL
-numpy
-epydoc
