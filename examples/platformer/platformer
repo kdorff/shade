@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import ctypes
+import os
 
 from OpenGL import GL as gl
 import sdl2
@@ -21,12 +22,15 @@ import transylvania
 from transylvania import sprites
 
 
+GAME_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
 class Player(object):
 
     def __init__(self, group):
         self.group = group
         group.add(self)
-        self.sprite = sprites.build('player.png')
+        self.sprite = sprites.build(os.path.join(GAME_DIR, 'player.png'))
         self.rect = transylvania.Rect((320, 240), self.sprite.get_size())
         self.resting = False
         self.dy = 0
@@ -92,13 +96,13 @@ class Game(object):
         clock = transylvania.Clock()
         window = transylvania.set_display_mode(width, height)
 
-        background = sprites.build('background.png')
+        background = sprites.build(os.path.join(GAME_DIR, 'background.png'))
         self.sprite_group = transylvania.SpriteGroup()
         self.sprite_group.camera_x = 0
         self.player = Player(self.sprite_group)
 
         self.walls_group = transylvania.SpriteGroup()
-        block = sprites.build('block.png')
+        block = sprites.build(os.path.join(GAME_DIR, 'block.png'))
         for x in range(0, 800, 32):
             for y in range(0, 480, 32):
                 if x in (0, 800-32) or y in (0, 480-32):
