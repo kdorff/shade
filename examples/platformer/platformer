@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import ctypes
 import os
 
@@ -20,6 +21,7 @@ import sdl2
 
 import transylvania
 from transylvania import sprites
+from transylvania import tiled
 
 
 GAME_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -93,6 +95,7 @@ class ScrollGroup(transylvania.SpriteGroup):
 
 class Game(object):
     def main(self, width, height):
+
         clock = transylvania.Clock()
         window = transylvania.set_display_mode(width, height)
 
