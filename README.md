@@ -1,12 +1,16 @@
 Transylvania Engine
 ===================
 
-The purpose of this project is to create a clean and simple to use side
-scrolling game engine using SDL2 and OpenGL.  The display will be configured
-using orthographic projection using textured polygons as sprites.  Depth can
-be used specifically for layering.  Using this approach will allow for
-the creation of advanced effects using GLSL.
+A simple and easy to use 2.5D game engine.
 
-TODO
-----
-* Time based render rather than incrementing the frame in the draw method.
+
+Helpful Tools
+-------------
+
+[Pyxel Edit](http://pyxeledit.com/) - Very nice pixel art editor.
+
+[Sprite DLight](https://www.kickstarter.com/projects/2dee/sprite-dlight-instant-normal-maps-for-2d-graphics) - Instant normal maps for 2D graphics
+
+[Tiled](http://www.mapeditor.org/) - Your free, easy to use and flexible tile map editor.
+
+[sfxr](http://www.drpetter.se/project_sfxr.html)/[cfxr](http://thirdcog.eu/apps/cfxr) - Simple means of getting basic sound effects.
