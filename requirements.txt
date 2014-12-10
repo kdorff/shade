@@ -1,5 +1,5 @@
 PyOpenGL
 PySDL2
-PIL
+pillow
 numpy
 epydoc
