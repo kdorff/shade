@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 import pygame
 import tmx
+import transylvania
 
-class Enemy(pygame.sprite.Sprite):
+
+class Enemy(transylvania.sprite.Sprite):
     image = pygame.image.load('enemy.png')
     def __init__(self, location, *groups):
         super(Enemy, self).__init__(*groups)
@@ -21,7 +23,7 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.colliderect(game.player.rect):
             game.player.is_dead = True
 
-class Bullet(pygame.sprite.Sprite):
+class Bullet(transylvania.sprite.Sprite):
     image = pygame.image.load('bullet.png')
     def __init__(self, location, direction, *groups):
         super(Bullet, self).__init__(*groups)
@@ -40,7 +42,7 @@ class Bullet(pygame.sprite.Sprite):
             game.explosion.play()
             self.kill()
 
-class Player(pygame.sprite.Sprite):
+class Player(transylvania.sprite.Sprite):
     def __init__(self, location, *groups):
         super(Player, self).__init__(*groups)
         self.image = pygame.image.load('player-right.png')
@@ -143,6 +145,5 @@ class Game(object):
 
 if __name__ == '__main__':
     pygame.init()
-    screen = pygame.display.set_mode((640, 480))
+    screen = transylvania.display.set_mode((640, 480))
     Game().main(screen)
-
