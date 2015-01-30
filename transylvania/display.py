@@ -30,6 +30,41 @@ from OpenGL.GL import (
 from transylvania.gmath import get_4x4_transform, get_projection_matrix
 
 
+class Window(object):
+    def __init__(self, sdl_window, gl_context):
+        self.sdl_window = sdl_window
+        self.gl_context = gl_context
+
+    def get_size():
+        return (0, 0)
+
+
+def set_mode(resolution=(0,0), flags=0, depth=0):
+    width = resolution[0]
+    height = resolution[1]
+
+    # SDL_Init(SDL_INIT_EVERYTHING)
+    #
+    # SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+    # SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2)
+    # SDL_GL_SetAttribute(
+    #     SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE)
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1)
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24)
+
+    window = SDL_CreateWindow(
+        "Transylvania Engine", SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED, width, height,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN)
+    if not window:
+        raise Exception('Could not create window')
+
+    glcontext = SDL_GL_CreateContext(window)
+
+    return Window(window, glcontext)
+
+
 class DisplayManager(object):
     """
     Manages screen related things.

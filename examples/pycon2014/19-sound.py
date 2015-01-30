@@ -2,6 +2,8 @@
 import pygame
 import tmx
 import transylvania
+import transylvania.sprite
+import transylvania.display
 
 
 class Enemy(transylvania.sprite.Sprite):
@@ -145,5 +147,6 @@ class Game(object):
 
 if __name__ == '__main__':
     pygame.init()
-    screen = transylvania.display.set_mode((640, 480))
+    transylvania.init()
+    screen, _ = transylvania.display.set_mode((640, 480))
     Game().main(screen)
