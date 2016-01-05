@@ -3,14 +3,29 @@ Transylvania SDK
 
 A simple and easy to use 2.5D game SDK for the Go programming language.
 
-NOTE: This SDK should be considered very unstable as it is still under development.  It is currently being modeled after some aspects of the PyGame SDK, but this will probably change some as it matures.  Additionally, it will eventually have built in support for easily handeling sprites w/ normal maps and simple lighting (allowing to be extended for more advanced lighting).
+Goals
+-----
+
+To be a simple to use 2.5D game SDK using OpenGL, but abstracting the OpenGL aspects so that direct calls to it are not needed.  
+
+- [ ] load sprites
+- [ ] load animated sprites
+- [ ] load normal maps
+- [ ] set ambient lighting
+- [ ] add simple light source (radiates from a central point in all directions)
+- [ ] add directional light source (radiates from a point in a specific direction)
+
+NOTE: This SDK should be considered very experimental as it is still under development.  It is currently being modeled after some aspects of the PyGame SDK, but this will probably change some as it matures.  The project will not have its "experimental" status removed until at least all of the above items have been completed. 
+
+While the above should work without needing to work with the OpenGL SDK, the packages of this SDK should be extendable such that more advanced uses are possible.
+
 
 Attribution
 -----------
 
-This project was inspired by the article ("Normal Mapping with Javascript and Canvas")[https://29a.ch/2010/3/24/normal-mapping-with-javascript-and-canvas-tag].
+This project was inspired by the article ["Normal Mapping with Javascript and Canvas"](https://29a.ch/2010/3/24/normal-mapping-with-javascript-and-canvas-tag).
 
-Some aspects of the SDK are inspired by the (PyGame SDK)[http://www.pygame.org/]
+Some aspects of the SDK are inspired by the [PyGame SDK](http://www.pygame.org/).
 
 
 Helpful Tools
@@ -28,7 +43,7 @@ Helpful Tools
 Troubleshooing
 --------------
 
-# Slow saves in VIM
+#### Slow saves in VIM
 
 Sometimes, go-imports inserts the the wrong things.  VIM was hanging for me for about 10~20 seconds after saving.  I'm not sure why, but switching from v2.1 to v4.1-core fixed the issue.
 
@@ -37,7 +52,7 @@ Sometimes, go-imports inserts the the wrong things.  VIM was hanging for me for 
 +       "github.com/go-gl/gl/v4.1-core/gl"
 ```
 
-# could not decode file player.png: image: unknown format
+#### Error: "could not decode file player.png: image: unknown format"
 
 The following line will not be auto-imported since our code does not call anything in the png, library directly.  In order to ensure that the library loads (so image.decode("somefile.png") works), we must have the following import to load the PNG package.
 
