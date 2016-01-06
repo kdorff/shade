@@ -92,6 +92,10 @@ func (c *Context) Draw(x, y int) {
 	gl.DrawArrays(gl.TRIANGLES, 0, 6*2*3)
 }
 
+// Update TODO doc
+func (c *Context) Update() {
+}
+
 // Load TODO doc
 func Load(path string) (*Context, error) {
 	// TODO: prob should rename this to func to New

@@ -15,7 +15,7 @@ To be a simple to use 2.5D game SDK using OpenGL, but abstracting the OpenGL asp
 - [ ] add simple light source (radiates from a central point in all directions)
 - [ ] add directional light source (radiates from a point in a specific direction)
 
-NOTE: This SDK should be considered very experimental as it is still under development.  It is currently being modeled after some aspects of the PyGame SDK, but this will probably change some as it matures.  The project will not have its "experimental" status removed until at least all of the above items have been completed. 
+NOTE: This SDK should be considered very experimental as it is still under development.  It is currently being modeled after some aspects of the PyGame SDK, but this will probably change some as it matures.  The project will not have its "experimental" status removed until at least all of the above items have been completed.
 
 While the above should work without needing to work with the OpenGL SDK, the packages of this SDK should be extendable such that more advanced uses are possible.
 
@@ -59,3 +59,7 @@ The following line will not be auto-imported since our code does not call anythi
 ```
 +	_ "image/png" // register PNG decode
 ```
+
+#### ... has no field or method ...
+
+And it just does not make sense why it is not found, check that go-imports imported the correct thing.

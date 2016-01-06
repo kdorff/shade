@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// Package display ...
+// Package display TODO doc
 
 package display
 
@@ -24,7 +24,6 @@ import (
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/transylvania/events"
-	"github.com/hurricanerix/transylvania/sprite"
 )
 
 func init() {
@@ -113,12 +112,6 @@ func SetMode(width, height int) (*Context, error) {
 // Fill TODO doc
 func (c *Context) Fill(r, g, b float32) {
 	gl.ClearColor(r, g, b, 1.0)
-}
-
-// Blit TODO doc
-func (c *Context) Blit(s *sprite.Context, x, y int) {
-	s.Bind(c.Program)
-	s.Draw(x, y)
 }
 
 // Flip TODO doc

@@ -16,13 +16,13 @@
 package game
 
 import (
-	"fmt"
 	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/hurricanerix/transylvania/display"
 	"github.com/hurricanerix/transylvania/events"
+	"github.com/hurricanerix/transylvania/examples/tutorial/player"
 	"github.com/hurricanerix/transylvania/sprite"
 	"github.com/hurricanerix/transylvania/time/clock"
 )
@@ -51,45 +51,36 @@ func (c *Context) Main(screen *display.Context) {
 		panic(err)
 	}
 
-	player, err := sprite.Load("player.png")
+	sprites := sprite.NewGroup()
+	p, err := player.New(sprites)
 	if err != nil {
 		panic(err)
 	}
-	playerX := 320
-	playerY := 240
 
-	running := true
-	for running {
+	for running := true; running; {
 		clock.Tick(30)
+
+		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+		// TODO refector events to be cleaner
 		if screen.Window.ShouldClose() {
 			running = !screen.Window.ShouldClose()
 		}
 		for _, event := range events.Get() {
-			fmt.Println(event)
 			if event.Action == glfw.Press && event.Key == glfw.KeyEscape {
 				running = false
 				event.Window.SetShouldClose(true)
 			}
-			// TODO: move this to SDK to handle things like holding Left & Right at the same time correctly
-			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyLeft {
-				playerX -= 10
-			}
-			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyRight {
-				playerX += 10
-			}
-			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyUp {
-				playerY += 10
-			}
-			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyDown {
-				playerY -= 10
-			}
+			p.HandleEvent(event)
 		}
 
+		sprites.Update()
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		screen.Blit(player, playerX, playerY)
+		sprites.Draw(screen)
 		screen.Flip()
 
+		// TODO refector events to be cleaner
 		glfw.PollEvents()
 	}
 }
