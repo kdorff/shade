@@ -24,6 +24,7 @@ import (
 	"github.com/hurricanerix/transylvania/display"
 	"github.com/hurricanerix/transylvania/events"
 	"github.com/hurricanerix/transylvania/sprite"
+	"github.com/hurricanerix/transylvania/time/clock"
 )
 
 func init() {
@@ -45,6 +46,11 @@ func New(screen *display.Context) (Context, error) {
 
 // Main TODO doc
 func (c *Context) Main(screen *display.Context) {
+	clock, err := clock.New()
+	if err != nil {
+		panic(err)
+	}
+
 	player, err := sprite.Load("player.png")
 	if err != nil {
 		panic(err)
@@ -52,6 +58,7 @@ func (c *Context) Main(screen *display.Context) {
 
 	running := true
 	for running {
+		clock.Tick(30)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		if screen.Window.ShouldClose() {
 			running = !screen.Window.ShouldClose()
