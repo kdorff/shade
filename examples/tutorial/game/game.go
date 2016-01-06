@@ -45,8 +45,6 @@ func New(screen *display.Context) (Context, error) {
 
 // Main TODO doc
 func (c *Context) Main(screen *display.Context) {
-	// TODO: figure out why face.png loads, but not player.png
-	//player, err := sprite.Load("/Users/hurricanerix/workspace/go/transylvania/examples/basic/face.png")
 	player, err := sprite.Load("player.png")
 	if err != nil {
 		panic(err)
