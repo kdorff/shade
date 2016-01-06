@@ -55,6 +55,8 @@ func (c *Context) Main(screen *display.Context) {
 	if err != nil {
 		panic(err)
 	}
+	playerX := 320
+	playerY := 240
 
 	running := true
 	for running {
@@ -71,8 +73,10 @@ func (c *Context) Main(screen *display.Context) {
 			}
 		}
 
+		playerX += 10
+
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		screen.Blit(player, 320, 240)
+		screen.Blit(player, playerX, playerY)
 		screen.Flip()
 
 		glfw.PollEvents()
