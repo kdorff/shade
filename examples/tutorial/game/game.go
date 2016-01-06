@@ -71,9 +71,20 @@ func (c *Context) Main(screen *display.Context) {
 				running = false
 				event.Window.SetShouldClose(true)
 			}
+			// TODO: move this to SDK to handle things like holding Left & Right at the same time correctly
+			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyLeft {
+				playerX -= 10
+			}
+			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyRight {
+				playerX += 10
+			}
+			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyUp {
+				playerY += 10
+			}
+			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyDown {
+				playerY -= 10
+			}
 		}
-
-		playerX += 10
 
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
 		screen.Blit(player, playerX, playerY)
