@@ -51,6 +51,12 @@ func (c *Context) Main(screen *display.Context) {
 		panic(err)
 	}
 
+	background, err := sprite.Load("background.png")
+	if err != nil {
+		panic(err)
+	}
+	background.Bind(c.Screen.Program)
+
 	sprites := sprite.NewGroup()
 	p, err := player.New(sprites)
 	if err != nil {
@@ -77,7 +83,9 @@ func (c *Context) Main(screen *display.Context) {
 
 		sprites.Update(dt / 1000.0)
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
+		background.Draw(0, 0)
 		sprites.Draw(screen)
+
 		screen.Flip()
 
 		// TODO refector events to be cleaner
