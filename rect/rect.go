@@ -16,14 +16,14 @@
 package rect
 
 type Rect struct {
-	X      int
-	Y      int
-	Width  int
-	Height int
+	X      float32
+	Y      float32
+	Width  float32
+	Height float32
 }
 
 // New TODO doc
-func New(x, y, width, height int) (*Rect, error) {
+func New(x, y, width, height float32) (*Rect, error) {
 	r := Rect{
 		X:      x,
 		Y:      y,

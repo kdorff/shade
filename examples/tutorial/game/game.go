@@ -58,7 +58,7 @@ func (c *Context) Main(screen *display.Context) {
 	}
 
 	for running := true; running; {
-		clock.Tick(30)
+		dt := clock.Tick(30)
 
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -72,10 +72,10 @@ func (c *Context) Main(screen *display.Context) {
 				running = false
 				event.Window.SetShouldClose(true)
 			}
-			p.HandleEvent(event)
+			p.HandleEvent(event, dt/1000.0)
 		}
 
-		sprites.Update()
+		sprites.Update(dt / 1000.0)
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
 		sprites.Draw(screen)
 		screen.Flip()

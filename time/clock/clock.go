@@ -30,9 +30,11 @@ func New() (*Clock, error) {
 }
 
 // Clock TODO doc
-func (c *Clock) Tick(limit int) {
+func (c *Clock) Tick(limit int) float32 {
 	<-c.Timer.C
 	// TODO: this is wrong, it should only restrict that the func is run at most _limit_ times a second.
 	// But for now I think it will work.
 	c.Timer.Reset(time.Millisecond / (1000 / time.Duration(limit)))
+	// TODO: this should return the amount of time since the last Tick
+	return 10.0
 }

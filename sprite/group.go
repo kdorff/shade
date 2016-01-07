@@ -36,9 +36,9 @@ func (g *Group) Add(s interfaces.Sprite) {
 }
 
 // Update TODO doc
-func (g *Group) Update() {
+func (g *Group) Update(dt float32) {
 	for _, s := range g.sprites {
-		s.Update()
+		s.Update(dt)
 	}
 }
 

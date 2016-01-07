@@ -18,6 +18,6 @@ package interfaces
 type Sprite interface {
 	// TODO rename this to something more interfacer
 	Bind(program uint32) error
-	Update()
+	Update(dt float32)
 	Draw()
 }

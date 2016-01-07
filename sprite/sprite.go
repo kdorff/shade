@@ -78,9 +78,9 @@ func (c *Context) Bind(program uint32) error {
 }
 
 // Draw TODO doc
-func (c *Context) Draw(x, y int) {
+func (c *Context) Draw(x, y float32) {
 	c.model = mgl32.Ident4()
-	c.model = c.model.Mul4(mgl32.Translate3D(float32(x), float32(y), 0.0))
+	c.model = c.model.Mul4(mgl32.Translate3D(x, y, 0.0))
 	c.model = c.model.Mul4(mgl32.Scale3D(float32(c.Width), float32(c.Height), 1.0))
 
 	gl.UniformMatrix4fv(c.modelMatrix, 1, false, &c.model[0])

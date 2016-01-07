@@ -59,19 +59,19 @@ func New(group *sprite.Group) (*Player, error) {
 }
 
 // HandleEvent TODO doc
-func (p *Player) HandleEvent(event events.Event) {
+func (p *Player) HandleEvent(event events.Event, dt float32) {
 	// TODO: move this to SDK to handle things like holding Left & Right at the same time correctly
 	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyLeft {
-		p.Rect.X -= 10
+		p.Rect.X -= 300.0 * dt
 	}
 	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyRight {
-		p.Rect.X += 10
+		p.Rect.X += 300.0 * dt
 	}
 	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyUp {
-		p.Rect.Y += 10
+		p.Rect.Y += 300.0 * dt
 	}
 	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyDown {
-		p.Rect.Y -= 10
+		p.Rect.Y -= 300.0 * dt
 	}
 }
 
@@ -81,7 +81,7 @@ func (p *Player) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (p *Player) Update() {
+func (p *Player) Update(dt float32) {
 	// TODO: Myabe handeling events should be done here, and not in a seperate "HandleEvents" func?
 }
 
