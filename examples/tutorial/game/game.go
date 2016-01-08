@@ -22,6 +22,7 @@ import (
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/hurricanerix/transylvania/display"
 	"github.com/hurricanerix/transylvania/events"
+	"github.com/hurricanerix/transylvania/examples/tutorial/block"
 	"github.com/hurricanerix/transylvania/examples/tutorial/player"
 	"github.com/hurricanerix/transylvania/sprite"
 	"github.com/hurricanerix/transylvania/time/clock"
@@ -35,6 +36,8 @@ func init() {
 // Context TODO doc
 type Context struct {
 	Screen *display.Context
+	Player *player.Player
+	Walls  *sprite.Group
 }
 
 // New TODO doc
@@ -63,6 +66,33 @@ func (c *Context) Main(screen *display.Context) {
 		panic(err)
 	}
 
+	c.Walls = sprite.NewGroup()
+	// TODO: should only load image data once.
+	//block, err := sprite.Load("block.png")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//println(block)
+
+	for x := 0; x < 640; x += 32 {
+		for y := 0; y < 480; y += 32 {
+			if x == 0 || x == 640-32 || y == 0 || y == 480-32 {
+				// NOTE: original python code
+				//    wall = pygame.sprite.Sprite(self.walls)
+				//    wall.image = block
+				//    wall.rect = pygame.rect.Rect((x, y), block.get_size())
+				b, err := block.New(c.Walls)
+				if err != nil {
+					panic(err)
+				}
+				b.Rect.X = float32(x)
+				b.Rect.Y = float32(y)
+			}
+		}
+	}
+	sprites.Add(c.Walls)
+
+	sprites.Bind(c.Screen.Program)
 	for running := true; running; {
 		dt := clock.Tick(30)
 
@@ -84,7 +114,7 @@ func (c *Context) Main(screen *display.Context) {
 		sprites.Update(dt / 1000.0)
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
 		background.Draw(0, 0)
-		sprites.Draw(screen)
+		sprites.Draw()
 
 		screen.Flip()
 

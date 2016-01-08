@@ -14,6 +14,7 @@ To be a simple to use 2.5D game SDK using OpenGL, but abstracting the OpenGL asp
 - [ ] set ambient lighting
 - [ ] add simple light source (radiates from a central point in all directions)
 - [ ] add directional light source (radiates from a point in a specific direction)
+- [ ] add depth based drawing rather than painters algorithm
 
 NOTE: This SDK should be considered very experimental as it is still under development.  It is currently being modeled after some aspects of the PyGame SDK, but this will probably change some as it matures.  The project will not have its "experimental" status removed until at least all of the above items have been completed.
 

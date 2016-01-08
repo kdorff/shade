@@ -80,8 +80,9 @@ func (c *Context) Bind(program uint32) error {
 // Draw TODO doc
 func (c *Context) Draw(x, y float32) {
 	c.model = mgl32.Ident4()
+	c.model = c.model.Mul4(mgl32.Translate3D(float32(c.Width)/2.0, float32(c.Height)/2.0, 0.0))
 	c.model = c.model.Mul4(mgl32.Translate3D(x, y, 0.0))
-	c.model = c.model.Mul4(mgl32.Scale3D(float32(c.Width), float32(c.Height), 1.0))
+	c.model = c.model.Mul4(mgl32.Scale3D(float32(c.Width), float32(c.Height), 0.0))
 
 	gl.UniformMatrix4fv(c.modelMatrix, 1, false, &c.model[0])
 	gl.BindVertexArray(c.vao)
@@ -93,7 +94,7 @@ func (c *Context) Draw(x, y float32) {
 }
 
 // Update TODO doc
-func (c *Context) Update() {
+func (c *Context) Update(dt float32) {
 }
 
 // Load TODO doc
@@ -152,10 +153,10 @@ func Load(path string) (*Context, error) {
 }
 
 var vertices = []float32{
-	-1.0, -1.0, -1.0, 0.0, 1.0,
-	1.0, -1.0, -1.0, 1.0, 1.0,
-	1.0, 1.0, -1.0, 1.0, 0.0,
-	-1.0, 1.0, -1.0, 0.0, 0.0,
-	-1.0, -1.0, -1.0, 0.0, 1.0,
-	1.0, 1.0, -1.0, 1.0, 0.0,
+	-0.5, -0.5, -0.5, 0.0, 1.0,
+	0.5, -0.5, -0.5, 1.0, 1.0,
+	0.5, 0.5, 0.5, 1.0, 0.0,
+	-0.5, 0.5, -0.5, 0.0, 0.0,
+	-0.5, -0.5, -0.5, 0.0, 1.0,
+	0.5, 0.5, -0.5, 1.0, 0.0,
 }

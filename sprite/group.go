@@ -14,10 +14,7 @@
 
 package sprite
 
-import (
-	"github.com/hurricanerix/transylvania/display"
-	"github.com/hurricanerix/transylvania/interfaces"
-)
+import "github.com/hurricanerix/transylvania/interfaces"
 
 // Group TODO doc
 type Group struct {
@@ -42,10 +39,16 @@ func (g *Group) Update(dt float32) {
 	}
 }
 
-// Draw TODO doc
-func (g *Group) Draw(c *display.Context) {
+func (g *Group) Bind(program uint32) error {
 	for _, s := range g.sprites {
-		s.Bind(c.Program)
+		s.Bind(program)
+	}
+	return nil
+}
+
+// Draw TODO doc
+func (g *Group) Draw() {
+	for _, s := range g.sprites {
 		s.Draw()
 	}
 }
