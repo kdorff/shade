@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/hurricanerix/transylvania/rect"
+	"github.com/hurricanerix/transylvania/shapes"
 	"github.com/hurricanerix/transylvania/sprite"
 )
 
@@ -31,7 +31,7 @@ func init() {
 // Player TODO doc
 type Block struct {
 	Image *sprite.Context
-	Rect  *rect.Rect
+	Rect  *shapes.Rect
 }
 
 // New TODO doc
@@ -45,7 +45,7 @@ func New(group *sprite.Group) (*Block, error) {
 	}
 	b.Image = block
 
-	rect, err := rect.New(0.0, 0.0, float32(b.Image.Width), float32(b.Image.Height))
+	rect, err := shapes.NewRect(0.0, 0.0, float32(b.Image.Width), float32(b.Image.Height))
 	if err != nil {
 		return &b, fmt.Errorf("could create rect: %v", err)
 	}
@@ -62,11 +62,16 @@ func (b *Block) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (b *Block) Update(dt float32) {
+func (b *Block) Update(dt float32, g *sprite.Group) {
 	// TODO: Myabe handeling events should be done here, and not in a seperate "HandleEvents" func?
 }
 
 // Draw TODO doc
 func (b *Block) Draw() {
 	b.Image.Draw(b.Rect.X, b.Rect.Y)
+}
+
+// Bounds TODO doc
+func (b *Block) Bounds() shapes.Rect {
+	return *(b.Rect)
 }

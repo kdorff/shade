@@ -25,11 +25,21 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/transylvania/shapes"
 )
 
 func init() {
 	// GLFW event handling must run on the main OS thread
 	runtime.LockOSThread()
+}
+
+// Sprite TODO doc
+type Sprite interface {
+	// TODO rename this to something more interfacer
+	Bind(uint32) error
+	Update(float32, *Group)
+	Draw()
+	Bounds() shapes.Rect
 }
 
 // Context TODO doc
@@ -95,6 +105,11 @@ func (c *Context) Draw(x, y float32) {
 
 // Update TODO doc
 func (c *Context) Update(dt float32) {
+}
+
+// Bounds TODO doc
+func (c *Context) Bounds() shapes.Rect {
+	return shapes.Rect{}
 }
 
 // Load TODO doc

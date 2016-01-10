@@ -14,11 +14,12 @@
 
 package sprite
 
-import "github.com/hurricanerix/transylvania/interfaces"
+import "github.com/hurricanerix/transylvania/shapes"
 
 // Group TODO doc
 type Group struct {
-	sprites []interfaces.Sprite
+	// TODO: maybe Group contain a list of Entities
+	sprites []Sprite
 }
 
 // NewGroup TODO doc
@@ -28,15 +29,20 @@ func NewGroup() *Group {
 }
 
 // Add TODO doc
-func (g *Group) Add(s interfaces.Sprite) {
+func (g *Group) Add(s Sprite) {
 	g.sprites = append(g.sprites, s)
 }
 
 // Update TODO doc
-func (g *Group) Update(dt float32) {
+func (g *Group) Update(dt float32, cg *Group) {
 	for _, s := range g.sprites {
-		s.Update(dt)
+		s.Update(dt, cg)
 	}
+}
+
+// Bounds TODO doc
+func (g *Group) Bounds() shapes.Rect {
+	return shapes.Rect{}
 }
 
 func (g *Group) Bind(program uint32) error {

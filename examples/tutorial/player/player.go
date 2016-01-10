@@ -21,7 +21,7 @@ import (
 
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/hurricanerix/transylvania/events"
-	"github.com/hurricanerix/transylvania/rect"
+	"github.com/hurricanerix/transylvania/shapes"
 	"github.com/hurricanerix/transylvania/sprite"
 )
 
@@ -33,7 +33,8 @@ func init() {
 // Player TODO doc
 type Player struct {
 	Image *sprite.Context
-	Rect  *rect.Rect
+	Rect  *shapes.Rect
+	last  shapes.Rect
 }
 
 // New TODO doc
@@ -47,7 +48,7 @@ func New(group *sprite.Group) (*Player, error) {
 	}
 	p.Image = player
 
-	rect, err := rect.New(320, 240, 0, 0)
+	rect, err := shapes.NewRect(320.0, 240.0, float32(p.Image.Width), float32(p.Image.Height))
 	if err != nil {
 		return &p, fmt.Errorf("could create rect: %v", err)
 	}
@@ -61,6 +62,7 @@ func New(group *sprite.Group) (*Player, error) {
 // HandleEvent TODO doc
 func (p *Player) HandleEvent(event events.Event, dt float32) {
 	// TODO: move this to SDK to handle things like holding Left & Right at the same time correctly
+	p.last = shapes.Rect{p.Rect.X, p.Rect.Y, p.Rect.Width, p.Rect.Height}
 	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyLeft {
 		p.Rect.X -= 300.0 * dt
 	}
@@ -81,11 +83,22 @@ func (p *Player) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (p *Player) Update(dt float32) {
+func (p *Player) Update(dt float32, g *sprite.Group) {
 	// TODO: Myabe handeling events should be done here, and not in a seperate "HandleEvents" func?
+	for _, cell := range sprite.Collide(p, g, false) {
+		if cell != nil {
+			p.Rect.X = p.last.X
+			p.Rect.Y = p.last.Y
+		}
+	}
 }
 
 // Draw TODO doc
 func (p *Player) Draw() {
 	p.Image.Draw(p.Rect.X, p.Rect.Y)
+}
+
+// Bounds TODO doc
+func (p *Player) Bounds() shapes.Rect {
+	return *(p.Rect)
 }

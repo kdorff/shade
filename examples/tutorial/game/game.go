@@ -111,7 +111,7 @@ func (c *Context) Main(screen *display.Context) {
 			p.HandleEvent(event, dt/1000.0)
 		}
 
-		sprites.Update(dt / 1000.0)
+		sprites.Update(dt/1000.0, c.Walls)
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
 		background.Draw(0, 0)
 		sprites.Draw()

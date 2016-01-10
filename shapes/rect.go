@@ -13,8 +13,9 @@
 // limitations under the License.
 // Package rect TODO doc
 
-package rect
+package shapes
 
+// Rect TODO doc
 type Rect struct {
 	X      float32
 	Y      float32
@@ -22,8 +23,8 @@ type Rect struct {
 	Height float32
 }
 
-// New TODO doc
-func New(x, y, width, height float32) (*Rect, error) {
+// NewRect TODO doc
+func NewRect(x, y, width, height float32) (*Rect, error) {
 	r := Rect{
 		X:      x,
 		Y:      y,
