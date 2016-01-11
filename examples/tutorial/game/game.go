@@ -87,6 +87,8 @@ func (c *Context) Main(screen *display.Context) {
 				}
 				b.Rect.X = float32(x)
 				b.Rect.Y = float32(y)
+				b.Rect.Width = float32(b.Image.Width)
+				b.Rect.Width = float32(b.Image.Height)
 			}
 		}
 	}
@@ -103,6 +105,7 @@ func (c *Context) Main(screen *display.Context) {
 		if screen.Window.ShouldClose() {
 			running = !screen.Window.ShouldClose()
 		}
+
 		for _, event := range events.Get() {
 			if event.Action == glfw.Press && event.Key == glfw.KeyEscape {
 				running = false

@@ -36,31 +36,13 @@ func testBounds(a, b shapes.Rect) bool {
 }
 
 func testHorz(a, b shapes.Rect) bool {
-	al := a.X
-	ar := a.X + a.Width
-	bl := b.X
-	br := b.X + b.Width
-
-	albl := al >= bl && al < br
-	arbl := ar >= bl && ar < br
-
-	albr := al <= br && al > bl
-	arbr := ar <= br && ar > bl
-
-	return albl || arbl || albr || arbr
+	arbl := a.Right() >= b.Left() && a.Right() < b.Right()
+	albr := a.Left() <= b.Right() && a.Left() > b.Left()
+	return arbl || albr
 }
 
 func testVert(a, b shapes.Rect) bool {
-	ab := a.Y
-	at := a.Y + a.Height
-	bb := b.Y
-	bt := b.Y + b.Height
-
-	abbb := ab >= bb && ab < bt
-	atbb := at >= bb && at < bt
-
-	abbt := ab <= bt && ab > bb
-	atbt := at <= bt && at > bb
-
-	return abbb || atbb || abbt || atbt
+	atbb := a.Top() >= b.Bottom() && a.Top() < b.Top()
+	abbt := a.Bottom() <= b.Top() && a.Bottom() > b.Bottom()
+	return atbb || abbt
 }

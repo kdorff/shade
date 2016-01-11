@@ -33,3 +33,23 @@ func NewRect(x, y, width, height float32) (*Rect, error) {
 	}
 	return &r, nil
 }
+
+// Left TODO doc
+func (r Rect) Left() float32 {
+	return r.X
+}
+
+// Right TODO doc
+func (r Rect) Right() float32 {
+	return r.X + r.Width
+}
+
+// Top TODO doc
+func (r Rect) Top() float32 {
+	return r.Y + r.Height
+}
+
+// Bottom TODO doc
+func (r Rect) Bottom() float32 {
+	return r.Y
+}

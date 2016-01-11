@@ -17,6 +17,7 @@ package player
 
 import (
 	"fmt"
+	"math"
 	"runtime"
 
 	"github.com/go-gl/glfw/v3.1/glfw"
@@ -32,9 +33,13 @@ func init() {
 
 // Player TODO doc
 type Player struct {
-	Image *sprite.Context
-	Rect  *shapes.Rect
-	last  shapes.Rect
+	Image    *sprite.Context
+	Rect     *shapes.Rect
+	resting  bool
+	dy       float32
+	leftKey  bool
+	rightKey bool
+	jumpKey  bool
 }
 
 // New TODO doc
@@ -62,18 +67,24 @@ func New(group *sprite.Group) (*Player, error) {
 // HandleEvent TODO doc
 func (p *Player) HandleEvent(event events.Event, dt float32) {
 	// TODO: move this to SDK to handle things like holding Left & Right at the same time correctly
-	p.last = shapes.Rect{p.Rect.X, p.Rect.Y, p.Rect.Width, p.Rect.Height}
+
 	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyLeft {
-		p.Rect.X -= 300.0 * dt
+		p.leftKey = true
 	}
 	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyRight {
-		p.Rect.X += 300.0 * dt
+		p.rightKey = true
 	}
-	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyUp {
-		p.Rect.Y += 300.0 * dt
+	if p.resting && (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeySpace {
+		p.jumpKey = true
 	}
-	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyDown {
-		p.Rect.Y -= 300.0 * dt
+	if event.Action == glfw.Release && event.Key == glfw.KeyLeft {
+		p.leftKey = false
+	}
+	if event.Action == glfw.Release && event.Key == glfw.KeyRight {
+		p.rightKey = false
+	}
+	if event.Action == glfw.Release && event.Key == glfw.KeySpace {
+		p.jumpKey = false
 	}
 }
 
@@ -84,13 +95,49 @@ func (p *Player) Bind(program uint32) error {
 
 // Update TODO doc
 func (p *Player) Update(dt float32, g *sprite.Group) {
-	// TODO: Myabe handeling events should be done here, and not in a seperate "HandleEvents" func?
+	lastR := shapes.Rect{p.Rect.X, p.Rect.Y, p.Rect.Width, p.Rect.Height}
+
+	if p.leftKey {
+		p.Rect.X -= 300.0 * dt
+	}
+	if p.rightKey {
+		p.Rect.X += 300.0 * dt
+	}
+	if p.resting && p.jumpKey {
+		p.dy = 500.0
+	}
+	p.dy = float32(math.Max(float64(-400.0), float64(p.dy-40.0)))
+
+	p.Rect.Y += p.dy * dt
+
+	newR := p.Rect
+	p.resting = false
+
 	for _, cell := range sprite.Collide(p, g, false) {
 		if cell != nil {
-			p.Rect.X = p.last.X
-			p.Rect.Y = p.last.Y
+			cb := cell.Bounds()
+
+			if lastR.Right() <= cb.Left() && newR.Right() > cb.Left() {
+				newR.X = cb.X - 1.0
+			}
+			if lastR.Left() >= cb.Right() && newR.Left() < cb.Right() {
+				newR.X = cb.Right() + 1.0 //  lastR.X //cb.Right()
+			}
+			if lastR.Bottom() <= cb.Top() && newR.Bottom() < cb.Top() {
+				p.resting = true
+				p.Rect.Y = cb.Top() + 1
+				p.dy = 0.0
+			}
+			if lastR.Top() <= cb.Bottom() && newR.Top() < cb.Bottom() {
+				//new.top = cell.bottom
+				newR.Y = cb.Bottom() - 1
+				p.dy = 0.0
+			}
+
 		}
+
 	}
+
 }
 
 // Draw TODO doc
