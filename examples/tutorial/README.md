@@ -3,6 +3,8 @@ Tutorial
 
 An example showing how to build a side scrolling platform game using the Transylvania SDK.
 
+There is currently some issue with the boundry detection and player movement.
+
 Attribution
 -----------
 
