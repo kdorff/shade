@@ -181,6 +181,7 @@ var vertexShader = `
 uniform mat4 ProjMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ModelMatrix;
+uniform mat3 TexMatrix;
 
 in vec3 MCVertex;
 in vec2 TexCoord0;
@@ -188,7 +189,7 @@ in vec2 TexCoord0;
 out vec2 TexCoord;
 
 void main() {
-  TexCoord = TexCoord0;
+  TexCoord = vec3(TexMatrix * vec3(TexCoord0, 1.0)).st;
   gl_Position = ProjMatrix * ViewMatrix * ModelMatrix * vec4(MCVertex, 1);
 }
 ` + "\x00"
