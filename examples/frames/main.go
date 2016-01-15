@@ -47,7 +47,7 @@ func main() {
 		panic(err)
 	}
 
-	s, err := sprite.Load("frames.png")
+	s, err := sprite.Load("frames.png", 3)
 	if err != nil {
 		panic(err)
 	}
