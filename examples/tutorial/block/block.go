@@ -72,6 +72,9 @@ func (b *Block) Draw() {
 }
 
 // Bounds TODO doc
-func (b *Block) Bounds() shapes.Rect {
-	return *(b.Rect)
+func (b *Block) Bounds() chan shapes.Rect {
+	ch := make(chan shapes.Rect, 1)
+	ch <- *(b.Rect)
+	close(ch)
+	return ch
 }

@@ -114,8 +114,7 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 	p.resting = false
 
 	for _, cell := range sprite.Collide(p, g, false) {
-		if cell != nil {
-			cb := cell.Bounds()
+		for cb := range cell.Bounds() {
 
 			if lastR.Right() <= cb.Left() && newR.Right() > cb.Left() {
 				newR.X = cb.X - 1.0
@@ -133,9 +132,7 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 				newR.Y = cb.Bottom() - 1
 				p.dy = 0.0
 			}
-
 		}
-
 	}
 
 }
@@ -146,6 +143,9 @@ func (p *Player) Draw() {
 }
 
 // Bounds TODO doc
-func (p *Player) Bounds() shapes.Rect {
-	return *(p.Rect)
+func (p *Player) Bounds() chan shapes.Rect {
+	ch := make(chan shapes.Rect, 1)
+	ch <- *(p.Rect)
+	close(ch)
+	return ch
 }

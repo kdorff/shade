@@ -41,8 +41,11 @@ func (g *Group) Update(dt float32, cg *Group) {
 }
 
 // Bounds TODO doc
-func (g *Group) Bounds() shapes.Rect {
-	return shapes.Rect{}
+func (g *Group) Bounds() chan shapes.Rect {
+	b := make(chan shapes.Rect, 1)
+	b <- shapes.Rect{}
+	close(b)
+	return b
 }
 
 func (g *Group) Bind(program uint32) error {

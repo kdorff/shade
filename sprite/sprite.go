@@ -39,7 +39,7 @@ type Sprite interface {
 	Bind(uint32) error
 	Update(float32, *Group)
 	Draw()
-	Bounds() shapes.Rect
+	Bounds() chan shapes.Rect
 }
 
 // Context TODO doc
