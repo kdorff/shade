@@ -24,12 +24,9 @@ import (
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/hurricanerix/transylvania/display"
 	"github.com/hurricanerix/transylvania/events"
-	"github.com/hurricanerix/transylvania/examples/splash/splash"
+	"github.com/hurricanerix/transylvania/splash"
 	"github.com/hurricanerix/transylvania/sprite"
 )
-
-const windowWidth = 800
-const windowHeight = 600
 
 func init() {
 	// GLFW event handling must run on the main OS thread
@@ -42,6 +39,7 @@ func main() {
 		log.Fatalln("failed to set display mode:", err)
 	}
 
+	// Please see transylvania/splash/splash.go for details
 	splash.Main(screen)
 
 	background, err := sprite.Load("face.png", 1)

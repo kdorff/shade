@@ -16,7 +16,9 @@
 package splash
 
 import (
+	"fmt"
 	_ "image/png"
+	"os"
 	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -38,7 +40,9 @@ func Main(screen *display.Context) {
 		panic(err)
 	}
 
-	background, err := sprite.Load("logo.png", 8)
+	logopath := fmt.Sprintf("%s/src/github.com/hurricanerix/transylvania/assets/logo.png", os.Getenv("GOPATH"))
+
+	background, err := sprite.Load(logopath, 8)
 	if err != nil {
 		panic(err)
 	}
@@ -64,7 +68,29 @@ func Main(screen *display.Context) {
 		}
 
 		screen.Fill(0.0, 0.0, 0.0)
-		background.Draw(0, 0)
+
+		// TODO: read from actual window width/height
+		var x float32 = (640.0 - 96.0/2.0) / 2.0
+		var y float32 = (480.0 - 96.0/2.0) / 2.0
+
+		top := y + 64.0
+		middle := y + 32.0
+		bottom := y + 0.0
+
+		left := x + 0.0
+		center := x + 32.0
+		right := x + 64.0
+
+		background.DrawFrame(0, right, top)
+		background.DrawFrame(1, center, top)
+		background.DrawFrame(2, right, top)
+
+		background.DrawFrame(3, center, middle)
+		background.DrawFrame(4, right, middle)
+
+		background.DrawFrame(5, left, bottom)
+		background.DrawFrame(6, center, bottom)
+		background.DrawFrame(7, right, bottom)
 
 		screen.Flip()
 
