@@ -61,6 +61,7 @@ func SetMode(width, height int) (*Context, error) {
 
 	c.Window.MakeContextCurrent()
 	c.Window.SetKeyCallback(events.KeyCallback)
+	c.Window.SetCursorPosCallback(events.CursorPositionCallback)
 
 	if err := gl.Init(); err != nil {
 		return &c, fmt.Errorf("failed to init glow: %v", err)

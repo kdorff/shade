@@ -28,10 +28,13 @@ func init() {
 
 type Event struct {
 	Window   *glfw.Window
+	KeyEvent bool
 	Key      glfw.Key
 	Scancode int
 	Action   glfw.Action
 	Mods     glfw.ModifierKey
+	X        float32
+	Y        float32
 }
 
 var events []Event
@@ -42,19 +45,35 @@ func Get() []Event {
 	for i := range events {
 		elist = append(elist, Event{
 			Window:   events[i].Window,
+			KeyEvent: events[i].KeyEvent,
 			Key:      events[i].Key,
 			Scancode: events[i].Scancode,
 			Action:   events[i].Action,
 			Mods:     events[i].Mods,
+			X:        events[i].X,
+			Y:        events[i].Y,
 		})
 	}
 	events = nil
 	return elist
 }
 
+// CursorPositionCallback TODO doc
+func CursorPositionCallback(w *glfw.Window, x, y float64) {
+	// TODO: these are from the top/left should be bottom/left to match sprite drawing
+	events = append(events, Event{
+		Window:   w,
+		KeyEvent: false,
+		X:        float32(x),
+		Y:        float32(y),
+	})
+}
+
+// KeyCallback TODO doc
 func KeyCallback(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
 	events = append(events, Event{
 		Window:   w,
+		KeyEvent: true,
 		Key:      key,
 		Scancode: scancode,
 		Action:   action,
