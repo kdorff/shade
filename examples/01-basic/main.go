@@ -27,8 +27,8 @@ import (
 	"github.com/hurricanerix/transylvania/sprite"
 )
 
-const windowWidth = 800
-const windowHeight = 600
+const windowWidth = 640
+const windowHeight = 480
 
 func init() {
 	// GLFW event handling must run on the main OS thread
@@ -36,16 +36,16 @@ func init() {
 }
 
 func main() {
-	screen, err := display.SetMode(640, 480)
+	screen, err := display.SetMode("01-basic", windowWidth, windowHeight)
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
 	}
 
-	background, err := sprite.Load("face.png", 1)
+	face, err := sprite.Load("face.png", 1)
 	if err != nil {
 		panic(err)
 	}
-	background.Bind(screen.Program)
+	face.Bind(screen.Program)
 
 	for running := true; running; {
 		// TODO move this somewhere else (maybe a Clear method of display
@@ -64,7 +64,7 @@ func main() {
 		}
 
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		background.Draw(0, 0)
+		face.Draw(windowWidth/2-float32(face.Width)/2, windowHeight/2-float32(face.Height)/2)
 
 		screen.Flip()
 

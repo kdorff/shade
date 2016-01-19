@@ -40,7 +40,7 @@ type Context struct {
 }
 
 // SetMode TODO doc
-func SetMode(width, height int) (*Context, error) {
+func SetMode(title string, width, height int) (*Context, error) {
 	c := Context{}
 	if err := glfw.Init(); err != nil {
 		return &c, fmt.Errorf("failed to initialize glfw: %v", err)
@@ -53,7 +53,7 @@ func SetMode(width, height int) (*Context, error) {
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-	window, err := glfw.CreateWindow(640, 480, "Tutorial", nil, nil)
+	window, err := glfw.CreateWindow(640, 480, title, nil, nil)
 	if err != nil {
 		return &c, fmt.Errorf("failed to create window: %v", err)
 	}

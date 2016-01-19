@@ -20,7 +20,8 @@ import (
 	"runtime"
 
 	"github.com/hurricanerix/transylvania/display"
-	"github.com/hurricanerix/transylvania/examples/tutorial/game"
+	"github.com/hurricanerix/transylvania/examples/ex1-platform/game"
+	"github.com/hurricanerix/transylvania/splash"
 )
 
 func init() {
@@ -29,7 +30,7 @@ func init() {
 }
 
 func main() {
-	screen, err := display.SetMode(640, 480)
+	screen, err := display.SetMode("ex1-platform", 640, 480)
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
 	}
@@ -38,6 +39,9 @@ func main() {
 	if err != nil {
 		log.Fatalln("failed to create game:", err)
 	}
+
+	// Please see transylvania/splash/splash.go for details
+	splash.Main(screen)
 
 	g.Main(screen)
 }

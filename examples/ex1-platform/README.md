@@ -1,9 +1,7 @@
-Tutorial
-========
+ex1-platform
+============
 
-An example showing how to build a side scrolling platform game using the Transylvania SDK.
-
-There is currently some issue with the boundry detection and player movement.
+A working example of a simple platform style game demostrating all the features of the SDK.
 
 Attribution
 -----------

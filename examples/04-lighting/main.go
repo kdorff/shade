@@ -36,7 +36,7 @@ func init() {
 }
 
 func main() {
-	screen, err := display.SetMode(windowWidth, windowHeight)
+	screen, err := display.SetMode("03-lighting", windowWidth, windowHeight)
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
 	}

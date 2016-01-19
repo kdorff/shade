@@ -3,18 +3,30 @@ Transylvania SDK
 
 A simple and easy to use 2.5D game SDK for the Go programming language.
 
-Goals
+TODOs 
 -----
 
-To be a simple to use 2.5D game SDK using OpenGL, but abstracting the OpenGL aspects so that direct calls to it are not needed.  
-
-- [ ] load sprites
-- [ ] load animated sprites
+- [x] load sprites
+- [x] load animated sprites
+- [x] detect collisions
 - [ ] load normal maps
 - [ ] set ambient lighting
 - [ ] add simple light source (radiates from a central point in all directions)
 - [ ] add directional light source (radiates from a point in a specific direction)
 - [ ] add depth based drawing rather than painters algorithm
+- [ ] 03-collisions: create example
+- [ ] 04-lighting: Add ability to set lights in SDK
+- [ ] 04-lighting: Add ability to load normal maps into sprite
+- [ ] 04-lighting: Update shaders to calculate lighting
+- [ ] ex1-platform: Fix boundry detection (so player does not run up walls)
+- [ ] ex1-platform: Fix input (sometimes jumps do not register and the guy runs faster to the right)
+- [ ] ex1-platform: Add basic menu after splash screen
+- [ ] ex1-platform: Add more interesting sprites
+- [ ] ex1-platform: Add more interesting level
+- [ ] ex1-platform: Add enemies
+- [ ] ex1-platform: Allow player to shoot
+- [ ] ex1-platform: Add door to open when all enemies have been killed (allowing the player to win)
+
 
 NOTE: This SDK should be considered very experimental as it is still under development.  It is currently being modeled after some aspects of the PyGame SDK, but this will probably change some as it matures.  The project will not have its "experimental" status removed until at least all of the above items have been completed.
 

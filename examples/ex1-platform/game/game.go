@@ -22,8 +22,8 @@ import (
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/hurricanerix/transylvania/display"
 	"github.com/hurricanerix/transylvania/events"
-	"github.com/hurricanerix/transylvania/examples/tutorial/block"
-	"github.com/hurricanerix/transylvania/examples/tutorial/player"
+	"github.com/hurricanerix/transylvania/examples/ex1-platform/block"
+	"github.com/hurricanerix/transylvania/examples/ex1-platform/player"
 	"github.com/hurricanerix/transylvania/sprite"
 	"github.com/hurricanerix/transylvania/time/clock"
 )
