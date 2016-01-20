@@ -14,7 +14,8 @@ TODOs
 - [ ] add simple light source (radiates from a central point in all directions)
 - [ ] add directional light source (radiates from a point in a specific direction)
 - [ ] add depth based drawing rather than painters algorithm
-- [ ] 03-collisions: create example
+- [x] 03-collisions: create example
+- [ ] 03-collisions: fix ball from getting out at edges
 - [ ] 04-lighting: Add ability to set lights in SDK
 - [ ] 04-lighting: Add ability to load normal maps into sprite
 - [ ] 04-lighting: Update shaders to calculate lighting
