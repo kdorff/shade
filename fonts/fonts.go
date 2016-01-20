@@ -33,18 +33,19 @@ type location struct {
 	y int
 }
 
+// Context TODO doc
 type Context struct {
 	Image      *sprite.Context
 	LocMap     map[int32]location
 	UnknownLoc location
 }
 
+// New TODO doc
 func New() (*Context, error) {
 	c := Context{
 		LocMap:     make(map[int32]location, 96),
 		UnknownLoc: location{y: 1, x: 31},
 	}
-	//for y := 32; y < 32*3; y += 32 {
 	for y := 0; y < 3; y++ {
 		for x := 0; x < 32; x++ {
 			c.LocMap[int32((y+1)*32+x)] = location{y: y, x: x}
@@ -61,10 +62,12 @@ func New() (*Context, error) {
 	return &c, nil
 }
 
+// Bind TODO doc
 func (c *Context) Bind(program uint32) {
 	c.Image.Bind(program)
 }
 
+// DrawText TODO doc
 func (c Context) DrawText(x, y, sx, sy float32, msg string) {
 	cx := x
 	cy := y
@@ -80,4 +83,23 @@ func (c Context) DrawText(x, y, sx, sy float32, msg string) {
 			cy += float32(c.Image.Width) * sx
 		}
 	}
+}
+
+// SizeText TODO doc
+func (c Context) SizeText(sx, sy float32, msg string) (float32, float32) {
+	var lx float32 = 0.0
+	var cx float32 = 0.0
+	var cy float32 = float32(c.Image.Height) * sy
+	for _, r := range msg {
+		if r == 10 { // code for newline
+			cx = 0
+			cy += float32(c.Image.Height) * sy
+		} else {
+			cx += float32(c.Image.Width) * sx
+		}
+		if cx > lx {
+			lx = cx
+		}
+	}
+	return lx, cy
 }
