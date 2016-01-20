@@ -54,7 +54,7 @@ func (c *Context) Main(screen *display.Context) {
 		panic(err)
 	}
 
-	background, err := sprite.Load("background.png", 1)
+	background, err := sprite.Load("background.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}

@@ -24,7 +24,7 @@ import (
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/hurricanerix/transylvania/display"
 	"github.com/hurricanerix/transylvania/events"
-	"github.com/hurricanerix/transylvania/sprite"
+	"github.com/hurricanerix/transylvania/fonts"
 )
 
 const windowWidth = 640
@@ -36,16 +36,16 @@ func init() {
 }
 
 func main() {
-	screen, err := display.SetMode("01-basic", windowWidth, windowHeight)
+	screen, err := display.SetMode("05-font", windowWidth, windowHeight)
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
 	}
 
-	face, err := sprite.Load("face.png", 1, 1)
+	font, err := fonts.New()
 	if err != nil {
 		panic(err)
 	}
-	face.Bind(screen.Program)
+	font.Bind(screen.Program)
 
 	for running := true; running; {
 		// TODO move this somewhere else (maybe a Clear method of display
@@ -64,7 +64,7 @@ func main() {
 		}
 
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		face.Draw(windowWidth/2-float32(face.Width)/2, windowHeight/2-float32(face.Height)/2)
+		font.DrawText(250, 250, 3.0, 3.0, "Hello\nWorld!")
 
 		screen.Flip()
 

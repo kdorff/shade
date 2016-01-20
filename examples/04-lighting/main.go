@@ -41,7 +41,7 @@ func main() {
 		log.Fatalln("failed to set display mode:", err)
 	}
 
-	background, err := sprite.Load("face.png", 1)
+	background, err := sprite.Load("face.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}

@@ -47,7 +47,7 @@ func New(group *sprite.Group) (*Player, error) {
 	// TODO should take a group in as a argument
 	p := Player{}
 
-	player, err := sprite.Load("player.png", 1)
+	player, err := sprite.Load("player.png", 1, 1)
 	if err != nil {
 		return &p, fmt.Errorf("could not load player: %v", err)
 	}

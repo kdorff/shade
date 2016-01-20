@@ -47,7 +47,7 @@ func main() {
 		panic(err)
 	}
 
-	a, err := sprite.Load("animation.png", 3)
+	a, err := sprite.Load("animation.png", 3, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -78,7 +78,7 @@ func main() {
 		}
 
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		a.DrawFrame(int(frame), windowWidth/2-float32(a.Width)/2, windowHeight/2-float32(a.Height)/2)
+		a.DrawFrame(int(frame), 0, 1.0, 1.0, windowWidth/2-float32(a.Width)/2, windowHeight/2-float32(a.Height)/2)
 
 		screen.Flip()
 

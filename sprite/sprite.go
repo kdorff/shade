@@ -47,7 +47,8 @@ type Context struct {
 	Image       image.Image
 	Width       int
 	Height      int
-	frames      int
+	framesX     int
+	framesY     int
 	vao         uint32
 	vbo         uint32
 	texLoc      uint32
@@ -95,19 +96,19 @@ func (c *Context) Bind(program uint32) error {
 
 // Draw TODO doc
 func (c *Context) Draw(x, y float32) {
-	c.DrawFrame(0, x, y)
+	c.DrawFrame(0, 0, 1.0, 1.0, x, y)
 }
 
-func (c *Context) DrawFrame(f int, x, y float32) {
+func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32) {
 	c.model = mgl32.Ident4()
 	c.model = c.model.Mul4(mgl32.Translate3D(float32(c.Width)/2.0, float32(c.Height)/2.0, 0.0))
-	c.model = c.model.Mul4(mgl32.Translate3D(x, y, 0.0))
-	c.model = c.model.Mul4(mgl32.Scale3D(float32(c.Width), float32(c.Height), 0.0))
+	c.model = c.model.Mul4(mgl32.Translate3D(px, py, 0.0))
+	c.model = c.model.Mul4(mgl32.Scale3D(float32(c.Width)*sx, float32(c.Height)*sy, 0.0))
 	gl.UniformMatrix4fv(c.modelMatrix, 1, false, &c.model[0])
 
 	c.tex = mgl32.Ident3()
-	c.tex = c.tex.Mul3(mgl32.Scale2D(1.0/float32(c.frames), 1.0))
-	c.tex = c.tex.Mul3(mgl32.Translate2D(float32(f), 1.0))
+	c.tex = c.tex.Mul3(mgl32.Scale2D(1.0/float32(c.framesX), 1.0/float32(c.framesY)))
+	c.tex = c.tex.Mul3(mgl32.Translate2D(float32(fx), float32(fy)))
 	gl.UniformMatrix3fv(c.texMatrix, 1, false, &c.tex[0])
 
 	gl.BindVertexArray(c.vao)
@@ -128,7 +129,7 @@ func (c *Context) Bounds() shapes.Rect {
 }
 
 // Load TODO doc
-func Load(path string, frames int) (*Context, error) {
+func Load(path string, framesX, framesY int) (*Context, error) {
 	// TODO: prob should rename this to func to New
 	c := Context{}
 	// data, err := ioutil.ReadFile(path)
@@ -153,9 +154,10 @@ func Load(path string, frames int) (*Context, error) {
 	if rgba.Stride != rgba.Rect.Size().X*4 {
 		return &c, fmt.Errorf("unsupported stride")
 	}
-	c.frames = frames
-	c.Width = int(float32(rgba.Rect.Size().X) / float32(frames))
-	c.Height = rgba.Rect.Size().Y
+	c.framesX = framesX
+	c.framesY = framesY
+	c.Width = int(float32(rgba.Rect.Size().X) / float32(framesX))
+	c.Height = int(float32(rgba.Rect.Size().Y) / float32(framesY))
 
 	draw.Draw(rgba, rgba.Bounds(), c.Image, image.Point{0, 0}, draw.Src)
 
