@@ -18,6 +18,7 @@ TODOs
 - [ ] 04-lighting: Add ability to set lights in SDK
 - [ ] 04-lighting: Add ability to load normal maps into sprite
 - [ ] 04-lighting: Update shaders to calculate lighting
+- [ ] 05-text: Fix text alignment
 - [ ] ex1-platform: Fix boundry detection (so player does not run up walls)
 - [ ] ex1-platform: Fix input (sometimes jumps do not register and the guy runs faster to the right)
 - [ ] ex1-platform: Add basic menu after splash screen

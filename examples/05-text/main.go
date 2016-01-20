@@ -47,6 +47,9 @@ func main() {
 	}
 	font.Bind(screen.Program)
 
+	var msg string
+	var w, h float32
+
 	for running := true; running; {
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -64,7 +67,27 @@ func main() {
 		}
 
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		font.DrawText(250, 250, 3.0, 3.0, "Hello\nWorld!")
+
+		msg = "Bottom Left"
+		font.DrawText(0, 0, 3.0, 3.0, msg)
+
+		msg = "Bottom Right"
+		w, _ = font.SizeText(3.0, 3.0, msg)
+		font.DrawText(screen.Width-w, 0, 3.0, 3.0, msg)
+
+		msg = "Top Left"
+		_, h = font.SizeText(3.0, 3.0, msg)
+		font.DrawText(0, screen.Height-h, 3.0, 3.0, msg)
+
+		msg = "Top Right"
+		w, h = font.SizeText(3.0, 3.0, msg)
+		font.DrawText(screen.Width-w, screen.Height-h, 3.0, 3.0, msg)
+
+		msg = "Center\nMulti-Line\nText"
+		w, h = font.SizeText(3.0, 3.0, msg)
+		font.DrawText(screen.Width/2-w/2, screen.Height/2+h/2, 3.0, 3.0, msg)
+
+		//font.DrawText(250, 250, 3.0, 3.0, "Hello\nWorld!")
 
 		screen.Flip()
 

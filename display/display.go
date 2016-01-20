@@ -34,6 +34,8 @@ func init() {
 // Context TODO doc
 type Context struct {
 	Window     *glfw.Window
+	Width      float32
+	Height     float32
 	Program    uint32
 	ProjMatrix mgl32.Mat4
 	ViewMatrix mgl32.Mat4
@@ -41,7 +43,10 @@ type Context struct {
 
 // SetMode TODO doc
 func SetMode(title string, width, height int) (*Context, error) {
-	c := Context{}
+	c := Context{
+		Width:  float32(width),
+		Height: float32(height),
+	}
 	if err := glfw.Init(); err != nil {
 		return &c, fmt.Errorf("failed to initialize glfw: %v", err)
 	}
