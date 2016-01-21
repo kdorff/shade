@@ -19,9 +19,9 @@ import (
 	"log"
 	"runtime"
 
-	"github.com/hurricanerix/transylvania/display"
-	"github.com/hurricanerix/transylvania/examples/ex1-platform/game"
-	"github.com/hurricanerix/transylvania/splash"
+	"github.com/hurricanerix/shade/display"
+	"github.com/hurricanerix/shade/examples/ex1-platform/game"
+	"github.com/hurricanerix/shade/splash"
 )
 
 func init() {
@@ -40,7 +40,8 @@ func main() {
 		log.Fatalln("failed to create game:", err)
 	}
 
-	// Please see transylvania/splash/splash.go for details
+	// Please see shade/splash/splash.go for details on
+	// creating a splash screen
 	splash.Main(screen)
 
 	g.Main(screen)

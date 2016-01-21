@@ -14,7 +14,7 @@
 
 package sprite
 
-import "github.com/hurricanerix/transylvania/shapes"
+import "github.com/hurricanerix/shade/shapes"
 
 // Group TODO doc
 type Group struct {

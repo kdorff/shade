@@ -1,5 +1,5 @@
-Transylvania SDK
-================
+Shade SDK
+=========
 
 A simple and easy to use 2.5D game SDK for the Go programming language.
 

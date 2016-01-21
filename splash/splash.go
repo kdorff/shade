@@ -23,10 +23,10 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
-	"github.com/hurricanerix/transylvania/display"
-	"github.com/hurricanerix/transylvania/events"
-	"github.com/hurricanerix/transylvania/sprite"
-	"github.com/hurricanerix/transylvania/time/clock"
+	"github.com/hurricanerix/shade/display"
+	"github.com/hurricanerix/shade/events"
+	"github.com/hurricanerix/shade/sprite"
+	"github.com/hurricanerix/shade/time/clock"
 )
 
 func init() {
@@ -40,7 +40,7 @@ func Main(screen *display.Context) {
 		panic(err)
 	}
 
-	logopath := fmt.Sprintf("%s/src/github.com/hurricanerix/transylvania/assets/logo.png", os.Getenv("GOPATH"))
+	logopath := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/logo.png", os.Getenv("GOPATH"))
 
 	background, err := sprite.Load(logopath, 8, 1)
 	if err != nil {

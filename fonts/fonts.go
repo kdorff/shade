@@ -20,7 +20,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/hurricanerix/transylvania/sprite"
+	"github.com/hurricanerix/shade/sprite"
 )
 
 func init() {
@@ -52,7 +52,7 @@ func New() (*Context, error) {
 		}
 	}
 
-	path := fmt.Sprintf("%s/src/github.com/hurricanerix/transylvania/assets/font.png", os.Getenv("GOPATH"))
+	path := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/font.png", os.Getenv("GOPATH"))
 	i, err := sprite.Load(path, 32, 3)
 	if err != nil {
 		return &c, err

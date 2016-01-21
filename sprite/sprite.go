@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/hurricanerix/transylvania/shapes"
+	"github.com/hurricanerix/shade/shapes"
 )
 
 func init() {

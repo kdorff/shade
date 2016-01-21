@@ -14,7 +14,7 @@
 
 package sprite
 
-import "github.com/hurricanerix/transylvania/shapes"
+import "github.com/hurricanerix/shade/shapes"
 
 // Collide TODO doc
 func Collide(t Sprite, g *Group, dokill bool) []Sprite {

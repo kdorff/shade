@@ -22,9 +22,9 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
-	"github.com/hurricanerix/transylvania/display"
-	"github.com/hurricanerix/transylvania/events"
-	"github.com/hurricanerix/transylvania/fonts"
+	"github.com/hurricanerix/shade/display"
+	"github.com/hurricanerix/shade/events"
+	"github.com/hurricanerix/shade/fonts"
 )
 
 const windowWidth = 640

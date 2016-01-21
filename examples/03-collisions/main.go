@@ -22,12 +22,12 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
-	"github.com/hurricanerix/transylvania/display"
-	"github.com/hurricanerix/transylvania/events"
-	"github.com/hurricanerix/transylvania/examples/03-collisions/ball"
-	"github.com/hurricanerix/transylvania/examples/ex1-platform/block"
-	"github.com/hurricanerix/transylvania/sprite"
-	"github.com/hurricanerix/transylvania/time/clock"
+	"github.com/hurricanerix/shade/display"
+	"github.com/hurricanerix/shade/events"
+	"github.com/hurricanerix/shade/examples/03-collisions/ball"
+	"github.com/hurricanerix/shade/examples/ex1-platform/block"
+	"github.com/hurricanerix/shade/sprite"
+	"github.com/hurricanerix/shade/time/clock"
 )
 
 const windowWidth = 640
