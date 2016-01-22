@@ -22,6 +22,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/fonts"
@@ -69,25 +70,24 @@ func main() {
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
 
 		msg = "Bottom Left"
-		font.DrawText(0, 0, 3.0, 3.0, msg)
+		font.DrawText(0, 0, 3.0, 3.0, nil, msg)
 
 		msg = "Bottom Right"
 		w, _ = font.SizeText(3.0, 3.0, msg)
-		font.DrawText(screen.Width-w, 0, 3.0, 3.0, msg)
+		font.DrawText(screen.Width-w, 0, 3.0, 3.0, nil, msg)
 
 		msg = "Top Left"
 		_, h = font.SizeText(3.0, 3.0, msg)
-		font.DrawText(0, screen.Height-h, 3.0, 3.0, msg)
+		font.DrawText(0, screen.Height-h, 3.0, 3.0, nil, msg)
 
 		msg = "Top Right"
 		w, h = font.SizeText(3.0, 3.0, msg)
-		font.DrawText(screen.Width-w, screen.Height-h, 3.0, 3.0, msg)
+		font.DrawText(screen.Width-w, screen.Height-h, 3.0, 3.0, nil, msg)
 
-		msg = "Center\nMulti-Line\nText"
+		msg = "Center\nMulti-Line\nText\nWith\nColor"
+		color := mgl32.Vec4{1.0, 0.0, 0.0, 1.0}
 		w, h = font.SizeText(3.0, 3.0, msg)
-		font.DrawText(screen.Width/2-w/2, screen.Height/2+h/2, 3.0, 3.0, msg)
-
-		//font.DrawText(250, 250, 3.0, 3.0, "Hello\nWorld!")
+		font.DrawText(screen.Width/2-w/2, screen.Height/2+h/2, 3.0, 3.0, &color, msg)
 
 		screen.Flip()
 

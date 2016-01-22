@@ -203,6 +203,10 @@ void main() {
 var fragmentShader = `
 #version 330
 
+uniform int AddColor;
+uniform vec4 AColor;
+uniform int SubColor;
+uniform vec4 SColor;
 uniform sampler2D ColorMap;
 
 in vec2 TexCoord;
@@ -210,6 +214,15 @@ in vec2 TexCoord;
 out vec4 outputColor;
 
 void main() {
-	outputColor = texture(ColorMap, TexCoord);
+	vec4 o = texture(ColorMap, TexCoord);
+
+	if (AddColor == 1) {
+		o = clamp(o + AColor, 0.0, 1.0);
+	}
+	if (SubColor == 1) {
+		o = clamp(o - SColor, 0.0, 1.0);
+	}
+
+	outputColor = o;
 }
 ` + "\x00"

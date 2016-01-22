@@ -20,6 +20,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/sprite"
 )
 
@@ -68,18 +69,28 @@ func (c *Context) Bind(program uint32) {
 }
 
 // DrawText TODO doc
-func (c Context) DrawText(x, y, sx, sy float32, msg string) {
+func (c Context) DrawText(x, y, sx, sy float32, color *mgl32.Vec4, msg string) {
 	cx := x
 	cy := y
+	addColor := mgl32.Vec4{}
+	subColor := mgl32.Vec4{}
+
+	if color != nil {
+		addColor[0] = color[0]
+		addColor[1] = color[1]
+		addColor[2] = color[2]
+		subColor[3] = 1.0 - color[3]
+	}
+
 	for _, r := range msg {
 		if l, ok := c.LocMap[r]; ok {
-			c.Image.DrawFrame(l.x, l.y, sx, sy, cx, cy)
+			c.Image.DrawFrame(l.x, l.y, sx, sy, cx, cy, &addColor, &subColor)
 			cx += float32(c.Image.Width) * sx
 		} else if r == 10 {
 			cx = x
 			cy -= float32(c.Image.Height) * sy
 		} else {
-			c.Image.DrawFrame(c.UnknownLoc.x, c.UnknownLoc.y, sx, sy, cx, cy)
+			c.Image.DrawFrame(c.UnknownLoc.x, c.UnknownLoc.y, sx, sy, cx, cy, &addColor, &subColor)
 			cy += float32(c.Image.Width) * sx
 		}
 	}

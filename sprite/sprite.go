@@ -56,6 +56,14 @@ type Context struct {
 	modelMatrix int32
 	tex         mgl32.Mat3
 	texMatrix   int32
+	addColorLoc int32
+	addColor    int32
+	aColorLoc   int32
+	aColor      mgl32.Vec4
+	subColorLoc int32
+	subColor    int32
+	sColorLoc   int32
+	sColor      mgl32.Vec4
 }
 
 // Bind TODO doc
@@ -70,6 +78,18 @@ func (c *Context) Bind(program uint32) error {
 
 	c.texMatrix = gl.GetUniformLocation(program, gl.Str("TexMatrix\x00"))
 	gl.UniformMatrix3fv(c.texMatrix, 1, false, &c.tex[0])
+
+	// Add color
+	c.addColorLoc = gl.GetUniformLocation(program, gl.Str("AddColor\x00"))
+	gl.Uniform1i(c.addColor, c.addColor)
+	c.aColorLoc = gl.GetUniformLocation(program, gl.Str("AColor\x00"))
+	gl.UniformMatrix3fv(c.aColorLoc, 1, false, &c.aColor[0])
+
+	// Sub color
+	c.subColorLoc = gl.GetUniformLocation(program, gl.Str("SubColor\x00"))
+	gl.Uniform1i(c.subColor, c.subColor)
+	c.sColorLoc = gl.GetUniformLocation(program, gl.Str("SColor\x00"))
+	gl.UniformMatrix3fv(c.sColorLoc, 1, false, &c.sColor[0])
 
 	// TODO: These prob don't need to be re-created every time.
 	if c.vao == 0 {
@@ -96,10 +116,11 @@ func (c *Context) Bind(program uint32) error {
 
 // Draw TODO doc
 func (c *Context) Draw(x, y float32) {
-	c.DrawFrame(0, 0, 1.0, 1.0, x, y)
+	c.DrawFrame(0, 0, 1.0, 1.0, x, y, nil, nil)
 }
 
-func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32) {
+// DrawFrame TODO doc
+func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subColor *mgl32.Vec4) {
 	c.model = mgl32.Ident4()
 	c.model = c.model.Mul4(mgl32.Translate3D(float32(c.Width)/2.0, float32(c.Height)/2.0, 0.0))
 	c.model = c.model.Mul4(mgl32.Translate3D(px, py, 0.0))
@@ -110,6 +131,20 @@ func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32) {
 	c.tex = c.tex.Mul3(mgl32.Scale2D(1.0/float32(c.framesX), 1.0/float32(c.framesY)))
 	c.tex = c.tex.Mul3(mgl32.Translate2D(float32(fx), float32(fy)))
 	gl.UniformMatrix3fv(c.texMatrix, 1, false, &c.tex[0])
+
+	if addColor != nil {
+		c.addColor = 1
+		c.aColor = *addColor
+		gl.Uniform1i(c.addColorLoc, c.addColor)
+		gl.Uniform4fv(c.aColorLoc, 1, &c.aColor[0])
+	}
+
+	if subColor != nil {
+		c.subColor = 1
+		c.sColor = *subColor
+		gl.Uniform1i(c.subColorLoc, c.subColor)
+		gl.Uniform4fv(c.sColorLoc, 1, &c.sColor[0])
+	}
 
 	gl.BindVertexArray(c.vao)
 

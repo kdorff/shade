@@ -9,6 +9,7 @@ TODOs
 - [x] load sprites
 - [x] load animated sprites
 - [x] detect collisions
+- [ ] fix sprite color modification to reset
 - [ ] load normal maps
 - [ ] set ambient lighting
 - [ ] add simple light source (radiates from a central point in all directions)

@@ -80,14 +80,14 @@ func Main(screen *display.Context) {
 		left := x + 0.0
 		right := x + 32.0
 
-		background.DrawFrame(0, 0, 1.0, 1.0, left, top)
-		background.DrawFrame(1, 0, 1.0, 1.0, right, top)
+		background.DrawFrame(0, 0, 1.0, 1.0, left, top, nil, nil)
+		background.DrawFrame(1, 0, 1.0, 1.0, right, top, nil, nil)
 
-		background.DrawFrame(2, 0, 1.0, 1.0, left, middle)
-		background.DrawFrame(3, 0, 1.0, 1.0, right, middle)
+		background.DrawFrame(2, 0, 1.0, 1.0, left, middle, nil, nil)
+		background.DrawFrame(3, 0, 1.0, 1.0, right, middle, nil, nil)
 
-		background.DrawFrame(4, 0, 1.0, 1.0, left, bottom)
-		background.DrawFrame(5, 0, 1.0, 1.0, right, bottom)
+		background.DrawFrame(4, 0, 1.0, 1.0, left, bottom, nil, nil)
+		background.DrawFrame(5, 0, 1.0, 1.0, right, bottom, nil, nil)
 
 		screen.Flip()
 
