@@ -16,16 +16,16 @@
 package splash
 
 import (
-	"fmt"
 	_ "image/png"
-	"os"
 	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
-	"github.com/hurricanerix/shade/sprite"
+	"github.com/hurricanerix/shade/fonts"
+	"github.com/hurricanerix/shade/splash/ghost"
 	"github.com/hurricanerix/shade/time/clock"
 )
 
@@ -40,13 +40,21 @@ func Main(screen *display.Context) {
 		panic(err)
 	}
 
-	logopath := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/logo.png", os.Getenv("GOPATH"))
-
-	background, err := sprite.Load(logopath, 8, 1)
+	font, err := fonts.New()
 	if err != nil {
 		panic(err)
 	}
-	background.Bind(screen.Program)
+	font.Bind(screen.Program)
+	msg := "Shade SDK"
+	color := mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
+	textSize := float32(4.0)
+	_, h := font.SizeText(textSize, textSize, msg)
+
+	g, err := ghost.New(nil)
+	if err != nil {
+		panic(err)
+	}
+	g.Bind(screen.Program)
 
 	total := float32(0.0)
 	for running := true; running; {
@@ -67,27 +75,12 @@ func Main(screen *display.Context) {
 			}
 		}
 
+		g.Update(dt, nil)
+
 		screen.Fill(0.0, 0.0, 0.0)
 
-		// TODO: read from actual window width/height
-		var x float32 = (640.0 - 96.0/2.0) / 2.0
-		var y float32 = (480.0 - 96.0/2.0) / 2.0
-
-		top := y + 64.0
-		middle := y + 32.0
-		bottom := y + 0.0
-
-		left := x + 0.0
-		right := x + 32.0
-
-		background.DrawFrame(0, 0, 1.0, 1.0, left, top, nil, nil)
-		background.DrawFrame(1, 0, 1.0, 1.0, right, top, nil, nil)
-
-		background.DrawFrame(2, 0, 1.0, 1.0, left, middle, nil, nil)
-		background.DrawFrame(3, 0, 1.0, 1.0, right, middle, nil, nil)
-
-		background.DrawFrame(4, 0, 1.0, 1.0, left, bottom, nil, nil)
-		background.DrawFrame(5, 0, 1.0, 1.0, right, bottom, nil, nil)
+		font.DrawText(screen.Width/5, screen.Height/2+h/2, textSize, textSize, &color, msg)
+		g.Draw()
 
 		screen.Flip()
 

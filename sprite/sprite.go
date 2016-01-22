@@ -132,19 +132,23 @@ func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subCol
 	c.tex = c.tex.Mul3(mgl32.Translate2D(float32(fx), float32(fy)))
 	gl.UniformMatrix3fv(c.texMatrix, 1, false, &c.tex[0])
 
+	ac := int32(0)
 	if addColor != nil {
-		c.addColor = 1
+		ac = 1
 		c.aColor = *addColor
-		gl.Uniform1i(c.addColorLoc, c.addColor)
 		gl.Uniform4fv(c.aColorLoc, 1, &c.aColor[0])
 	}
+	c.addColor = ac
+	gl.Uniform1i(c.addColorLoc, c.addColor)
 
+	sc := int32(0)
 	if subColor != nil {
-		c.subColor = 1
+		sc = 1
 		c.sColor = *subColor
-		gl.Uniform1i(c.subColorLoc, c.subColor)
 		gl.Uniform4fv(c.sColorLoc, 1, &c.sColor[0])
 	}
+	c.subColor = sc
+	gl.Uniform1i(c.subColorLoc, c.subColor)
 
 	gl.BindVertexArray(c.vao)
 
