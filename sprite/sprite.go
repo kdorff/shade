@@ -68,7 +68,6 @@ type Context struct {
 
 // Load
 func Load(path string) (image.Image, error) {
-	println("Load: ", path)
 	imgFile, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("could not open file %s: %v", path, err)
