@@ -66,6 +66,62 @@ type Context struct {
 	sColor      mgl32.Vec4
 }
 
+// Load
+func Load(path string) (image.Image, error) {
+	println("Load: ", path)
+	imgFile, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("could not open file %s: %v", path, err)
+	}
+	i, _, err := image.Decode(imgFile)
+	if err != nil {
+		return nil, fmt.Errorf("could not decode file %s: %v", path, err)
+	}
+	return i, nil
+}
+
+// New TODO doc
+func New(i image.Image, framesX, framesY int) (*Context, error) {
+	c := Context{
+		Image:   i,
+		framesX: framesX,
+		framesY: framesY,
+	}
+
+	rgba := image.NewRGBA(i.Bounds())
+	if rgba.Stride != rgba.Rect.Size().X*4 {
+		return nil, fmt.Errorf("unsupported stride")
+	}
+
+	c.Width = int(float32(rgba.Rect.Size().X) / float32(framesX))
+	c.Height = int(float32(rgba.Rect.Size().Y) / float32(framesY))
+
+	draw.Draw(rgba, rgba.Bounds(), c.Image, image.Point{0, 0}, draw.Src)
+
+	gl.GenTextures(1, &c.texLoc)
+	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindTexture(gl.TEXTURE_2D, c.texLoc)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 0)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+
+	gl.TexImage2D(
+		gl.TEXTURE_2D,
+		0,
+		gl.RGBA,
+		int32(rgba.Rect.Size().X),
+		int32(rgba.Rect.Size().Y),
+		0,
+		gl.RGBA,
+		gl.UNSIGNED_BYTE,
+		gl.Ptr(rgba.Pix))
+
+	return &c, nil
+}
+
 // Bind TODO doc
 func (c *Context) Bind(program uint32) error {
 	gl.UseProgram(program)
@@ -165,63 +221,6 @@ func (c *Context) Update(dt float32) {
 // Bounds TODO doc
 func (c *Context) Bounds() shapes.Rect {
 	return shapes.Rect{}
-}
-
-// Load TODO doc
-func Load(path string, framesX, framesY int) (*Context, error) {
-	// TODO: prob should rename this to func to New
-	c := Context{}
-	// data, err := ioutil.ReadFile(path)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("could not open file %s: %v", path, err)
-	// }
-	//
-	// img, _, err := image.Decode(bytes.NewReader(data))
-	// if err != nil {
-	// 	return nil, fmt.Errorf("could not decode file %s: %v", path, err)
-	// }
-	imgFile, err := os.Open(path)
-	if err != nil {
-		return &c, fmt.Errorf("could not open file %s: %v", path, err)
-	}
-	c.Image, _, err = image.Decode(imgFile)
-	if err != nil {
-		return &c, fmt.Errorf("could not decode file %s: %v", path, err)
-	}
-
-	rgba := image.NewRGBA(c.Image.Bounds())
-	if rgba.Stride != rgba.Rect.Size().X*4 {
-		return &c, fmt.Errorf("unsupported stride")
-	}
-	c.framesX = framesX
-	c.framesY = framesY
-	c.Width = int(float32(rgba.Rect.Size().X) / float32(framesX))
-	c.Height = int(float32(rgba.Rect.Size().Y) / float32(framesY))
-
-	draw.Draw(rgba, rgba.Bounds(), c.Image, image.Point{0, 0}, draw.Src)
-
-	gl.GenTextures(1, &c.texLoc)
-	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, c.texLoc)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 0)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
-
-	gl.TexImage2D(
-		gl.TEXTURE_2D,
-		0,
-		gl.RGBA,
-		int32(rgba.Rect.Size().X),
-		int32(rgba.Rect.Size().Y),
-		0,
-		gl.RGBA,
-		gl.UNSIGNED_BYTE,
-		gl.Ptr(rgba.Pix))
-
-	return &c, nil
 }
 
 var vertices = []float32{

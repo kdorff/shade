@@ -29,43 +29,59 @@ func init() {
 	runtime.LockOSThread()
 }
 
-type location struct {
+type Location struct {
 	x int
 	y int
 }
 
 // Context TODO doc
 type Context struct {
-	Image      *sprite.Context
-	LocMap     map[int32]location
-	UnknownLoc location
+	Sprite     *sprite.Context
+	LocMap     map[int32]Location
+	UnknownLoc Location
 }
 
 // New TODO doc
-func New() (*Context, error) {
+func New(s *sprite.Context, m map[int32]Location, u Location) (*Context, error) {
 	c := Context{
-		LocMap:     make(map[int32]location, 96),
-		UnknownLoc: location{y: 1, x: 31},
+		Sprite:     s,
+		LocMap:     m,
+		UnknownLoc: u,
 	}
+	return &c, nil
+}
+
+func SimpleASCII() (*Context, error) {
+	path := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/font.png", os.Getenv("GOPATH"))
+	i, err := sprite.Load(path)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := sprite.New(i, 32, 3)
+	if err != nil {
+		return nil, err
+	}
+
+	m := make(map[int32]Location, s.Width*s.Height)
 	for y := 0; y < 3; y++ {
 		for x := 0; x < 32; x++ {
-			c.LocMap[int32((y+1)*32+x)] = location{y: y, x: x}
+			m[int32((y+1)*32+x)] = Location{y: y, x: x}
 		}
 	}
 
-	path := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/font.png", os.Getenv("GOPATH"))
-	i, err := sprite.Load(path, 32, 3)
-	if err != nil {
-		return &c, err
-	}
-	c.Image = i
+	u := Location{y: 1, x: 31}
 
-	return &c, nil
+	f, err := New(s, m, u)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
 }
 
 // Bind TODO doc
 func (c *Context) Bind(program uint32) {
-	c.Image.Bind(program)
+	c.Sprite.Bind(program)
 }
 
 // DrawText TODO doc
@@ -84,14 +100,14 @@ func (c Context) DrawText(x, y, sx, sy float32, color *mgl32.Vec4, msg string) {
 
 	for _, r := range msg {
 		if l, ok := c.LocMap[r]; ok {
-			c.Image.DrawFrame(l.x, l.y, sx, sy, cx, cy, &addColor, &subColor)
-			cx += float32(c.Image.Width) * sx
+			c.Sprite.DrawFrame(l.x, l.y, sx, sy, cx, cy, &addColor, &subColor)
+			cx += float32(c.Sprite.Width) * sx
 		} else if r == 10 {
 			cx = x
-			cy -= float32(c.Image.Height) * sy
+			cy -= float32(c.Sprite.Height) * sy
 		} else {
-			c.Image.DrawFrame(c.UnknownLoc.x, c.UnknownLoc.y, sx, sy, cx, cy, &addColor, &subColor)
-			cy += float32(c.Image.Width) * sx
+			c.Sprite.DrawFrame(c.UnknownLoc.x, c.UnknownLoc.y, sx, sy, cx, cy, &addColor, &subColor)
+			cy += float32(c.Sprite.Width) * sx
 		}
 	}
 }
@@ -100,13 +116,13 @@ func (c Context) DrawText(x, y, sx, sy float32, color *mgl32.Vec4, msg string) {
 func (c Context) SizeText(sx, sy float32, msg string) (float32, float32) {
 	var lx float32 = 0.0
 	var cx float32 = 0.0
-	var cy float32 = float32(c.Image.Height) * sy
+	var cy float32 = float32(c.Sprite.Height) * sy
 	for _, r := range msg {
 		if r == 10 { // code for newline
 			cx = 0
-			cy += float32(c.Image.Height) * sy
+			cy += float32(c.Sprite.Height) * sy
 		} else {
-			cx += float32(c.Image.Width) * sx
+			cx += float32(c.Sprite.Width) * sx
 		}
 		if cx > lx {
 			lx = cx

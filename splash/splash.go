@@ -40,7 +40,7 @@ func Main(screen *display.Context) {
 		panic(err)
 	}
 
-	font, err := fonts.New()
+	font, err := fonts.SimpleASCII()
 	if err != nil {
 		panic(err)
 	}

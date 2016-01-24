@@ -41,11 +41,11 @@ func main() {
 		log.Fatalln("failed to set display mode:", err)
 	}
 
-	background, err := sprite.Load("face.png", 1, 1)
+	face, err := loadSprite("face.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}
-	background.Bind(screen.Program)
+	face.Bind(screen.Program)
 
 	for running := true; running; {
 		// TODO move this somewhere else (maybe a Clear method of display
@@ -67,7 +67,7 @@ func main() {
 		}
 
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		background.Draw(windowWidth/2-float32(background.Width)/2, windowHeight/2-float32(background.Height)/2)
+		face.Draw(windowWidth/2-float32(face.Width)/2, windowHeight/2-float32(face.Height)/2)
 
 		screen.Flip()
 
@@ -75,4 +75,17 @@ func main() {
 		glfw.PollEvents()
 	}
 
+}
+
+func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error) {
+	i, err := sprite.Load(path)
+	if err != nil {
+		return nil, err
+	}
+	s, err := sprite.New(i, framesWide, framesHigh)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
 }

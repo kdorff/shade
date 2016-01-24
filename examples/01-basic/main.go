@@ -41,7 +41,7 @@ func main() {
 		log.Fatalln("failed to set display mode:", err)
 	}
 
-	face, err := sprite.Load("face.png", 1, 1)
+	face, err := loadSprite("face.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -72,4 +72,17 @@ func main() {
 		glfw.PollEvents()
 	}
 
+}
+
+func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error) {
+	i, err := sprite.Load(path)
+	if err != nil {
+		return nil, err
+	}
+	s, err := sprite.New(i, framesWide, framesHigh)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
 }

@@ -25,7 +25,7 @@ import (
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/examples/03-collisions/ball"
-	"github.com/hurricanerix/shade/examples/ex1-platform/block"
+	"github.com/hurricanerix/shade/examples/03-collisions/block"
 	"github.com/hurricanerix/shade/sprite"
 	"github.com/hurricanerix/shade/time/clock"
 )
@@ -50,31 +50,38 @@ func main() {
 	}
 
 	sprites := sprite.NewGroup()
-
 	walls := sprite.NewGroup()
+
+	blockSprite, err := loadSprite("block.png", 1, 1)
+	if err != nil {
+		panic(err)
+	}
+	blockSprite.Bind(screen.Program)
+
 	for x := 0; float32(x) < screen.Width; x += 32 {
 		for y := 0; float32(y) < screen.Height; y += 32 {
 			if x == 0 || x == 640-32 || y == 0 || y == 480-32 {
-				b, err := block.New(walls)
+				_, err := block.New(float32(x), float32(y), blockSprite, walls)
 				if err != nil {
 					panic(err)
 				}
-				b.Rect.X = float32(x)
-				b.Rect.Y = float32(y)
-				b.Rect.Width = float32(b.Image.Width)
-				b.Rect.Width = float32(b.Image.Height)
 			}
 		}
 	}
 	sprites.Add(walls)
 
-	b, err := ball.New(sprites)
+	ballSprite, err := loadSprite("ball.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}
-	b.Bind(screen.Program)
+	ballSprite.Bind(screen.Program)
 
-	sprites.Bind(screen.Program)
+	_, err = ball.New(screen.Width/2, screen.Height/2, ballSprite, sprites)
+	if err != nil {
+		panic(err)
+	}
+
+	//	sprites.Bind(screen.Program)
 	for running := true; running; {
 		dt := clock.Tick(30)
 
@@ -104,4 +111,17 @@ func main() {
 		glfw.PollEvents()
 	}
 
+}
+
+func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error) {
+	i, err := sprite.Load(path)
+	if err != nil {
+		return nil, err
+	}
+	s, err := sprite.New(i, framesWide, framesHigh)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
 }

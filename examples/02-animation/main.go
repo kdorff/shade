@@ -47,7 +47,7 @@ func main() {
 		panic(err)
 	}
 
-	a, err := sprite.Load("animation.png", 3, 1)
+	a, err := loadSprite("animation.png", 3, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -86,4 +86,17 @@ func main() {
 		glfw.PollEvents()
 	}
 
+}
+
+func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error) {
+	i, err := sprite.Load(path)
+	if err != nil {
+		return nil, err
+	}
+	s, err := sprite.New(i, framesWide, framesHigh)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
 }

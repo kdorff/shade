@@ -54,47 +54,43 @@ func (c *Context) Main(screen *display.Context) {
 		panic(err)
 	}
 
-	background, err := sprite.Load("background.png", 1, 1)
+	background, err := loadSprite("background.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}
 	background.Bind(c.Screen.Program)
 
 	sprites := sprite.NewGroup()
-	p, err := player.New(sprites)
+	c.Walls = sprite.NewGroup()
+
+	blockSprite, err := loadSprite("block.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}
+	blockSprite.Bind(screen.Program)
 
-	c.Walls = sprite.NewGroup()
-	// TODO: should only load image data once.
-	//block, err := sprite.Load("block.png", 1)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//println(block)
-
-	for x := 0; x < 640; x += 32 {
-		for y := 0; y < 480; y += 32 {
+	for x := 0; float32(x) < screen.Width; x += 32 {
+		for y := 0; float32(y) < screen.Height; y += 32 {
 			if x == 0 || x == 640-32 || y == 0 || y == 480-32 {
-				// NOTE: original python code
-				//    wall = pygame.sprite.Sprite(self.walls)
-				//    wall.image = block
-				//    wall.rect = pygame.rect.Rect((x, y), block.get_size())
-				b, err := block.New(c.Walls)
+				_, err := block.New(float32(x), float32(y), blockSprite, c.Walls)
 				if err != nil {
 					panic(err)
 				}
-				b.Rect.X = float32(x)
-				b.Rect.Y = float32(y)
-				b.Rect.Width = float32(b.Image.Width)
-				b.Rect.Width = float32(b.Image.Height)
 			}
 		}
 	}
 	sprites.Add(c.Walls)
 
-	sprites.Bind(c.Screen.Program)
+	playerSprite, err := loadSprite("player.png", 1, 1)
+	if err != nil {
+		panic(err)
+	}
+	playerSprite.Bind(screen.Program)
+	p, err := player.New(float32(screen.Width)/2, float32(screen.Height)/2, playerSprite, sprites)
+	if err != nil {
+		panic(err)
+	}
+
 	for running := true; running; {
 		dt := clock.Tick(30)
 
@@ -124,4 +120,17 @@ func (c *Context) Main(screen *display.Context) {
 		// TODO refector events to be cleaner
 		glfw.PollEvents()
 	}
+}
+
+func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error) {
+	i, err := sprite.Load(path)
+	if err != nil {
+		return nil, err
+	}
+	s, err := sprite.New(i, framesWide, framesHigh)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
 }

@@ -32,7 +32,7 @@ func init() {
 
 // Player TODO doc
 type Ghost struct {
-	Image   *sprite.Context
+	Sprite  *sprite.Context
 	Rect    *shapes.Rect
 	dx      float32
 	looking int
@@ -48,13 +48,18 @@ func New(group *sprite.Group) (*Ghost, error) {
 	}
 
 	path := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/logo.png", os.Getenv("GOPATH"))
-	i, err := sprite.Load(path, 6, 3)
+	i, err := sprite.Load(path)
 	if err != nil {
 		return nil, err
 	}
-	c.Image = i
-	w := float32(c.Image.Width) * 2
-	r, err := shapes.NewRect(-32, 480.0/2-float32(c.Image.Height)/2, w, w)
+	s, err := sprite.New(i, 6, 3)
+	if err != nil {
+		return nil, err
+	}
+
+	c.Sprite = s
+	w := float32(c.Sprite.Width) * 2
+	r, err := shapes.NewRect(-32, 480.0/2-float32(c.Sprite.Height)/2, w, w)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +77,7 @@ func New(group *sprite.Group) (*Ghost, error) {
 
 // Bind TODO doc
 func (c *Ghost) Bind(program uint32) error {
-	return c.Image.Bind(program)
+	return c.Sprite.Bind(program)
 }
 
 // Update TODO doc
@@ -108,14 +113,14 @@ func (c *Ghost) Draw() {
 
 	f := int(math.Mod(float64(int(c.frame)), 3)) * 2
 
-	c.Image.DrawFrame(eyes, 0, 1.0, 1.0, left, top, nil, nil)
-	c.Image.DrawFrame(eyes+1, 0, 1.0, 1.0, right, top, nil, nil)
+	c.Sprite.DrawFrame(eyes, 0, 1.0, 1.0, left, top, nil, nil)
+	c.Sprite.DrawFrame(eyes+1, 0, 1.0, 1.0, right, top, nil, nil)
 
-	c.Image.DrawFrame(0, 1, 1.0, 1.0, left, middle, nil, nil)
-	c.Image.DrawFrame(1, 1, 1.0, 1.0, right, middle, nil, nil)
+	c.Sprite.DrawFrame(0, 1, 1.0, 1.0, left, middle, nil, nil)
+	c.Sprite.DrawFrame(1, 1, 1.0, 1.0, right, middle, nil, nil)
 
-	c.Image.DrawFrame(f, 2, 1.0, 1.0, left, bottom, nil, nil)
-	c.Image.DrawFrame(f+1, 2, 1.0, 1.0, right, bottom, nil, nil)
+	c.Sprite.DrawFrame(f, 2, 1.0, 1.0, left, bottom, nil, nil)
+	c.Sprite.DrawFrame(f+1, 2, 1.0, 1.0, right, bottom, nil, nil)
 }
 
 // Bounds TODO doc

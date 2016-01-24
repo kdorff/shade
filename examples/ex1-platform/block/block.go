@@ -16,7 +16,6 @@
 package block
 
 import (
-	"fmt"
 	"runtime"
 
 	"github.com/hurricanerix/shade/shapes"
@@ -30,24 +29,19 @@ func init() {
 
 // Player TODO doc
 type Block struct {
-	Image *sprite.Context
-	Rect  *shapes.Rect
+	Sprite *sprite.Context
+	Rect   *shapes.Rect
 }
 
 // New TODO doc
-func New(group *sprite.Group) (*Block, error) {
+func New(x, y float32, s *sprite.Context, group *sprite.Group) (*Block, error) {
 	// TODO should take a group in as a argument
-	b := Block{}
-
-	block, err := sprite.Load("block.png", 1, 1)
-	if err != nil {
-		return &b, fmt.Errorf("could not load block: %v", err)
+	b := Block{
+		Sprite: s,
 	}
-	b.Image = block
-
-	rect, err := shapes.NewRect(0.0, 0.0, float32(b.Image.Width), float32(b.Image.Height))
+	rect, err := shapes.NewRect(float32(x), float32(y), float32(b.Sprite.Width), float32(b.Sprite.Height))
 	if err != nil {
-		return &b, fmt.Errorf("could create rect: %v", err)
+		return &b, err
 	}
 	b.Rect = rect
 
@@ -58,7 +52,7 @@ func New(group *sprite.Group) (*Block, error) {
 
 // Bind TODO doc
 func (b *Block) Bind(program uint32) error {
-	return b.Image.Bind(program)
+	return b.Sprite.Bind(program)
 }
 
 // Update TODO doc
@@ -68,7 +62,7 @@ func (b *Block) Update(dt float32, g *sprite.Group) {
 
 // Draw TODO doc
 func (b *Block) Draw() {
-	b.Image.Draw(b.Rect.X, b.Rect.Y)
+	b.Sprite.Draw(b.Rect.X, b.Rect.Y)
 }
 
 // Bounds TODO doc

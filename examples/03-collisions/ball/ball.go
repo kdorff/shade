@@ -30,27 +30,22 @@ func init() {
 
 // Ball TODO doc
 type Ball struct {
-	Image *sprite.Context
-	Rect  *shapes.Rect
-	dx    float32
-	dy    float32
+	Sprite *sprite.Context
+	Rect   *shapes.Rect
+	dx     float32
+	dy     float32
 }
 
 // New TODO doc
-func New(group *sprite.Group) (*Ball, error) {
+func New(x, y float32, s *sprite.Context, group *sprite.Group) (*Ball, error) {
 	// TODO should take a group in as a argument
 	b := Ball{
-		dx: 500,
-		dy: 450,
+		Sprite: s,
+		dx:     500,
+		dy:     450,
 	}
 
-	ball, err := sprite.Load("ball.png", 1, 1)
-	if err != nil {
-		return &b, fmt.Errorf("could not load ball: %v", err)
-	}
-	b.Image = ball
-
-	rect, err := shapes.NewRect(320.0, 240.0, float32(b.Image.Width), float32(b.Image.Height))
+	rect, err := shapes.NewRect(x, y, float32(b.Sprite.Width), float32(b.Sprite.Height))
 	if err != nil {
 		return &b, fmt.Errorf("could create rect: %v", err)
 	}
@@ -63,7 +58,7 @@ func New(group *sprite.Group) (*Ball, error) {
 
 // Bind TODO doc
 func (b *Ball) Bind(program uint32) error {
-	return b.Image.Bind(program)
+	return b.Sprite.Bind(program)
 }
 
 // Update TODO doc
@@ -100,7 +95,7 @@ func (b *Ball) Update(dt float32, g *sprite.Group) {
 
 // Draw TODO doc
 func (b *Ball) Draw() {
-	b.Image.Draw(b.Rect.X, b.Rect.Y)
+	b.Sprite.Draw(b.Rect.X, b.Rect.Y)
 }
 
 // Bounds TODO doc

@@ -42,7 +42,7 @@ func main() {
 		log.Fatalln("failed to set display mode:", err)
 	}
 
-	font, err := fonts.New()
+	font, err := fonts.SimpleASCII()
 	if err != nil {
 		panic(err)
 	}
