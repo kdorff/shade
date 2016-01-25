@@ -16,7 +16,9 @@
 package splash
 
 import (
+	"fmt"
 	_ "image/png"
+	"os"
 	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -26,6 +28,7 @@ import (
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/fonts"
 	"github.com/hurricanerix/shade/splash/ghost"
+	"github.com/hurricanerix/shade/sprite"
 	"github.com/hurricanerix/shade/time/clock"
 )
 
@@ -40,14 +43,14 @@ func Main(screen *display.Context) {
 		panic(err)
 	}
 
-	font, err := fonts.SimpleASCII()
+	font, err := loadFont()
 	if err != nil {
 		panic(err)
 	}
-	font.Bind(screen.Program)
+	font.Sprite.Bind(screen.Program)
 	msg := "Shade SDK"
 	color := mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
-	textSize := float32(4.0)
+	textSize := float32(1.0)
 	_, h := font.SizeText(textSize, textSize, msg)
 
 	g, err := ghost.New(nil)
@@ -90,4 +93,32 @@ func Main(screen *display.Context) {
 			running = false
 		}
 	}
+}
+
+func loadFont() (*fonts.Context, error) {
+	path := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/splash-font.png", os.Getenv("GOPATH"))
+	i, err := sprite.Load(path)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := sprite.New(i, 32, 3)
+	if err != nil {
+		return nil, err
+	}
+
+	m := make(map[int32]fonts.Location, s.Width*s.Height)
+	for y := 0; y < 3; y++ {
+		for x := 0; x < 32; x++ {
+			m[int32((y+1)*32+x)] = fonts.Location{Y: y, X: x}
+		}
+	}
+
+	u := fonts.Location{Y: 1, X: 31}
+
+	f, err := fonts.New(s, m, u)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
 }

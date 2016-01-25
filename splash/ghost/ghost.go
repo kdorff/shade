@@ -47,7 +47,7 @@ func New(group *sprite.Group) (*Ghost, error) {
 		looking: 1,
 	}
 
-	path := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/logo.png", os.Getenv("GOPATH"))
+	path := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/ghost.png", os.Getenv("GOPATH"))
 	i, err := sprite.Load(path)
 	if err != nil {
 		return nil, err

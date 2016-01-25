@@ -30,8 +30,8 @@ func init() {
 }
 
 type Location struct {
-	x int
-	y int
+	X int
+	Y int
 }
 
 // Context TODO doc
@@ -66,11 +66,11 @@ func SimpleASCII() (*Context, error) {
 	m := make(map[int32]Location, s.Width*s.Height)
 	for y := 0; y < 3; y++ {
 		for x := 0; x < 32; x++ {
-			m[int32((y+1)*32+x)] = Location{y: y, x: x}
+			m[int32((y+1)*32+x)] = Location{Y: y, X: x}
 		}
 	}
 
-	u := Location{y: 1, x: 31}
+	u := Location{Y: 1, X: 31}
 
 	f, err := New(s, m, u)
 	if err != nil {
@@ -100,13 +100,13 @@ func (c Context) DrawText(x, y, sx, sy float32, color *mgl32.Vec4, msg string) {
 
 	for _, r := range msg {
 		if l, ok := c.LocMap[r]; ok {
-			c.Sprite.DrawFrame(l.x, l.y, sx, sy, cx, cy, &addColor, &subColor)
+			c.Sprite.DrawFrame(l.X, l.Y, sx, sy, cx, cy, &addColor, &subColor)
 			cx += float32(c.Sprite.Width) * sx
 		} else if r == 10 {
 			cx = x
 			cy -= float32(c.Sprite.Height) * sy
 		} else {
-			c.Sprite.DrawFrame(c.UnknownLoc.x, c.UnknownLoc.y, sx, sy, cx, cy, &addColor, &subColor)
+			c.Sprite.DrawFrame(c.UnknownLoc.X, c.UnknownLoc.Y, sx, sy, cx, cy, &addColor, &subColor)
 			cy += float32(c.Sprite.Width) * sx
 		}
 	}
