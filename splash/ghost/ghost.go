@@ -16,9 +16,7 @@
 package ghost
 
 import (
-	"fmt"
 	"math"
-	"os"
 	"runtime"
 
 	"github.com/hurricanerix/shade/shapes"
@@ -47,8 +45,7 @@ func New(group *sprite.Group) (*Ghost, error) {
 		looking: 1,
 	}
 
-	path := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/ghost.png", os.Getenv("GOPATH"))
-	i, err := sprite.Load(path)
+	i, err := sprite.LoadAsset("assets/ghost.png")
 	if err != nil {
 		return nil, err
 	}

@@ -16,9 +16,7 @@
 package splash
 
 import (
-	"fmt"
 	_ "image/png"
-	"os"
 	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -96,8 +94,7 @@ func Main(screen *display.Context) {
 }
 
 func loadFont() (*fonts.Context, error) {
-	path := fmt.Sprintf("%s/src/github.com/hurricanerix/shade/assets/splash-font.png", os.Getenv("GOPATH"))
-	i, err := sprite.Load(path)
+	i, err := sprite.LoadAsset("assets/splash-font.png")
 	if err != nil {
 		return nil, err
 	}

@@ -12,9 +12,11 @@ TODOs
 - [x] fix sprite color modification to reset
 - [ ] load normal maps
 - [ ] set ambient lighting
-- [ ] add simple light source (radiates from a central point in all directions)
-- [ ] add directional light source (radiates from a point in a specific direction)
+- [ ] add directional light source (rays can be considered parallel)
+- [ ] add positional light source (exact position determines it's effects)
+- [ ] add a spotlight source (like positional, but with restrictions to shape)
 - [ ] add depth based drawing rather than painters algorithm
+- [ ] add ability to modify sprites hue, lightness, saturation
 - [x] 03-collisions: create example
 - [ ] 03-collisions: fix ball from getting out at edges
 - [ ] 04-lighting: Add ability to set lights in SDK
@@ -58,6 +60,10 @@ Helpful Tools
 
 Troubleshooing
 --------------
+
+#### cannot find package "github.com/hurricanerix/shade/gen"
+
+Some variables/assets are packaged into a generated code file, if you get this error run the bindata.sh script to generate that file.
 
 #### Slow saves in VIM
 

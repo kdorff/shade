@@ -16,6 +16,7 @@
 package sprite
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"image/draw"
@@ -25,6 +26,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/gen"
 	"github.com/hurricanerix/shade/shapes"
 )
 
@@ -75,6 +77,18 @@ func Load(path string) (image.Image, error) {
 	i, _, err := image.Decode(imgFile)
 	if err != nil {
 		return nil, fmt.Errorf("could not decode file %s: %v", path, err)
+	}
+	return i, nil
+}
+
+func LoadAsset(name string) (image.Image, error) {
+	imgFile, err := gen.Asset(name)
+	if err != nil {
+		return nil, fmt.Errorf("could not load asset %s: %v", name, err)
+	}
+	i, _, err := image.Decode(bytes.NewReader(imgFile))
+	if err != nil {
+		return nil, fmt.Errorf("could not decode file %s: %v", name, err)
 	}
 	return i, nil
 }
