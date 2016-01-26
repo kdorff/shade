@@ -17,6 +17,7 @@ package ball
 
 import (
 	"fmt"
+	"math"
 	"runtime"
 
 	"github.com/hurricanerix/shade/shapes"
@@ -37,13 +38,14 @@ type Ball struct {
 }
 
 // New TODO doc
-func New(x, y float32, s *sprite.Context, group *sprite.Group) (*Ball, error) {
+func New(x, y, speed, angle float32, s *sprite.Context, group *sprite.Group) (*Ball, error) {
 	// TODO should take a group in as a argument
 	b := Ball{
 		Sprite: s,
-		dx:     500,
-		dy:     450,
 	}
+
+	b.dx = float32(math.Cos(float64(angle))) * speed
+	b.dy = float32(math.Sin(float64(angle))) * speed
 
 	rect, err := shapes.NewRect(x, y, float32(b.Sprite.Width), float32(b.Sprite.Height))
 	if err != nil {

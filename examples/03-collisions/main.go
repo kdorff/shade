@@ -18,7 +18,9 @@ package main
 import (
 	_ "image/png"
 	"log"
+	"math/rand"
 	"runtime"
+	"time"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
@@ -76,7 +78,12 @@ func main() {
 	}
 	ballSprite.Bind(screen.Program)
 
-	_, err = ball.New(screen.Width/2, screen.Height/2, ballSprite, sprites)
+	//rand.Seed(1)
+	rand.Seed(time.Now().Unix())
+
+	speed := float32(rand.Intn(500) + 200)
+	angle := float32(rand.Intn(360))
+	_, err = ball.New(screen.Width/2, screen.Height/2, speed, angle, ballSprite, sprites)
 	if err != nil {
 		panic(err)
 	}
