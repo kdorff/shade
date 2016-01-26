@@ -19,6 +19,7 @@ TODOs
 - [ ] add ability to modify sprites hue, lightness, saturation
 - [x] 03-collisions: create example
 - [ ] 03-collisions: fix ball from getting out at edges
+- [ ] 03-collisions: balls should also collide with each other
 - [ ] 04-lighting: Add ability to set lights in SDK
 - [ ] 04-lighting: Add ability to load normal maps into sprite
 - [ ] 04-lighting: Update shaders to calculate lighting

@@ -81,12 +81,7 @@ func main() {
 	//rand.Seed(1)
 	rand.Seed(time.Now().Unix())
 
-	speed := float32(rand.Intn(500) + 200)
-	angle := float32(rand.Intn(360))
-	_, err = ball.New(screen.Width/2, screen.Height/2, speed, angle, ballSprite, sprites)
-	if err != nil {
-		panic(err)
-	}
+	addBall(screen.Width/2, screen.Height/2, ballSprite, sprites)
 
 	//	sprites.Bind(screen.Program)
 	for running := true; running; {
@@ -105,6 +100,10 @@ func main() {
 				running = false
 				event.Window.SetShouldClose(true)
 			}
+
+			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeySpace {
+				addBall(screen.Width/2, screen.Height/2, ballSprite, sprites)
+			}
 		}
 
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
@@ -118,6 +117,15 @@ func main() {
 		glfw.PollEvents()
 	}
 
+}
+
+func addBall(x, y float32, s *sprite.Context, g *sprite.Group) {
+	speed := float32(rand.Intn(500) + 200)
+	angle := float32(rand.Intn(360))
+	_, err := ball.New(x, y, speed, angle, s, g)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error) {
