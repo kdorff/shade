@@ -109,6 +109,13 @@ func New(i image.Image, framesX, framesY int) (*Context, error) {
 	c.Width = int(float32(rgba.Rect.Size().X) / float32(framesX))
 	c.Height = int(float32(rgba.Rect.Size().Y) / float32(framesY))
 
+	return &c, nil
+}
+
+// Bind TODO doc
+func (c *Context) Bind(program uint32) error {
+	rgba := image.NewRGBA(c.Image.Bounds())
+
 	draw.Draw(rgba, rgba.Bounds(), c.Image, image.Point{0, 0}, draw.Src)
 
 	gl.GenTextures(1, &c.texLoc)
@@ -132,11 +139,6 @@ func New(i image.Image, framesX, framesY int) (*Context, error) {
 		gl.UNSIGNED_BYTE,
 		gl.Ptr(rgba.Pix))
 
-	return &c, nil
-}
-
-// Bind TODO doc
-func (c *Context) Bind(program uint32) error {
 	gl.UseProgram(program)
 
 	colorMap := gl.GetUniformLocation(program, gl.Str("ColorMap\x00"))
