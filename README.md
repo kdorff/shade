@@ -38,6 +38,27 @@ NOTE: This SDK should be considered very experimental as it is still under devel
 
 While the above should work without needing to work with the OpenGL SDK, the packages of this SDK should be extendable such that more advanced uses are possible.
 
+Installing
+----------
+
+To install:
+
+```
+mkdir -p $GOPATH/src/github.com/hurricanerix
+cd $GOPATH/src/github.com/hurricanerix
+git clone git@github.com:hurricanerix/shade.git
+cd shade
+go get -u github.com/jteeuwen/go-bindata/...
+sh bindata.sh
+go get
+```
+
+To test your install:
+
+```
+cd examples/ex1-platform
+go run main.go
+```
 
 Attribution
 -----------
