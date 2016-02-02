@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ROOT_PATH=$1
+if [ -z "$ROOT_PATH" ]; then
+	ROOT_PATH="."
+fi
+
 HASH=`git log -n 1 | grep commit | cut -d " " -f 2`
 VERSION="0.0" # `git describe --abbrev=0`
 
@@ -43,6 +48,6 @@ then
 fi
 
 # generate all the files we need
-mkdir -p gen
-go-bindata -pkg gen -ignore="/*.pyxel" -o gen/assets.go assets/
-echo -e $CODE | gofmt > gen/build_info.go
+mkdir -p $ROOT_PATH/gen
+go-bindata -pkg gen -ignore="/*.pyxel" -o $ROOT_PATH/gen/assets.go $ROOT_PATH/assets/
+echo -e $CODE | gofmt > $ROOT_PATH/gen/build_info.go

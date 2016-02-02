@@ -15,6 +15,8 @@
 
 package main
 
+//go:generate ../../bindata.sh "../.."
+
 import (
 	_ "image/png"
 	"log"

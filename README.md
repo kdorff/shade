@@ -12,15 +12,15 @@ Installing
 
 To install:
 
+NOTE: the first "go get" will produce an error because generated files are not generated yet.
+
 ```
-mkdir -p $GOPATH/src/github.com/hurricanerix
-cd $GOPATH/src/github.com/hurricanerix
-git clone git@github.com:hurricanerix/shade.git
-cd shade
-go get -u github.com/jteeuwen/go-bindata/...
-./bindata.sh
-cd examples/ex1-platform
-go get
+$ go get github.com/hurricanerix/shade/...
+package github.com/hurricanerix/shade/gen: cannot find package "github.com/hurricanerix/shade/gen" in any of:
+	/usr/local/go/src/github.com/hurricanerix/shade/gen (from $GOROOT)
+	/Users/hurricanerix/bin/usr/gocode/src/github.com/hurricanerix/shade/gen (from $GOPATH)
+$ go generate github.com/hurricanerix/shade/...
+$ go get github.com/hurricanerix/shade/...
 ```
 
 To test your install:
