@@ -193,7 +193,7 @@ func (c *Context) Draw(x, y float32) {
 // DrawFrame TODO doc
 func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subColor *mgl32.Vec4) {
 	c.model = mgl32.Ident4()
-	c.model = c.model.Mul4(mgl32.Translate3D(float32(c.Width)/2.0, float32(c.Height)/2.0, 0.0))
+	c.model = c.model.Mul4(mgl32.Translate3D(float32(c.Width*int(sx))/2.0, float32(c.Height*int(sy))/2.0, 0.0))
 	c.model = c.model.Mul4(mgl32.Translate3D(px, py, 0.0))
 	c.model = c.model.Mul4(mgl32.Scale3D(float32(c.Width)*sx, float32(c.Height)*sy, 0.0))
 	gl.UniformMatrix4fv(c.modelMatrix, 1, false, &c.model[0])
