@@ -49,14 +49,15 @@ cd $GOPATH/src/github.com/hurricanerix
 git clone git@github.com:hurricanerix/shade.git
 cd shade
 go get -u github.com/jteeuwen/go-bindata/...
-sh bindata.sh
+./bindata.sh
+cd examples/ex1-platform
 go get
 ```
 
 To test your install:
 
 ```
-cd examples/ex1-platform
+cd $GOPATH/src/github.com/hurricanerix/examples/ex1-platform
 go run main.go
 ```
 
