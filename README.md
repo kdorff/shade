@@ -3,38 +3,7 @@ Shade SDK
 
 A simple and easy to use 2.5D game SDK for the Go programming language.
 
-TODOs 
------
-
-- [x] load sprites
-- [x] load animated sprites
-- [x] detect collisions
-- [x] fix sprite color modification to reset
-- [ ] load normal maps
-- [ ] set ambient lighting
-- [ ] add directional light source (rays can be considered parallel)
-- [ ] add positional light source (exact position determines it's effects)
-- [ ] add a spotlight source (like positional, but with restrictions to shape)
-- [ ] add depth based drawing rather than painters algorithm
-- [ ] add ability to modify sprites hue, lightness, saturation
-- [x] 03-collisions: create example
-- [ ] 03-collisions: fix ball from getting out at edges
-- [ ] 03-collisions: balls should also collide with each other
-- [ ] 04-lighting: Add ability to set lights in SDK
-- [ ] 04-lighting: Add ability to load normal maps into sprite
-- [ ] 04-lighting: Update shaders to calculate lighting
-- [ ] 05-text: Fix text alignment
-- [ ] ex1-platform: Fix boundry detection (so player does not run up walls)
-- [ ] ex1-platform: Fix input (sometimes jumps do not register and the guy runs faster to the right)
-- [ ] ex1-platform: Add basic menu after splash screen
-- [ ] ex1-platform: Add more interesting sprites
-- [ ] ex1-platform: Add more interesting level
-- [ ] ex1-platform: Add enemies
-- [ ] ex1-platform: Allow player to shoot
-- [ ] ex1-platform: Add door to open when all enemies have been killed (allowing the player to win)
-
-
-NOTE: This SDK should be considered very experimental as it is still under development.  It is currently being modeled after some aspects of the PyGame SDK, but this will probably change some as it matures.  The project will not have its "experimental" status removed until at least all of the above items have been completed.
+NOTE: This SDK should be considered very experimental as it is still under development.  It is currently being modeled after some aspects of the PyGame SDK, but this will probably change some as it matures.  The project will not have its "experimental" status removed until it is easy to install, easy to use, and supports dynamic lighting.
 
 While the above should work without needing to work with the OpenGL SDK, the packages of this SDK should be extendable such that more advanced uses are possible.
 
