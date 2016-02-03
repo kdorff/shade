@@ -86,11 +86,11 @@ func (b *Ball) Update(dt float32, g *sprite.Group) {
 		}
 	}
 	if switchDx {
-		newR.X = lastR.X + (b.dx / b.dx * -1)
+		newR.X = lastR.X
 		b.dx *= -1
 	}
 	if switchDy {
-		newR.Y = lastR.Y + (b.dy / b.dy * -1)
+		newR.Y = lastR.Y
 		b.dy *= -1
 	}
 }

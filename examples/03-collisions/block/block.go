@@ -39,7 +39,9 @@ func New(x, y float32, s *sprite.Context, group *sprite.Group) (*Block, error) {
 	b := Block{
 		Sprite: s,
 	}
-	rect, err := shapes.NewRect(float32(x), float32(y), float32(b.Sprite.Width), float32(b.Sprite.Height))
+
+	rect, err := shapes.NewRect(x, y, float32(b.Sprite.Width), float32(b.Sprite.Height))
+
 	if err != nil {
 		return &b, err
 	}
