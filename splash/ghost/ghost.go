@@ -110,14 +110,14 @@ func (c *Ghost) Draw() {
 
 	f := int(math.Mod(float64(int(c.frame)), 3)) * 2
 
-	c.Sprite.DrawFrame(eyes, 0, 1.0, 1.0, left, top, nil, nil)
-	c.Sprite.DrawFrame(eyes+1, 0, 1.0, 1.0, right, top, nil, nil)
+	c.Sprite.DrawFrame(eyes, 0, 1.0, 1.0, left, top, nil, nil, nil)
+	c.Sprite.DrawFrame(eyes+1, 0, 1.0, 1.0, right, top, nil, nil, nil)
 
-	c.Sprite.DrawFrame(0, 1, 1.0, 1.0, left, middle, nil, nil)
-	c.Sprite.DrawFrame(1, 1, 1.0, 1.0, right, middle, nil, nil)
+	c.Sprite.DrawFrame(0, 1, 1.0, 1.0, left, middle, nil, nil, nil)
+	c.Sprite.DrawFrame(1, 1, 1.0, 1.0, right, middle, nil, nil, nil)
 
-	c.Sprite.DrawFrame(f, 2, 1.0, 1.0, left, bottom, nil, nil)
-	c.Sprite.DrawFrame(f+1, 2, 1.0, 1.0, right, bottom, nil, nil)
+	c.Sprite.DrawFrame(f, 2, 1.0, 1.0, left, bottom, nil, nil, nil)
+	c.Sprite.DrawFrame(f+1, 2, 1.0, 1.0, right, bottom, nil, nil, nil)
 }
 
 // Bounds TODO doc

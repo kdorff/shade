@@ -22,6 +22,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/sprite"
@@ -40,6 +41,8 @@ func main() {
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
 	}
+	ambientColor := mgl32.Vec4{0.5, 0.5, 0.5, 1.0}
+	dc := float32(0.005)
 
 	face, err := loadSprite("face.png", 1, 1)
 	if err != nil {
@@ -48,6 +51,8 @@ func main() {
 	face.Bind(screen.Program)
 
 	for running := true; running; {
+		screen.Fill(0.0, 0.0, 0.0)
+
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -66,8 +71,14 @@ func main() {
 			}
 		}
 
-		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		face.Draw(windowWidth/2-float32(face.Width)/2, windowHeight/2-float32(face.Height)/2)
+		if ambientColor[0] >= 1.0 || ambientColor[0] <= 0.2 {
+			dc *= -1
+		}
+		ambientColor[0] += dc
+		ambientColor[1] += dc
+		ambientColor[2] += dc
+
+		face.DrawFrame(0, 0, 1.0, 1.0, windowWidth/2-float32(face.Width)/2, windowHeight/2-float32(face.Height)/2, nil, nil, &ambientColor)
 
 		screen.Flip()
 

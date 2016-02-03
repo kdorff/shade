@@ -46,26 +46,28 @@ type Sprite interface {
 
 // Context TODO doc
 type Context struct {
-	Image       image.Image
-	Width       int
-	Height      int
-	framesX     int
-	framesY     int
-	vao         uint32
-	vbo         uint32
-	texLoc      uint32
-	model       mgl32.Mat4
-	modelMatrix int32
-	tex         mgl32.Mat3
-	texMatrix   int32
-	addColorLoc int32
-	addColor    int32
-	aColorLoc   int32
-	aColor      mgl32.Vec4
-	subColorLoc int32
-	subColor    int32
-	sColorLoc   int32
-	sColor      mgl32.Vec4
+	Image           image.Image
+	Width           int
+	Height          int
+	framesX         int
+	framesY         int
+	vao             uint32
+	vbo             uint32
+	texLoc          uint32
+	model           mgl32.Mat4
+	modelMatrix     int32
+	tex             mgl32.Mat3
+	texMatrix       int32
+	addColorLoc     int32
+	addColor        int32
+	aColorLoc       int32
+	aColor          mgl32.Vec4
+	subColorLoc     int32
+	subColor        int32
+	sColorLoc       int32
+	sColor          mgl32.Vec4
+	AmbientColorLoc int32
+	AmbientColor    mgl32.Vec4
 }
 
 // Load
@@ -96,9 +98,10 @@ func LoadAsset(name string) (image.Image, error) {
 // New TODO doc
 func New(i image.Image, framesX, framesY int) (*Context, error) {
 	c := Context{
-		Image:   i,
-		framesX: framesX,
-		framesY: framesY,
+		Image:        i,
+		framesX:      framesX,
+		framesY:      framesY,
+		AmbientColor: mgl32.Vec4{1.0, 1.0, 1.0, 1.0},
 	}
 
 	rgba := image.NewRGBA(i.Bounds())
@@ -162,7 +165,9 @@ func (c *Context) Bind(program uint32) error {
 	c.sColorLoc = gl.GetUniformLocation(program, gl.Str("SColor\x00"))
 	gl.UniformMatrix3fv(c.sColorLoc, 1, false, &c.sColor[0])
 
-	// TODO: These prob don't need to be re-created every time.
+	c.AmbientColorLoc = gl.GetUniformLocation(program, gl.Str("AmbientColor\x00"))
+	gl.Uniform4fv(c.AmbientColorLoc, 1, &c.AmbientColor[0])
+
 	if c.vao == 0 {
 		gl.GenVertexArrays(1, &c.vao)
 		gl.BindVertexArray(c.vao)
@@ -187,11 +192,11 @@ func (c *Context) Bind(program uint32) error {
 
 // Draw TODO doc
 func (c *Context) Draw(x, y float32) {
-	c.DrawFrame(0, 0, 1.0, 1.0, x, y, nil, nil)
+	c.DrawFrame(0, 0, 1.0, 1.0, x, y, nil, nil, nil)
 }
 
 // DrawFrame TODO doc
-func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subColor *mgl32.Vec4) {
+func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subColor, ambientColor *mgl32.Vec4) {
 	c.model = mgl32.Ident4()
 	c.model = c.model.Mul4(mgl32.Translate3D(float32(c.Width*int(sx))/2.0, float32(c.Height*int(sy))/2.0, 0.0))
 	c.model = c.model.Mul4(mgl32.Translate3D(px, py, 0.0))
@@ -202,6 +207,11 @@ func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subCol
 	c.tex = c.tex.Mul3(mgl32.Scale2D(1.0/float32(c.framesX), 1.0/float32(c.framesY)))
 	c.tex = c.tex.Mul3(mgl32.Translate2D(float32(fx), float32(fy)))
 	gl.UniformMatrix3fv(c.texMatrix, 1, false, &c.tex[0])
+
+	if ambientColor != nil {
+		c.AmbientColor = *ambientColor
+	}
+	gl.Uniform4fv(c.AmbientColorLoc, 1, &c.AmbientColor[0])
 
 	ac := int32(0)
 	if addColor != nil {

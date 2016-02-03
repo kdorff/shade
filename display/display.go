@@ -208,21 +208,23 @@ uniform vec4 AColor;
 uniform int SubColor;
 uniform vec4 SColor;
 uniform sampler2D ColorMap;
+uniform vec4 AmbientColor;
 
 in vec2 TexCoord;
 
 out vec4 outputColor;
 
 void main() {
-	vec4 o = texture(ColorMap, TexCoord);
+	vec4 diffuse = texture(ColorMap, TexCoord);
+    vec4 ambient = AmbientColor * diffuse;
 
 	if (AddColor == 1) {
-		o = clamp(o + AColor, 0.0, 1.0);
+		diffuse = clamp(diffuse + AColor, 0.0, 1.0);
 	}
 	if (SubColor == 1) {
-		o = clamp(o - SColor, 0.0, 1.0);
+		diffuse = clamp(diffuse - SColor, 1.0, 1.0);
 	}
 
-	outputColor = o;
+	outputColor = ambient; 
 }
 ` + "\x00"
