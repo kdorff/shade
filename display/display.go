@@ -208,6 +208,7 @@ uniform vec4 AColor;
 uniform int SubColor;
 uniform vec4 SColor;
 uniform sampler2D ColorMap;
+uniform sampler2D NormalMap;
 uniform vec4 AmbientColor;
 
 in vec2 TexCoord;

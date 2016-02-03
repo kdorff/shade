@@ -44,7 +44,7 @@ func main() {
 	ambientColor := mgl32.Vec4{0.5, 0.5, 0.5, 1.0}
 	dc := float32(0.005)
 
-	face, err := loadSprite("face.png", 1, 1)
+	face, err := loadSprite("color.png", "normal.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -88,12 +88,18 @@ func main() {
 
 }
 
-func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error) {
-	i, err := sprite.Load(path)
+func loadSprite(colorPath, normalPath string, framesWide, framesHigh int) (*sprite.Context, error) {
+	c, err := sprite.Load(colorPath)
 	if err != nil {
 		return nil, err
 	}
-	s, err := sprite.New(i, framesWide, framesHigh)
+
+	n, err := sprite.Load(normalPath)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := sprite.New(c, n, framesWide, framesHigh)
 	if err != nil {
 		return nil, err
 	}

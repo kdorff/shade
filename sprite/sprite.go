@@ -46,7 +46,8 @@ type Sprite interface {
 
 // Context TODO doc
 type Context struct {
-	Image           image.Image
+	ColorMap        image.Image
+	NormalMap       image.Image
 	Width           int
 	Height          int
 	framesX         int
@@ -54,6 +55,7 @@ type Context struct {
 	vao             uint32
 	vbo             uint32
 	texLoc          uint32
+	normalLoc       uint32
 	model           mgl32.Mat4
 	modelMatrix     int32
 	tex             mgl32.Mat3
@@ -72,6 +74,10 @@ type Context struct {
 
 // Load
 func Load(path string) (image.Image, error) {
+	if path == "" {
+		return nil, nil
+	}
+
 	imgFile, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("could not open file %s: %v", path, err)
@@ -84,6 +90,10 @@ func Load(path string) (image.Image, error) {
 }
 
 func LoadAsset(name string) (image.Image, error) {
+	if name == "" {
+		return nil, nil
+	}
+
 	imgFile, err := gen.Asset(name)
 	if err != nil {
 		return nil, fmt.Errorf("could not load asset %s: %v", name, err)
@@ -96,30 +106,43 @@ func LoadAsset(name string) (image.Image, error) {
 }
 
 // New TODO doc
-func New(i image.Image, framesX, framesY int) (*Context, error) {
+func New(colorMap, normalMap image.Image, framesX, framesY int) (*Context, error) {
 	c := Context{
-		Image:        i,
+		ColorMap:     colorMap,
+		NormalMap:    normalMap,
 		framesX:      framesX,
 		framesY:      framesY,
 		AmbientColor: mgl32.Vec4{1.0, 1.0, 1.0, 1.0},
 	}
 
-	rgba := image.NewRGBA(i.Bounds())
-	if rgba.Stride != rgba.Rect.Size().X*4 {
-		return nil, fmt.Errorf("unsupported stride")
+	if colorMap != nil {
+		rgba := image.NewRGBA(colorMap.Bounds())
+		if rgba.Stride != rgba.Rect.Size().X*4 {
+			return nil, fmt.Errorf("color map has unsupported stride")
+		}
+		c.Width = int(float32(rgba.Rect.Size().X) / float32(framesX))
+		c.Height = int(float32(rgba.Rect.Size().Y) / float32(framesY))
 	}
 
-	c.Width = int(float32(rgba.Rect.Size().X) / float32(framesX))
-	c.Height = int(float32(rgba.Rect.Size().Y) / float32(framesY))
+	if normalMap != nil {
+		rgba := image.NewRGBA(normalMap.Bounds())
+		if rgba.Stride != rgba.Rect.Size().X*4 {
+			return nil, fmt.Errorf("normal map has unsupported stride")
+		}
+		if colorMap == nil {
+			c.Width = int(float32(rgba.Rect.Size().X) / float32(framesX))
+			c.Height = int(float32(rgba.Rect.Size().Y) / float32(framesY))
+		}
+	}
 
 	return &c, nil
 }
 
 // Bind TODO doc
 func (c *Context) Bind(program uint32) error {
-	rgba := image.NewRGBA(c.Image.Bounds())
+	rgba := image.NewRGBA(c.ColorMap.Bounds())
 
-	draw.Draw(rgba, rgba.Bounds(), c.Image, image.Point{0, 0}, draw.Src)
+	draw.Draw(rgba, rgba.Bounds(), c.ColorMap, image.Point{0, 0}, draw.Src)
 
 	gl.GenTextures(1, &c.texLoc)
 	gl.ActiveTexture(gl.TEXTURE0)
@@ -142,10 +165,38 @@ func (c *Context) Bind(program uint32) error {
 		gl.UNSIGNED_BYTE,
 		gl.Ptr(rgba.Pix))
 
+	rgba = image.NewRGBA(c.NormalMap.Bounds())
+
+	draw.Draw(rgba, rgba.Bounds(), c.NormalMap, image.Point{0, 0}, draw.Src)
+
+	gl.GenTextures(1, &c.normalLoc)
+	gl.ActiveTexture(gl.TEXTURE1)
+	gl.BindTexture(gl.TEXTURE_2D, c.normalLoc)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, 0)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 0)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+
+	gl.TexImage2D(
+		gl.TEXTURE_2D,
+		0,
+		gl.RGBA,
+		int32(rgba.Rect.Size().X),
+		int32(rgba.Rect.Size().Y),
+		0,
+		gl.RGBA,
+		gl.UNSIGNED_BYTE,
+		gl.Ptr(rgba.Pix))
+
 	gl.UseProgram(program)
 
 	colorMap := gl.GetUniformLocation(program, gl.Str("ColorMap\x00"))
 	gl.Uniform1i(colorMap, 0)
+
+	normalMapLoc := gl.GetUniformLocation(program, gl.Str("NormalMap\x00"))
+	gl.Uniform1i(normalMapLoc, 1)
 
 	c.modelMatrix = gl.GetUniformLocation(program, gl.Str("ModelMatrix\x00"))
 	gl.UniformMatrix4fv(c.modelMatrix, 1, false, &c.model[0])
@@ -235,6 +286,9 @@ func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subCol
 
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, c.texLoc)
+
+	gl.ActiveTexture(gl.TEXTURE1)
+	gl.BindTexture(gl.TEXTURE_2D, c.normalLoc)
 
 	gl.DrawArrays(gl.TRIANGLES, 0, 6*2*3)
 }
