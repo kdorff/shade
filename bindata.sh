@@ -49,5 +49,5 @@ fi
 
 # generate all the files we need
 mkdir -p $ROOT_PATH/gen
-go-bindata -pkg gen -ignore="/*.pyxel" -o $ROOT_PATH/gen/assets.go $ROOT_PATH/assets/
+go-bindata -pkg gen -ignore="/*.pyxel" -o $ROOT_PATH/gen/assets.go -prefix "../../" $ROOT_PATH/assets/
 echo -e $CODE | gofmt > $ROOT_PATH/gen/build_info.go
