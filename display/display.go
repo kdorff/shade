@@ -98,7 +98,7 @@ func SetMode(title string, width, height int) (*Context, error) {
 	viewUniform := gl.GetUniformLocation(c.Program, gl.Str("ViewMatrix\x00"))
 	gl.UniformMatrix4fv(viewUniform, 1, false, &c.ViewMatrix[0])
 
-	gl.BindFragDataLocation(c.Program, 0, gl.Str("outputColor\x00"))
+	gl.BindFragDataLocation(c.Program, 0, gl.Str("FragColor\x00"))
 
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.Enable(gl.BLEND)
@@ -188,15 +188,47 @@ uniform mat4 ProjMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ModelMatrix;
 uniform mat3 TexMatrix;
+uniform vec3 LightPos;
 
 in vec3 MCVertex;
+in vec3 MCNormal;
+in vec3 MCTangent;
 in vec2 TexCoord0;
 
-out vec2 TexCoord;
+smooth out vec2 TexCoord;
+smooth out vec3 Pos;
+smooth out vec3 LightDir;
+smooth out vec3 EyeDir;
 
 void main() {
+  mat4 mvMatrix = ViewMatrix * ModelMatrix;
+  vec4 ccVertex = mvMatrix * vec4(MCVertex, 1.0);
+  gl_Position = ProjMatrix * ccVertex;
+  Pos = vec4(ModelMatrix * vec4(MCVertex, 1.0)).xyz;
+
   TexCoord = vec3(TexMatrix * vec3(TexCoord0, 1.0)).st;
-  gl_Position = ProjMatrix * ViewMatrix * ModelMatrix * vec4(MCVertex, 1);
+
+  mat3 normalMatrix = mat3x3(mvMatrix);
+  normalMatrix = inverse(normalMatrix);
+  normalMatrix = transpose(normalMatrix);
+
+  mat3 mv3Matrix = mat3(mvMatrix);
+  vec3 n = normalize(MCNormal); // TODO: fix normalize(mv3Matrix * MCNormal);
+  vec3 t = normalize(mv3Matrix * MCTangent);
+  vec3 b = normalize(mv3Matrix * cross(n, t));
+
+  LightDir = vec3(ViewMatrix * vec4(LightPos, 0.0)) - vec3(ccVertex);
+  vec3 v;
+  v.x = dot(LightDir, t);
+  v.y = dot(LightDir, b);
+  v.z = dot(LightDir, n);
+  LightDir = v;
+
+  EyeDir = vec3(-ccVertex);
+  v.x = dot(EyeDir, t);
+  v.y = dot(EyeDir, b);
+  v.z = dot(EyeDir, n);
+  EyeDir = v;
 }
 ` + "\x00"
 
@@ -210,20 +242,47 @@ uniform vec4 SColor;
 uniform sampler2D ColorMap;
 uniform sampler2D NormalMap;
 uniform vec4 AmbientColor;
+uniform vec3 LightPos;
+uniform vec4 LightColor;
+uniform float LightPower;
 
-in vec2 TexCoord;
+smooth in vec3 Pos;
+smooth in vec3 LightDir;
+smooth in vec3 EyeDir;
+smooth in vec2 TexCoord;
 
-out vec4 outputColor;
+out vec4 FragColor;
 
 void main() {
-	vec4 diffuse = texture(ColorMap, TexCoord);
-	if (AddColor == 1) {
-		diffuse = clamp(diffuse + AColor, 0.0, 1.0);
-	}
-	if (SubColor == 1) {
-		diffuse = clamp(diffuse - SColor, 0.0, 1.0);
-	}
-    vec4 ambient = AmbientColor * diffuse;
-	outputColor = ambient;
+  float alpha = texture(ColorMap, TexCoord.st).a;
+  vec3 diffuse = texture(ColorMap, TexCoord.st).rgb;
+  if (AddColor == 1) {
+    diffuse = clamp(diffuse + AColor.rgb, 0.0, 1.0);
+  }
+  if (SubColor == 1) {
+    diffuse = clamp(diffuse - SColor.rgb, 0.0, 1.0);
+  }
+  vec3 ambient = AmbientColor.rgb * diffuse;
+  vec3 specular = diffuse/8;
+
+  vec3 normal = texture(NormalMap, TexCoord.st).rgb * 2 - 1;
+  float distance = length(LightPos - Pos);
+
+  vec3 n = normalize(normal);
+  vec3 l = normalize(LightDir);
+
+  float cosTheta = clamp(dot(n, l), 0.0, 1.0);
+
+  vec3 e = normalize(EyeDir);
+  vec3 r = reflect(-l, n);
+
+  float cosAlpha = clamp(dot(e, r), 0.0, 1.0);
+
+  FragColor = vec4(
+    ambient +
+    diffuse * LightColor.rgb * LightPower * cosTheta /
+      (distance * distance) +
+    specular * LightColor.rgb * LightPower * pow(cosAlpha, 5) /
+      (distance * distance), alpha);
 }
 ` + "\x00"

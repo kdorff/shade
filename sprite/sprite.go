@@ -27,6 +27,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/gen"
+	"github.com/hurricanerix/shade/light"
 	"github.com/hurricanerix/shade/shapes"
 )
 
@@ -70,6 +71,10 @@ type Context struct {
 	sColor          mgl32.Vec4
 	AmbientColorLoc int32
 	AmbientColor    mgl32.Vec4
+	LightPosLoc     int32
+	LightColorLoc   int32
+	LightPowerLoc   int32
+	Light           light.Positional
 }
 
 // Load
@@ -219,6 +224,15 @@ func (c *Context) Bind(program uint32) error {
 	c.AmbientColorLoc = gl.GetUniformLocation(program, gl.Str("AmbientColor\x00"))
 	gl.Uniform4fv(c.AmbientColorLoc, 1, &c.AmbientColor[0])
 
+	c.LightPosLoc = gl.GetUniformLocation(program, gl.Str("LightPos\x00"))
+	gl.Uniform3fv(c.LightPosLoc, 1, &c.Light.Pos[0])
+
+	c.LightColorLoc = gl.GetUniformLocation(program, gl.Str("LightColor\x00"))
+	gl.Uniform4fv(c.LightColorLoc, 1, &c.Light.Color[0])
+
+	c.LightPowerLoc = gl.GetUniformLocation(program, gl.Str("LightPower\x00"))
+	gl.Uniform1f(c.LightPowerLoc, c.Light.Power)
+
 	if c.vao == 0 {
 		gl.GenVertexArrays(1, &c.vao)
 		gl.BindVertexArray(c.vao)
@@ -232,22 +246,30 @@ func (c *Context) Bind(program uint32) error {
 
 	mcVertex := uint32(gl.GetAttribLocation(program, gl.Str("MCVertex\x00")))
 	gl.EnableVertexAttribArray(mcVertex)
-	gl.VertexAttribPointer(mcVertex, 3, gl.FLOAT, false, 5*4, gl.PtrOffset(0))
+	gl.VertexAttribPointer(mcVertex, 3, gl.FLOAT, false, 11*4, gl.PtrOffset(0))
+
+	mcNormal := uint32(gl.GetAttribLocation(program, gl.Str("MCNormal\x00")))
+	gl.EnableVertexAttribArray(mcNormal)
+	gl.VertexAttribPointer(mcNormal, 3, gl.FLOAT, false, 11*4, gl.PtrOffset(3*4))
+
+	mcTangent := uint32(gl.GetAttribLocation(program, gl.Str("MCTangent\x00")))
+	gl.EnableVertexAttribArray(mcTangent)
+	gl.VertexAttribPointer(mcTangent, 3, gl.FLOAT, false, 11*4, gl.PtrOffset(6*4))
 
 	texCoord0 := uint32(gl.GetAttribLocation(program, gl.Str("TexCoord0\x00")))
 	gl.EnableVertexAttribArray(texCoord0)
-	gl.VertexAttribPointer(texCoord0, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
+	gl.VertexAttribPointer(texCoord0, 2, gl.FLOAT, false, 11*4, gl.PtrOffset(9*4))
 
 	return nil
 }
 
 // Draw TODO doc
 func (c *Context) Draw(x, y float32) {
-	c.DrawFrame(0, 0, 1.0, 1.0, x, y, nil, nil, nil)
+	c.DrawFrame(0, 0, 1.0, 1.0, x, y, nil, nil, nil, nil)
 }
 
 // DrawFrame TODO doc
-func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subColor, ambientColor *mgl32.Vec4) {
+func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subColor, ambientColor *mgl32.Vec4, light *light.Positional) {
 	c.model = mgl32.Ident4()
 	c.model = c.model.Mul4(mgl32.Translate3D(float32(c.Width*int(sx))/2.0, float32(c.Height*int(sy))/2.0, 0.0))
 	c.model = c.model.Mul4(mgl32.Translate3D(px, py, 0.0))
@@ -282,6 +304,13 @@ func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subCol
 	c.subColor = sc
 	gl.Uniform1i(c.subColorLoc, c.subColor)
 
+	if light != nil {
+		c.Light = *light
+		gl.Uniform3fv(c.LightPosLoc, 1, &c.Light.Pos[0])
+		gl.Uniform4fv(c.LightColorLoc, 1, &c.Light.Color[0])
+		gl.Uniform1f(c.LightPowerLoc, c.Light.Power)
+	}
+
 	gl.BindVertexArray(c.vao)
 
 	gl.ActiveTexture(gl.TEXTURE0)
@@ -302,11 +331,12 @@ func (c *Context) Bounds() shapes.Rect {
 	return shapes.Rect{}
 }
 
+// Pos(X, Y, Z), Normal(X, Y, Z), Tangent(X, Y, Z), TextureCo(S, T)
 var vertices = []float32{
-	-0.5, -0.5, -0.5, 0.0, 1.0,
-	0.5, -0.5, -0.5, 1.0, 1.0,
-	0.5, 0.5, 0.5, 1.0, 0.0,
-	-0.5, 0.5, -0.5, 0.0, 0.0,
-	-0.5, -0.5, -0.5, 0.0, 1.0,
-	0.5, 0.5, -0.5, 1.0, 0.0,
+	-0.5, -0.5, -0.5, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+	0.5, -0.5, -0.5, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0,
+	0.5, 0.5, 0.5, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+	-0.5, 0.5, -0.5, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+	-0.5, -0.5, -0.5, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+	0.5, 0.5, -0.5, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
 }

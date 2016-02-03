@@ -25,6 +25,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
+	"github.com/hurricanerix/shade/light"
 	"github.com/hurricanerix/shade/sprite"
 )
 
@@ -41,14 +42,19 @@ func main() {
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
 	}
-	ambientColor := mgl32.Vec4{0.5, 0.5, 0.5, 1.0}
-	dc := float32(0.005)
+	ambientColor := mgl32.Vec4{0.2, 0.2, 0.2, 1.0}
 
 	face, err := loadSprite("color.png", "normal.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}
 	face.Bind(screen.Program)
+
+	light := light.Positional{
+		Pos:   mgl32.Vec3{0.5, 0.5, 1.0},
+		Color: mgl32.Vec4{0.8, 0.8, 1.0, 1.0},
+		Power: 1000,
+	}
 
 	for running := true; running; {
 		screen.Fill(0.0, 0.0, 0.0)
@@ -67,18 +73,11 @@ func main() {
 				event.Window.SetShouldClose(true)
 			}
 			if !event.KeyEvent {
-				println("MOUSE", event.X, event.Y)
+				light.Pos[0] = event.X
+				light.Pos[1] = float32(windowHeight) - event.Y
 			}
 		}
-
-		if ambientColor[0] >= 1.0 || ambientColor[0] <= 0.2 {
-			dc *= -1
-		}
-		ambientColor[0] += dc
-		ambientColor[1] += dc
-		ambientColor[2] += dc
-
-		face.DrawFrame(0, 0, 1.0, 1.0, windowWidth/2-float32(face.Width)/2, windowHeight/2-float32(face.Height)/2, nil, nil, &ambientColor)
+		face.DrawFrame(0, 0, 1.0, 1.0, windowWidth/2-float32(face.Width)/2, windowHeight/2-float32(face.Height)/2, nil, nil, &ambientColor, &light)
 
 		screen.Flip()
 
