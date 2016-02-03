@@ -216,15 +216,13 @@ out vec4 outputColor;
 
 void main() {
 	vec4 diffuse = texture(ColorMap, TexCoord);
-    vec4 ambient = AmbientColor * diffuse;
-
 	if (AddColor == 1) {
 		diffuse = clamp(diffuse + AColor, 0.0, 1.0);
 	}
 	if (SubColor == 1) {
-		diffuse = clamp(diffuse - SColor, 1.0, 1.0);
+		diffuse = clamp(diffuse - SColor, 0.0, 1.0);
 	}
-
-	outputColor = ambient; 
+    vec4 ambient = AmbientColor * diffuse;
+	outputColor = ambient;
 }
 ` + "\x00"
