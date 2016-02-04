@@ -114,19 +114,18 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 		for cb := range cell.Bounds() {
 
 			if lastR.Right() <= cb.Left() && newR.Right() > cb.Left() {
-				newR.X = cb.X - 1.0
+				newR.X = lastR.X
 			}
 			if lastR.Left() >= cb.Right() && newR.Left() < cb.Right() {
-				newR.X = cb.Right() + 1.0 //  lastR.X //cb.Right()
+				newR.X = lastR.X
 			}
-			if lastR.Bottom() <= cb.Top() && newR.Bottom() < cb.Top() {
+			if lastR.Bottom() >= cb.Top() && newR.Bottom() < cb.Top() {
 				p.resting = true
 				p.Rect.Y = cb.Top() + 1
 				p.dy = 0.0
 			}
 			if lastR.Top() <= cb.Bottom() && newR.Top() < cb.Bottom() {
-				//new.top = cell.bottom
-				newR.Y = cb.Bottom() - 1
+				newR.Y = cb.Bottom() - 1 - float32(p.Sprite.Height)
 				p.dy = 0.0
 			}
 		}
