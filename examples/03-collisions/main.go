@@ -70,6 +70,22 @@ func main() {
 			}
 		}
 	}
+	_, err = block.New(float32(blockSprite.Width)*4, float32(blockSprite.Height)*4, blockSprite, walls)
+	if err != nil {
+		panic(err)
+	}
+	_, err = block.New(float32(blockSprite.Width)*4, windowHeight-float32(blockSprite.Height)*5, blockSprite, walls)
+	if err != nil {
+		panic(err)
+	}
+	_, err = block.New(windowWidth-float32(blockSprite.Width)*5, float32(blockSprite.Height)*4, blockSprite, walls)
+	if err != nil {
+		panic(err)
+	}
+	_, err = block.New(windowWidth-float32(blockSprite.Width)*5, windowHeight-float32(blockSprite.Height)*5, blockSprite, walls)
+	if err != nil {
+		panic(err)
+	}
 	sprites.Add(walls)
 
 	ballSprite, err := loadSprite("ball.png", 1, 1)
