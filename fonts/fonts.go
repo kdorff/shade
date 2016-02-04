@@ -58,7 +58,7 @@ func SimpleASCII() (*Context, error) {
 		return nil, err
 	}
 
-	s, err := sprite.New(i, 32, 3)
+	s, err := sprite.New(i, nil, 32, 3)
 	if err != nil {
 		return nil, err
 	}
@@ -100,13 +100,13 @@ func (c Context) DrawText(x, y, sx, sy float32, color *mgl32.Vec4, msg string) {
 
 	for _, r := range msg {
 		if l, ok := c.LocMap[r]; ok {
-			c.Sprite.DrawFrame(l.X, l.Y, sx, sy, cx, cy, &addColor, &subColor, nil)
+			c.Sprite.DrawFrame(l.X, l.Y, sx, sy, cx, cy, &addColor, &subColor, nil, nil)
 			cx += float32(c.Sprite.Width) * sx
 		} else if r == 10 {
 			cx = x
 			cy -= float32(c.Sprite.Height) * sy
 		} else {
-			c.Sprite.DrawFrame(c.UnknownLoc.X, c.UnknownLoc.Y, sx, sy, cx, cy, &addColor, &subColor, nil)
+			c.Sprite.DrawFrame(c.UnknownLoc.X, c.UnknownLoc.Y, sx, sy, cx, cy, &addColor, &subColor, nil, nil)
 			cy += float32(c.Sprite.Width) * sx
 		}
 	}

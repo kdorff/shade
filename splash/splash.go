@@ -99,7 +99,7 @@ func loadFont() (*fonts.Context, error) {
 		return nil, err
 	}
 
-	s, err := sprite.New(i, 32, 3)
+	s, err := sprite.New(i, nil, 32, 3)
 	if err != nil {
 		return nil, err
 	}

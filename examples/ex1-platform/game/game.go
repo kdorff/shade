@@ -127,7 +127,7 @@ func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error
 	if err != nil {
 		return nil, err
 	}
-	s, err := sprite.New(i, framesWide, framesHigh)
+	s, err := sprite.New(i, nil, framesWide, framesHigh)
 	if err != nil {
 		return nil, err
 	}

@@ -78,7 +78,7 @@ func main() {
 		}
 
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		a.DrawFrame(int(frame), 0, 1.0, 1.0, windowWidth/2-float32(a.Width)/2, windowHeight/2-float32(a.Height)/2, nil, nil, nil)
+		a.DrawFrame(int(frame), 0, 1.0, 1.0, windowWidth/2-float32(a.Width)/2, windowHeight/2-float32(a.Height)/2, nil, nil, nil, nil)
 
 		screen.Flip()
 
@@ -93,7 +93,7 @@ func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error
 	if err != nil {
 		return nil, err
 	}
-	s, err := sprite.New(i, framesWide, framesHigh)
+	s, err := sprite.New(i, nil, framesWide, framesHigh)
 	if err != nil {
 		return nil, err
 	}
