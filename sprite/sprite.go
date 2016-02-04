@@ -268,48 +268,61 @@ func (c *Context) Bind(program uint32) error {
 }
 
 // Draw TODO doc
-func (c *Context) Draw(x, y float32) {
-	c.DrawFrame(0, 0, 1.0, 1.0, x, y, nil, nil, nil, nil)
+func (c *Context) Draw(pos mgl32.Vec3, e *Effects) {
+	c.DrawFrame(mgl32.Vec2{0, 0}, pos, e)
+}
+
+type Effects struct {
+	Scale          mgl32.Vec3
+	Tint           mgl32.Vec4
+	EnableLighting bool
+	AmbientColor   mgl32.Vec4
+	Light          light.Positional
 }
 
 // DrawFrame TODO doc
-func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subColor, ambientColor *mgl32.Vec4, light *light.Positional) {
+//func (c *Context) DrawFrame(fx, fy int, sx, sy, px, py float32, addColor, subColor, ambientColor *mgl32.Vec4, light *light.Positional) {
+func (c *Context) DrawFrame(frame mgl32.Vec2, pos mgl32.Vec3, e *Effects) {
+	if e == nil {
+		// Default effects
+		e = &Effects{
+			Scale: mgl32.Vec3{1.0, 1.0, 1.0},
+		}
+	}
 	c.model = mgl32.Ident4()
-	c.model = c.model.Mul4(mgl32.Translate3D(float32(c.Width*int(sx))/2.0, float32(c.Height*int(sy))/2.0, 0.0))
-	c.model = c.model.Mul4(mgl32.Translate3D(px, py, 0.0))
-	c.model = c.model.Mul4(mgl32.Scale3D(float32(c.Width)*sx, float32(c.Height)*sy, 0.0))
+	c.model = c.model.Mul4(mgl32.Translate3D(float32(c.Width*int(e.Scale[0]))/2.0, float32(c.Height*int(e.Scale[1]))/2.0, 0.0))
+	c.model = c.model.Mul4(mgl32.Translate3D(pos[0], pos[1], pos[2]))
+	c.model = c.model.Mul4(mgl32.Scale3D(float32(c.Width)*e.Scale[0], float32(c.Height)*e.Scale[1], 0.0))
 	gl.UniformMatrix4fv(c.modelMatrix, 1, false, &c.model[0])
 
 	c.tex = mgl32.Ident3()
 	c.tex = c.tex.Mul3(mgl32.Scale2D(1.0/float32(c.framesX), 1.0/float32(c.framesY)))
-	c.tex = c.tex.Mul3(mgl32.Translate2D(float32(fx), float32(fy)))
+	c.tex = c.tex.Mul3(mgl32.Translate2D(frame[0], frame[1]))
 	gl.UniformMatrix3fv(c.texMatrix, 1, false, &c.tex[0])
 
-	if ambientColor != nil {
-		c.AmbientColor = *ambientColor
-	}
-	gl.Uniform4fv(c.AmbientColorLoc, 1, &c.AmbientColor[0])
-
-	ac := int32(0)
-	if addColor != nil {
-		ac = 1
-		c.aColor = *addColor
-		gl.Uniform4fv(c.aColorLoc, 1, &c.aColor[0])
-	}
+	// TODO change addColor to MaxColor in shader
+	ac := int32(1)
+	c.aColor = e.Tint
+	gl.Uniform4fv(c.aColorLoc, 1, &c.aColor[0])
 	c.addColor = ac
 	gl.Uniform1i(c.addColorLoc, c.addColor)
 
-	sc := int32(0)
-	if subColor != nil {
-		sc = 1
-		c.sColor = *subColor
-		gl.Uniform4fv(c.sColorLoc, 1, &c.sColor[0])
-	}
-	c.subColor = sc
-	gl.Uniform1i(c.subColorLoc, c.subColor)
+	/*
+		//MinColor       mgl32.Vec4
+		sc := int32(0)
+		if subColor != nil {
+			sc = 1
+			c.sColor = *subColor
+			gl.Uniform4fv(c.sColorLoc, 1, &c.sColor[0])
+		}
+		c.subColor = sc
+		gl.Uniform1i(c.subColorLoc, c.subColor)
+	*/
+	if e.EnableLighting == true {
+		c.AmbientColor = e.AmbientColor
+		gl.Uniform4fv(c.AmbientColorLoc, 1, &c.AmbientColor[0])
 
-	if light != nil {
-		c.Light = *light
+		c.Light = e.Light
 		gl.Uniform3fv(c.LightPosLoc, 1, &c.Light.Pos[0])
 		gl.Uniform4fv(c.LightColorLoc, 1, &c.Light.Color[0])
 		gl.Uniform1f(c.LightPowerLoc, c.Light.Power)

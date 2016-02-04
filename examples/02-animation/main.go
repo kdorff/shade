@@ -22,6 +22,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/sprite"
@@ -52,10 +53,11 @@ func main() {
 		panic(err)
 	}
 	a.Bind(screen.Program)
-	var frame float32 = 0.0
+	var aframe float32 = 0.0
 
 	for running := true; running; {
 		dt := clock.Tick(30)
+		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
 
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -72,13 +74,19 @@ func main() {
 			}
 		}
 
-		frame += 0.003 * dt
-		if int(frame) > 2 {
-			frame = 0
+		aframe += 0.003 * dt
+		if int(aframe) > 2 {
+			aframe = 0
 		}
 
-		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		a.DrawFrame(int(frame), 0, 1.0, 1.0, windowWidth/2-float32(a.Width)/2, windowHeight/2-float32(a.Height)/2, nil, nil, nil, nil)
+		frame := mgl32.Vec2{
+			float32(int(aframe)), // Truncate to correct frame
+			0}
+		pos := mgl32.Vec3{
+			windowWidth/2 - float32(a.Width)/2,
+			windowHeight/2 - float32(a.Height)/2,
+			0}
+		a.DrawFrame(frame, pos, nil)
 
 		screen.Flip()
 

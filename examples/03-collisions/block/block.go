@@ -18,6 +18,7 @@ package block
 import (
 	"runtime"
 
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/shapes"
 	"github.com/hurricanerix/shade/sprite"
 )
@@ -64,7 +65,7 @@ func (b *Block) Update(dt float32, g *sprite.Group) {
 
 // Draw TODO doc
 func (b *Block) Draw() {
-	b.Sprite.Draw(b.Rect.X, b.Rect.Y)
+	b.Sprite.Draw(mgl32.Vec3{b.Rect.X, b.Rect.Y, 0.0}, nil)
 }
 
 // Bounds TODO doc

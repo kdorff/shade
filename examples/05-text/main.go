@@ -26,6 +26,7 @@ import (
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/fonts"
+	"github.com/hurricanerix/shade/sprite"
 )
 
 const windowWidth = 640
@@ -53,6 +54,7 @@ func main() {
 
 	for running := true; running; {
 		// TODO move this somewhere else (maybe a Clear method of display
+		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		// TODO refector events to be cleaner
@@ -67,27 +69,33 @@ func main() {
 			}
 		}
 
-		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-
+		e := sprite.Effects{
+			Scale: mgl32.Vec3{3.0, 3.0, 1.0},
+		}
 		msg = "Bottom Left"
-		font.DrawText(0, 0, 3.0, 3.0, nil, msg)
+		pos := mgl32.Vec3{0, 0, 0}
+		font.DrawText(pos, &e, msg)
 
 		msg = "Bottom Right"
-		w, _ = font.SizeText(3.0, 3.0, msg)
-		font.DrawText(screen.Width-w, 0, 3.0, 3.0, nil, msg)
+		w, _ = font.SizeText(&e, msg)
+		pos = mgl32.Vec3{screen.Width - w, 0, 0}
+		font.DrawText(pos, &e, msg)
 
 		msg = "Top Left"
-		_, h = font.SizeText(3.0, 3.0, msg)
-		font.DrawText(0, screen.Height-h, 3.0, 3.0, nil, msg)
+		_, h = font.SizeText(&e, msg)
+		pos = mgl32.Vec3{0, screen.Height - h, 0}
+		font.DrawText(pos, &e, msg)
 
 		msg = "Top Right"
-		w, h = font.SizeText(3.0, 3.0, msg)
-		font.DrawText(screen.Width-w, screen.Height-h, 3.0, 3.0, nil, msg)
+		w, h = font.SizeText(&e, msg)
+		pos = mgl32.Vec3{screen.Width - w, screen.Height - h, 0}
+		font.DrawText(pos, &e, msg)
 
 		msg = "Center\nMulti-Line\nText\nWith\nColor"
-		color := mgl32.Vec4{1.0, 0.0, 0.0, 1.0}
-		w, h = font.SizeText(3.0, 3.0, msg)
-		font.DrawText(screen.Width/2-w/2, screen.Height/2+h/2, 3.0, 3.0, &color, msg)
+		w, h = font.SizeText(&e, msg)
+		pos = mgl32.Vec3{screen.Width/2 - w/2, screen.Height/2 + h/2, 0}
+		e.Tint = mgl32.Vec4{1, 0, 0, 0}
+		font.DrawText(pos, &e, msg)
 
 		screen.Flip()
 

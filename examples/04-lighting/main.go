@@ -77,7 +77,18 @@ func main() {
 				light.Pos[1] = float32(windowHeight) - event.Y
 			}
 		}
-		face.DrawFrame(0, 0, 1.0, 1.0, windowWidth/2-float32(face.Width)/2, windowHeight/2-float32(face.Height)/2, nil, nil, &ambientColor, &light)
+
+		pos := mgl32.Vec3{
+			windowWidth/2 - float32(face.Width)/2,
+			windowHeight/2 - float32(face.Height)/2,
+			0}
+		e := sprite.Effects{
+			Scale:          mgl32.Vec3{1.0, 1.0, 1.0},
+			EnableLighting: true,
+			AmbientColor:   ambientColor,
+			Light:          light,
+		}
+		face.Draw(pos, &e)
 
 		screen.Flip()
 

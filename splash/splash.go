@@ -47,9 +47,11 @@ func Main(screen *display.Context) {
 	}
 	font.Sprite.Bind(screen.Program)
 	msg := "Shade SDK"
-	color := mgl32.Vec4{1.0, 1.0, 1.0, 1.0}
-	textSize := float32(1.0)
-	_, h := font.SizeText(textSize, textSize, msg)
+	effect := sprite.Effects{
+		Scale: mgl32.Vec3{1.0, 1.0, 1.0},
+		Tint:  mgl32.Vec4{1.0, 1.0, 1.0, 0.0},
+	}
+	_, h := font.SizeText(&effect, msg)
 
 	g, err := ghost.New(nil)
 	if err != nil {
@@ -80,7 +82,7 @@ func Main(screen *display.Context) {
 
 		screen.Fill(0.0, 0.0, 0.0)
 
-		font.DrawText(screen.Width/5, screen.Height/2+h/2, textSize, textSize, &color, msg)
+		font.DrawText(mgl32.Vec3{screen.Width / 5, screen.Height/2 + h/2, 0.0}, &effect, msg)
 		g.Draw()
 
 		screen.Flip()
@@ -104,14 +106,14 @@ func loadFont() (*fonts.Context, error) {
 		return nil, err
 	}
 
-	m := make(map[int32]fonts.Location, s.Width*s.Height)
+	m := make(map[int32]mgl32.Vec2, s.Width*s.Height)
 	for y := 0; y < 3; y++ {
 		for x := 0; x < 32; x++ {
-			m[int32((y+1)*32+x)] = fonts.Location{Y: y, X: x}
+			m[int32((y+1)*32+x)] = mgl32.Vec2{float32(x), float32(y)}
 		}
 	}
 
-	u := fonts.Location{Y: 1, X: 31}
+	u := mgl32.Vec2{31, 1}
 
 	f, err := fonts.New(s, m, u)
 	if err != nil {

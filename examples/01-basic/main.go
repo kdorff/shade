@@ -24,6 +24,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/sprite"
@@ -66,7 +67,7 @@ func main() {
 		}
 
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		face.Draw(windowWidth/2-float32(face.Width)/2, windowHeight/2-float32(face.Height)/2)
+		face.Draw(mgl32.Vec3{windowWidth/2 - float32(face.Width)/2, windowHeight/2 - float32(face.Height)/2, 0.0}, nil)
 
 		screen.Flip()
 

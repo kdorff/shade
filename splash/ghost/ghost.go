@@ -19,6 +19,7 @@ import (
 	"math"
 	"runtime"
 
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/shapes"
 	"github.com/hurricanerix/shade/sprite"
 )
@@ -110,14 +111,14 @@ func (c *Ghost) Draw() {
 
 	f := int(math.Mod(float64(int(c.frame)), 3)) * 2
 
-	c.Sprite.DrawFrame(eyes, 0, 1.0, 1.0, left, top, nil, nil, nil, nil)
-	c.Sprite.DrawFrame(eyes+1, 0, 1.0, 1.0, right, top, nil, nil, nil, nil)
+	c.Sprite.DrawFrame(mgl32.Vec2{float32(eyes), 0}, mgl32.Vec3{left, top, 0.0}, nil)
+	c.Sprite.DrawFrame(mgl32.Vec2{float32(eyes) + 1, 0}, mgl32.Vec3{right, top, 0.0}, nil)
 
-	c.Sprite.DrawFrame(0, 1, 1.0, 1.0, left, middle, nil, nil, nil, nil)
-	c.Sprite.DrawFrame(1, 1, 1.0, 1.0, right, middle, nil, nil, nil, nil)
+	c.Sprite.DrawFrame(mgl32.Vec2{0, 1}, mgl32.Vec3{left, middle, 0.0}, nil)
+	c.Sprite.DrawFrame(mgl32.Vec2{1, 1}, mgl32.Vec3{right, middle, 0.0}, nil)
 
-	c.Sprite.DrawFrame(f, 2, 1.0, 1.0, left, bottom, nil, nil, nil, nil)
-	c.Sprite.DrawFrame(f+1, 2, 1.0, 1.0, right, bottom, nil, nil, nil, nil)
+	c.Sprite.DrawFrame(mgl32.Vec2{float32(f), 2}, mgl32.Vec3{left, bottom, 0.0}, nil)
+	c.Sprite.DrawFrame(mgl32.Vec2{float32(f) + 1, 2}, mgl32.Vec3{right, bottom, 0.0}, nil)
 }
 
 // Bounds TODO doc

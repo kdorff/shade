@@ -20,6 +20,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/examples/ex1-platform/block"
@@ -112,7 +113,7 @@ func (c *Context) Main(screen *display.Context) {
 
 		sprites.Update(dt/1000.0, c.Walls)
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		background.Draw(0, 0)
+		background.Draw(mgl32.Vec3{0, 0, 0}, nil)
 		sprites.Draw()
 
 		screen.Flip()
