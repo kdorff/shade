@@ -82,7 +82,7 @@ func (c *Context) Main(screen *display.Context) {
 	}
 	sprites.Add(c.Walls)
 
-	playerSprite, err := loadSprite("player.png", 1, 1)
+	playerSprite, err := loadSpriteAsset("assets/gopher.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -121,6 +121,18 @@ func (c *Context) Main(screen *display.Context) {
 		// TODO refector events to be cleaner
 		glfw.PollEvents()
 	}
+}
+func loadSpriteAsset(name string, framesWide, framesHigh int) (*sprite.Context, error) {
+	i, err := sprite.LoadAsset(name)
+	if err != nil {
+		return nil, err
+	}
+	s, err := sprite.New(i, nil, framesWide, framesHigh)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
 }
 
 func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error) {
