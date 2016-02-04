@@ -16,6 +16,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"runtime"
 
@@ -24,12 +25,19 @@ import (
 	"github.com/hurricanerix/shade/splash"
 )
 
+var (
+	nosplash bool
+)
+
 func init() {
 	// GLFW event handling must run on the main OS thread
 	runtime.LockOSThread()
+	flag.BoolVar(&nosplash, "nosplash", false, "don't show splash screen.")
 }
 
 func main() {
+	flag.Parse()
+
 	screen, err := display.SetMode("ex1-platform", 640, 480)
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
@@ -40,9 +48,11 @@ func main() {
 		log.Fatalln("failed to create game:", err)
 	}
 
-	// Please see shade/splash/splash.go for details on
-	// creating a splash screen
-	splash.Main(screen)
+	if !nosplash {
+		// Please see shade/splash/splash.go for details on
+		// creating a splash screen
+		splash.Main(screen)
+	}
 
 	g.Main(screen)
 }
