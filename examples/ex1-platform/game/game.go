@@ -80,6 +80,14 @@ func (c *Context) Main(screen *display.Context) {
 			}
 		}
 	}
+	_, err = block.New(150, 150, blockSprite, c.Walls)
+	if err != nil {
+		panic(err)
+	}
+	_, err = block.New(200, 100, blockSprite, c.Walls)
+	if err != nil {
+		panic(err)
+	}
 	sprites.Add(c.Walls)
 
 	playerSprite, err := loadSpriteAsset("assets/gopher.png", 1, 1)

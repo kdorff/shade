@@ -101,7 +101,7 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 		p.Rect.X += 300.0 * dt
 	}
 	if p.resting && p.jumpKey {
-		p.dy = 500.0
+		p.dy = 1000.0
 	}
 	p.dy = float32(math.Max(float64(-400.0), float64(p.dy-40.0)))
 
@@ -124,7 +124,7 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 				p.Rect.Y = cb.Top() + 1
 				p.dy = 0.0
 			}
-			if lastR.Top() <= cb.Bottom() && newR.Top() < cb.Bottom() {
+			if lastR.Top() <= cb.Bottom() && newR.Top() > cb.Bottom() {
 				newR.Y = cb.Bottom() - 1 - float32(p.Sprite.Height)
 				p.dy = 0.0
 			}
