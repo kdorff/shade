@@ -47,11 +47,6 @@ func Main(screen *display.Context) {
 	}
 	font.Sprite.Bind(screen.Program)
 	msg := "Shade SDK"
-	effect := sprite.Effects{
-		Scale: mgl32.Vec3{1.0, 1.0, 1.0},
-		Tint:  mgl32.Vec4{1.0, 1.0, 1.0, 0.0},
-	}
-	_, h := font.SizeText(&effect, msg)
 
 	g, err := ghost.New(nil)
 	if err != nil {
@@ -63,6 +58,8 @@ func Main(screen *display.Context) {
 	for running := true; running; {
 		dt := clock.Tick(30)
 		total += dt
+
+		screen.Fill(0.0, 0.0, 0.0)
 
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -80,9 +77,20 @@ func Main(screen *display.Context) {
 
 		g.Update(dt, nil)
 
-		screen.Fill(0.0, 0.0, 0.0)
+		effect := sprite.Effects{
+			Scale:          mgl32.Vec3{1.0, 1.0, 1.0},
+			Tint:           mgl32.Vec4{1.0, 1.0, 1.0, 0.0},
+			EnableLighting: true,
+			AmbientColor:   g.AmbientColor,
+			Light:          *g.Light}
+		_, h := font.SizeText(&effect, msg)
 
-		font.DrawText(mgl32.Vec3{screen.Width / 5, screen.Height/2 + h/2, 0.0}, &effect, msg)
+		pos := mgl32.Vec3{
+			screen.Width / 5,
+			screen.Height/2 + h/2,
+			0}
+
+		font.DrawText(pos, &effect, msg)
 		g.Draw()
 
 		screen.Flip()
@@ -96,12 +104,17 @@ func Main(screen *display.Context) {
 }
 
 func loadFont() (*fonts.Context, error) {
-	i, err := sprite.LoadAsset("assets/splash-font.png")
+	c, err := sprite.LoadAsset("assets/splash-font.png")
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := sprite.New(i, nil, 32, 3)
+	n, err := sprite.LoadAsset("assets/splash-font.normal.png")
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := sprite.New(c, n, 32, 3)
 	if err != nil {
 		return nil, err
 	}

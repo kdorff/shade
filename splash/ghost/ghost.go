@@ -20,6 +20,7 @@ import (
 	"runtime"
 
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/light"
 	"github.com/hurricanerix/shade/shapes"
 	"github.com/hurricanerix/shade/sprite"
 )
@@ -31,19 +32,23 @@ func init() {
 
 // Player TODO doc
 type Ghost struct {
-	Sprite  *sprite.Context
-	Rect    *shapes.Rect
-	dx      float32
-	looking int
-	fx      float32
-	frame   float32
+	Sprite       *sprite.Context
+	Rect         *shapes.Rect
+	Light        *light.Positional
+	AmbientColor mgl32.Vec4
+	dx           float32
+	looking      int
+	fx           float32
+	frame        float32
+	dl           float32
 }
 
 // New TODO doc
 func New(group *sprite.Group) (*Ghost, error) {
 	// TODO should take a group in as a argument
 	c := Ghost{
-		looking: 1,
+		looking:      1,
+		AmbientColor: mgl32.Vec4{0.2, 0.2, 0.2, 1.0},
 	}
 
 	i, err := sprite.LoadAsset("assets/ghost.png")
@@ -54,6 +59,13 @@ func New(group *sprite.Group) (*Ghost, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	light := light.Positional{
+		Pos:   mgl32.Vec3{float32(s.Width) / 2, float32(s.Height) / 2, 100.0},
+		Color: mgl32.Vec4{0.7, 0.7, 1.0, 1.0},
+		Power: 10000,
+	}
+	c.Light = &light
 
 	c.Sprite = s
 	w := float32(c.Sprite.Width) * 2
@@ -85,7 +97,16 @@ func (c *Ghost) Update(dt float32, g *sprite.Group) {
 	if c.Rect.X >= 400 {
 		c.dx = 0
 		c.looking = -1
+		c.dl = 0.01
 	}
+
+	if c.AmbientColor[0] <= 0.5 {
+		c.AmbientColor[0] += c.dl
+		c.AmbientColor[1] += c.dl
+		c.AmbientColor[2] += c.dl
+	}
+	c.Light.Pos[0] = c.Rect.X + float32(c.Sprite.Width)*2
+	c.Light.Pos[1] = c.Rect.Y + float32(c.Sprite.Height)*2
 }
 
 // Draw TODO doc
