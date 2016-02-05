@@ -37,7 +37,7 @@ This project was inspired by the article ["Normal Mapping with Javascript and Ca
 
 Some aspects of the SDK are inspired by the [PyGame SDK](http://www.pygame.org/).
 
-assets/gopher.* adapted from (pkg.png creations by Renee French uner a Creative Commons Attributions 3.0 license.)[https://golang.org/doc/gopher/]
+assets/gopher.* adapted from [pkg.png creations by Renee French uner a Creative Commons Attributions 3.0 license.](https://golang.org/doc/gopher/)
 
 Helpful Tools
 -------------
