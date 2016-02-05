@@ -51,9 +51,9 @@ func main() {
 	face.Bind(screen.Program)
 
 	light := light.Positional{
-		Pos:   mgl32.Vec3{0.5, 0.5, 1.0},
+		Pos:   mgl32.Vec3{0.5, 0.5, 100.0},
 		Color: mgl32.Vec4{0.8, 0.8, 1.0, 1.0},
-		Power: 1000,
+		Power: 10000,
 	}
 
 	for running := true; running; {
