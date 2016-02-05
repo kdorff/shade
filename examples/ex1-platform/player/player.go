@@ -112,7 +112,6 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 
 	for _, cell := range sprite.Collide(p, g, false) {
 		for cb := range cell.Bounds() {
-
 			if lastR.Right() <= cb.Left() && newR.Right() > cb.Left() {
 				newR.X = lastR.X
 			}

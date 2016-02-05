@@ -37,8 +37,6 @@ func init() {
 // Context TODO doc
 type Context struct {
 	Screen *display.Context
-	Player *player.Player
-	Walls  *sprite.Group
 }
 
 // New TODO doc
@@ -48,8 +46,19 @@ func New(screen *display.Context) (Context, error) {
 	}, nil
 }
 
+type Scene struct {
+	Sprites *sprite.Group
+	Player  *player.Player
+	Walls   *sprite.Group
+}
+
 // Main TODO doc
 func (c *Context) Main(screen *display.Context) {
+	scene, err := loadMap("map.data")
+	if err != nil {
+		panic(err)
+	}
+
 	clock, err := clock.New()
 	if err != nil {
 		panic(err)
@@ -61,46 +70,11 @@ func (c *Context) Main(screen *display.Context) {
 	}
 	background.Bind(c.Screen.Program)
 
-	sprites := sprite.NewGroup()
-	c.Walls = sprite.NewGroup()
-
-	blockSprite, err := loadSprite("block.png", 1, 1)
-	if err != nil {
-		panic(err)
-	}
-	blockSprite.Bind(screen.Program)
-
-	for x := 0; float32(x) < screen.Width; x += 32 {
-		for y := 0; float32(y) < screen.Height; y += 32 {
-			if x == 0 || x == 640-32 || y == 0 || y == 480-32 {
-				_, err := block.New(float32(x), float32(y), blockSprite, c.Walls)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-	}
-	_, err = block.New(150, 150, blockSprite, c.Walls)
-	if err != nil {
-		panic(err)
-	}
-	_, err = block.New(200, 100, blockSprite, c.Walls)
-	if err != nil {
-		panic(err)
-	}
-	sprites.Add(c.Walls)
-
-	playerSprite, err := loadSpriteAsset("assets/gopher.png", 1, 1)
-	if err != nil {
-		panic(err)
-	}
-	playerSprite.Bind(screen.Program)
-	p, err := player.New(float32(screen.Width)/2, float32(screen.Height)/2, playerSprite, sprites)
-	if err != nil {
-		panic(err)
-	}
+	scene.Sprites.Bind(screen.Program)
 
 	for running := true; running; {
+		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
+
 		dt := clock.Tick(30)
 
 		// TODO move this somewhere else (maybe a Clear method of display
@@ -116,13 +90,13 @@ func (c *Context) Main(screen *display.Context) {
 				running = false
 				event.Window.SetShouldClose(true)
 			}
-			p.HandleEvent(event, dt/1000.0)
+			scene.Player.HandleEvent(event, dt/1000.0)
 		}
 
-		sprites.Update(dt/1000.0, c.Walls)
-		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
+		scene.Sprites.Update(dt/1000.0, scene.Walls)
+
 		background.Draw(mgl32.Vec3{0, 0, 0}, nil)
-		sprites.Draw()
+		scene.Sprites.Draw()
 
 		screen.Flip()
 
@@ -130,6 +104,52 @@ func (c *Context) Main(screen *display.Context) {
 		glfw.PollEvents()
 	}
 }
+
+// sprites, player, collidable
+func loadMap(path string) (*Scene, error) {
+	scene := Scene{}
+
+	scene.Sprites = sprite.NewGroup()
+	scene.Walls = sprite.NewGroup()
+
+	blockSprite, err := loadSprite("block.png", 1, 1)
+	if err != nil {
+		panic(err)
+	}
+
+	for x := 0; float32(x) < 640; x += 32 {
+		for y := 0; float32(y) < 480; y += 32 {
+			if x == 0 || x == 640-32 || y == 0 || y == 480-32 {
+				_, err := block.New(float32(x), float32(y), blockSprite, scene.Walls)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}
+	}
+	_, err = block.New(150, 150, blockSprite, scene.Walls)
+	if err != nil {
+		panic(err)
+	}
+	_, err = block.New(200, 100, blockSprite, scene.Walls)
+	if err != nil {
+		panic(err)
+	}
+	scene.Sprites.Add(scene.Walls)
+
+	playerSprite, err := loadSpriteAsset("assets/gopher.png", 1, 1)
+	if err != nil {
+		panic(err)
+	}
+	p, err := player.New(float32(640)/2, float32(480)/2, playerSprite, scene.Sprites)
+	if err != nil {
+		panic(err)
+	}
+	scene.Player = p
+
+	return &scene, nil
+}
+
 func loadSpriteAsset(name string, framesWide, framesHigh int) (*sprite.Context, error) {
 	i, err := sprite.LoadAsset(name)
 	if err != nil {
