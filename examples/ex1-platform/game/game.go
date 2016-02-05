@@ -95,6 +95,8 @@ func (c *Context) Main(screen *display.Context) {
 			scene.Player.HandleEvent(event, dt/1000.0)
 		}
 
+		moveCamera(mgl32.Vec3{scene.Player.Rect.X, scene.Player.Rect.Y, 0.0}, c.Screen)
+
 		scene.Sprites.Update(dt/1000.0, scene.Walls)
 
 		background.Draw(mgl32.Vec3{0, 0, 0}, nil)
@@ -164,6 +166,17 @@ func loadMap(path string) (*Scene, error) {
 	scene.Sprites.Add(scene.Walls)
 
 	return &scene, nil
+}
+
+func moveCamera(pos mgl32.Vec3, c *display.Context) {
+	var eye, center, up mgl32.Vec3
+	offset := float32(100)
+	eye = mgl32.Vec3{pos[0] - offset, pos[1] - offset, 7.0}
+	center = mgl32.Vec3{pos[0] - offset, pos[1] - offset, -1.0}
+	up = mgl32.Vec3{0.0, 1.0, 0.0}
+	c.ViewMatrix = mgl32.LookAtV(eye, center, up)
+	viewUniform := gl.GetUniformLocation(c.Program, gl.Str("ViewMatrix\x00"))
+	gl.UniformMatrix4fv(viewUniform, 1, false, &c.ViewMatrix[0])
 }
 
 func loadSpriteAsset(name string, framesWide, framesHigh int) (*sprite.Context, error) {
