@@ -71,7 +71,7 @@ func (p *Player) HandleEvent(event events.Event, dt float32) {
 	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyRight {
 		p.rightKey = true
 	}
-	if p.resting && (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeySpace {
+	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeySpace {
 		p.jumpKey = true
 	}
 	if event.Action == glfw.Release && event.Key == glfw.KeyLeft {
@@ -129,7 +129,6 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 			}
 		}
 	}
-
 }
 
 // Draw TODO doc
