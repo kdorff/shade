@@ -44,13 +44,14 @@ func main() {
 		log.Fatalln("failed to set display mode:", err)
 	}
 
-	face, err := loadSprite("face.png", 1, 1)
+	s, err := loadSprite("test-pattern128x128.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}
-	face.Bind(screen.Program)
+	s.Bind(screen.Program)
 
 	for running := true; running; {
+		screen.Fill(0.0, 0.0, 0.0)
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -66,8 +67,7 @@ func main() {
 			}
 		}
 
-		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-		face.Draw(mgl32.Vec3{windowWidth/2 - float32(face.Width)/2, windowHeight/2 - float32(face.Height)/2, 0.0}, nil)
+		s.Draw(mgl32.Vec3{windowWidth/2 - float32(s.Width)/2, windowHeight/2 - float32(s.Height)/2, 0.0}, nil)
 
 		screen.Flip()
 
