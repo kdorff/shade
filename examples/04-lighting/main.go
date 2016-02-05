@@ -44,7 +44,7 @@ func main() {
 	}
 	ambientColor := mgl32.Vec4{0.2, 0.2, 0.2, 1.0}
 
-	face, err := loadSprite("assets/gopher128x128.png", "assets/gopher128x128.normal.png", 1, 1)
+	face, err := loadSprite("assets/test-pattern128x128.png", "assets/test-pattern128x128.normal.png", 1, 1)
 	if err != nil {
 		panic(err)
 	}
