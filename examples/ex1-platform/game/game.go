@@ -16,6 +16,8 @@
 package game
 
 import (
+	"bufio"
+	"os"
 	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -112,40 +114,54 @@ func loadMap(path string) (*Scene, error) {
 	scene.Sprites = sprite.NewGroup()
 	scene.Walls = sprite.NewGroup()
 
+	playerSprite, err := loadSpriteAsset("assets/gopher.png", 1, 1)
+	if err != nil {
+		return &scene, err
+	}
 	blockSprite, err := loadSprite("block.png", 1, 1)
 	if err != nil {
-		panic(err)
+		return &scene, err
 	}
 
-	for x := 0; float32(x) < 640; x += 32 {
-		for y := 0; float32(y) < 480; y += 32 {
-			if x == 0 || x == 640-32 || y == 0 || y == 480-32 {
+	f, err := os.Open(path)
+	if err != nil {
+		return &scene, err
+	}
+
+	s := bufio.NewScanner(f)
+	count := 0
+	lines := []string{}
+	for s.Scan() {
+		count += 1
+		lines = append(lines, s.Text())
+	}
+	if err := s.Err(); err != nil {
+		return &scene, err
+	}
+
+	x := float32(0)
+	y := float32(0)
+	for i := count - 1; i >= 0; i -= 1 {
+		for _, c := range lines[i] {
+			switch c {
+			case '#':
 				_, err := block.New(float32(x), float32(y), blockSprite, scene.Walls)
 				if err != nil {
 					panic(err)
 				}
+			case 'S':
+				p, err := player.New(x, y, playerSprite, scene.Sprites)
+				if err != nil {
+					panic(err)
+				}
+				scene.Player = p
 			}
+			x += float32(blockSprite.Width)
 		}
-	}
-	_, err = block.New(150, 150, blockSprite, scene.Walls)
-	if err != nil {
-		panic(err)
-	}
-	_, err = block.New(200, 100, blockSprite, scene.Walls)
-	if err != nil {
-		panic(err)
+		x = 0
+		y += float32(blockSprite.Height)
 	}
 	scene.Sprites.Add(scene.Walls)
-
-	playerSprite, err := loadSpriteAsset("assets/gopher.png", 1, 1)
-	if err != nil {
-		panic(err)
-	}
-	p, err := player.New(float32(640)/2, float32(480)/2, playerSprite, scene.Sprites)
-	if err != nil {
-		panic(err)
-	}
-	scene.Player = p
 
 	return &scene, nil
 }
