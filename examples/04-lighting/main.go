@@ -23,6 +23,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/camera"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/light"
@@ -42,6 +43,13 @@ func main() {
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
 	}
+
+	cam, err := camera.New()
+	if err != nil {
+		panic(err)
+	}
+	cam.Bind(screen.Program)
+
 	ambientColor := mgl32.Vec4{0.2, 0.2, 0.2, 1.0}
 
 	face, err := loadSprite("assets/test-pattern128x128.png", "assets/test-pattern128x128.normal.png", 1, 1)

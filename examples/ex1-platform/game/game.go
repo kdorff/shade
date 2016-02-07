@@ -23,6 +23,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/camera"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/examples/ex1-platform/block"
@@ -56,6 +57,13 @@ type Scene struct {
 
 // Main TODO doc
 func (c *Context) Main(screen *display.Context) {
+	cam, err := camera.New()
+	if err != nil {
+		panic(err)
+	}
+	cam.Offset = 100
+	cam.Bind(c.Screen.Program)
+
 	scene, err := loadMap("map.data")
 	if err != nil {
 		panic(err)
@@ -75,6 +83,7 @@ func (c *Context) Main(screen *display.Context) {
 	scene.Sprites.Bind(screen.Program)
 
 	for running := true; running; {
+
 		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
 
 		dt := clock.Tick(30)
@@ -95,7 +104,7 @@ func (c *Context) Main(screen *display.Context) {
 			scene.Player.HandleEvent(event, dt/1000.0)
 		}
 
-		moveCamera(mgl32.Vec3{scene.Player.Rect.X, scene.Player.Rect.Y, 0.0}, c.Screen)
+		cam.Move(mgl32.Vec3{scene.Player.Rect.X, scene.Player.Rect.Y, 0.0})
 
 		scene.Sprites.Update(dt/1000.0, scene.Walls)
 
@@ -166,17 +175,6 @@ func loadMap(path string) (*Scene, error) {
 	scene.Sprites.Add(scene.Walls)
 
 	return &scene, nil
-}
-
-func moveCamera(pos mgl32.Vec3, c *display.Context) {
-	var eye, center, up mgl32.Vec3
-	offset := float32(100)
-	eye = mgl32.Vec3{pos[0] - offset, pos[1] - offset, 7.0}
-	center = mgl32.Vec3{pos[0] - offset, pos[1] - offset, -1.0}
-	up = mgl32.Vec3{0.0, 1.0, 0.0}
-	c.ViewMatrix = mgl32.LookAtV(eye, center, up)
-	viewUniform := gl.GetUniformLocation(c.Program, gl.Str("ViewMatrix\x00"))
-	gl.UniformMatrix4fv(viewUniform, 1, false, &c.ViewMatrix[0])
 }
 
 func loadSpriteAsset(name string, framesWide, framesHigh int) (*sprite.Context, error) {

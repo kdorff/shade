@@ -23,6 +23,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/camera"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/fonts"
@@ -42,6 +43,12 @@ func main() {
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
 	}
+
+	cam, err := camera.New()
+	if err != nil {
+		panic(err)
+	}
+	cam.Bind(screen.Program)
 
 	font, err := fonts.SimpleASCII()
 	if err != nil {

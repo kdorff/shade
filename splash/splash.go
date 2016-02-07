@@ -22,6 +22,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/camera"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/fonts"
@@ -36,6 +37,12 @@ func init() {
 }
 
 func Main(screen *display.Context) {
+	cam, err := camera.New()
+	if err != nil {
+		panic(err)
+	}
+	cam.Bind(screen.Program)
+
 	clock, err := clock.New()
 	if err != nil {
 		panic(err)

@@ -22,7 +22,6 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
-	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/events"
 )
 
@@ -33,12 +32,10 @@ func init() {
 
 // Context TODO doc
 type Context struct {
-	Window     *glfw.Window
-	Width      float32
-	Height     float32
-	Program    uint32
-	ProjMatrix mgl32.Mat4
-	ViewMatrix mgl32.Mat4
+	Window  *glfw.Window
+	Width   float32
+	Height  float32
+	Program uint32
 }
 
 // SetMode TODO doc
@@ -80,23 +77,6 @@ func SetMode(title string, width, height int) (*Context, error) {
 	}
 
 	gl.UseProgram(c.Program)
-
-	var left, right, top, bottom, near, far float32
-	right = float32(width)
-	top = float32(height)
-	near = 0.1
-	far = 100.0
-	c.ProjMatrix = mgl32.Ortho(left, right, bottom, top, near, far)
-	projUniform := gl.GetUniformLocation(c.Program, gl.Str("ProjMatrix\x00"))
-	gl.UniformMatrix4fv(projUniform, 1, false, &c.ProjMatrix[0])
-
-	var eye, center, up mgl32.Vec3
-	eye = mgl32.Vec3{0.0, 0.0, 7.0}
-	center = mgl32.Vec3{0.0, 0.0, -1.0}
-	up = mgl32.Vec3{0.0, 1.0, 0.0}
-	c.ViewMatrix = mgl32.LookAtV(eye, center, up)
-	viewUniform := gl.GetUniformLocation(c.Program, gl.Str("ViewMatrix\x00"))
-	gl.UniformMatrix4fv(viewUniform, 1, false, &c.ViewMatrix[0])
 
 	gl.BindFragDataLocation(c.Program, 0, gl.Str("FragColor\x00"))
 
