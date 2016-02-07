@@ -61,7 +61,7 @@ func (c *Context) Main(screen *display.Context) {
 	if err != nil {
 		panic(err)
 	}
-	cam.Offset = 100
+	cam.Offset = mgl32.Vec2{200, 100}
 	cam.Bind(c.Screen.Program)
 
 	scene, err := loadMap("map.data")

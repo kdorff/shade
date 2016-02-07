@@ -24,7 +24,7 @@ type Context struct {
 	Pos    mgl32.Vec3
 	Width  float32
 	Height float32
-	Offset float32
+	Offset mgl32.Vec2
 
 	ProjMatrix    mgl32.Mat4
 	viewMatrixLoc int32
@@ -58,8 +58,8 @@ func (c *Context) Bind(program uint32) {
 func (c *Context) Move(pos mgl32.Vec3) {
 	var eye, center, up mgl32.Vec3
 
-	eye = mgl32.Vec3{pos[0] - c.Offset, pos[1] - c.Offset, 7.0}
-	center = mgl32.Vec3{pos[0] - c.Offset, pos[1] - c.Offset, -1.0}
+	eye = mgl32.Vec3{pos[0] - c.Offset[0], pos[1] - c.Offset[1], 7.0}
+	center = mgl32.Vec3{pos[0] - c.Offset[0], pos[1] - c.Offset[1], -1.0}
 	up = mgl32.Vec3{0.0, 1.0, 0.0}
 	c.ViewMatrix = mgl32.LookAtV(eye, center, up)
 
