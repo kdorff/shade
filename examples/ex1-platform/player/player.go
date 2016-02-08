@@ -103,7 +103,7 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 	if p.resting && p.jumpKey {
 		p.dy = 1000.0
 	}
-	p.dy = float32(math.Max(float64(-400.0), float64(p.dy-40.0)))
+	p.dy = float32(math.Min(float64(1000.0), float64(p.dy-40.0)))
 
 	p.Rect.Y += p.dy * dt
 
