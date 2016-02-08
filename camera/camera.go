@@ -56,10 +56,13 @@ func (c *Context) Bind(program uint32) {
 }
 
 func (c *Context) Move(pos mgl32.Vec3) {
-	var eye, center, up mgl32.Vec3
+	lerp := float32(0.1)
+	c.Pos[0] = c.Pos[0] + (pos[0]-c.Pos[0])*lerp
+	c.Pos[1] = c.Pos[1] + (pos[1]-c.Pos[1])*lerp
 
-	eye = mgl32.Vec3{pos[0] - c.Offset[0], pos[1] - c.Offset[1], 7.0}
-	center = mgl32.Vec3{pos[0] - c.Offset[0], pos[1] - c.Offset[1], -1.0}
+	var eye, center, up mgl32.Vec3
+	eye = mgl32.Vec3{c.Pos[0] - c.Offset[0], c.Pos[1] - c.Offset[1], 7.0}
+	center = mgl32.Vec3{c.Pos[0] - c.Offset[0], c.Pos[1] - c.Offset[1], -1.0}
 	up = mgl32.Vec3{0.0, 1.0, 0.0}
 	c.ViewMatrix = mgl32.LookAtV(eye, center, up)
 
