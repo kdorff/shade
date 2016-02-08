@@ -74,17 +74,11 @@ func (c *Context) Main(screen *display.Context) {
 		panic(err)
 	}
 
-	background, err := loadSprite("background.png", 1, 1)
-	if err != nil {
-		panic(err)
-	}
-	background.Bind(c.Screen.Program)
-
 	scene.Sprites.Bind(screen.Program)
 
 	for running := true; running; {
 
-		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
+		screen.Fill(0, 0, 0)
 
 		dt := clock.Tick(30)
 
@@ -108,7 +102,6 @@ func (c *Context) Main(screen *display.Context) {
 
 		scene.Sprites.Update(dt/1000.0, scene.Walls)
 
-		background.Draw(mgl32.Vec3{0, 0, 0}, nil)
 		scene.Sprites.Draw()
 
 		screen.Flip()
@@ -129,7 +122,7 @@ func loadMap(path string) (*Scene, error) {
 	if err != nil {
 		return &scene, err
 	}
-	blockSprite, err := loadSprite("block.png", 1, 1)
+	blockSprite, err := loadSpriteAsset("assets/block64x64.png", 1, 1)
 	if err != nil {
 		return &scene, err
 	}
