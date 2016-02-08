@@ -25,6 +25,10 @@ type Context struct {
 	Width  float32
 	Height float32
 	Offset mgl32.Vec2
+	Top    float32
+	Bottom float32
+	Left   float32
+	Right  float32
 
 	ProjMatrix    mgl32.Mat4
 	viewMatrixLoc int32
@@ -56,6 +60,17 @@ func (c *Context) Bind(program uint32) {
 }
 
 func (c *Context) Move(pos mgl32.Vec3) {
+	if c.Left != 0 && pos[0] < c.Left {
+		pos[0] = c.Left
+	} else if c.Right != 0 && pos[0] > c.Right {
+		pos[0] = c.Right
+	}
+	if c.Top != 0 && pos[1] > c.Top {
+		pos[1] = c.Top
+	} else if c.Bottom != 0 && pos[1] < c.Bottom {
+		pos[1] = c.Bottom
+	}
+
 	lerp := float32(0.1)
 	c.Pos[0] = c.Pos[0] + (pos[0]-c.Pos[0])*lerp
 	c.Pos[1] = c.Pos[1] + (pos[1]-c.Pos[1])*lerp
