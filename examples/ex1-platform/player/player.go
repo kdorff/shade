@@ -61,7 +61,7 @@ func New(x, y float32, s *sprite.Context, group *sprite.Group) (*Player, error) 
 	p.Rect = rect
 
 	light := light.Positional{
-		Pos:   mgl32.Vec3{float32(s.Width) / 2, float32(s.Height), 50.0},
+		Pos:   mgl32.Vec3{p.Rect.Right(), float32(s.Height), 50.0},
 		Color: mgl32.Vec4{0.7, 0.7, 1.0, 1.0},
 		Power: 10000,
 	}
