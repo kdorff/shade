@@ -98,7 +98,7 @@ func Main(screen *display.Context) {
 			0}
 
 		font.DrawText(pos, &effect, msg)
-		g.Draw()
+		g.Draw(nil)
 
 		screen.Flip()
 

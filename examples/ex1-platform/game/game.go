@@ -105,7 +105,13 @@ func (c *Context) Main(screen *display.Context) {
 
 		scene.Sprites.Update(dt/1000.0, scene.Walls)
 
-		scene.Sprites.Draw()
+		effect := sprite.Effects{
+			Scale:          mgl32.Vec3{1.0, 1.0, 1.0},
+			EnableLighting: true,
+			AmbientColor:   mgl32.Vec4{0.3, 0.3, 0.3, 1.0},
+			Light:          *scene.Player.Light}
+
+		scene.Sprites.Draw(&effect)
 
 		screen.Flip()
 
@@ -121,11 +127,11 @@ func loadMap(path string) (*Scene, error) {
 	scene.Sprites = sprite.NewGroup()
 	scene.Walls = sprite.NewGroup()
 
-	playerSprite, err := loadSpriteAsset("assets/gopher128x128.png", 1, 1)
+	playerSprite, err := loadSpriteAsset("assets/gopher128x128.png", "assets/gopher128x128.normal.png", 1, 1)
 	if err != nil {
 		return &scene, err
 	}
-	blockSprite, err := loadSpriteAsset("assets/block64x64.png", 1, 1)
+	blockSprite, err := loadSpriteAsset("assets/block64x64.png", "assets/block64x64.normal.png", 1, 1)
 	if err != nil {
 		return &scene, err
 	}
@@ -173,12 +179,16 @@ func loadMap(path string) (*Scene, error) {
 	return &scene, nil
 }
 
-func loadSpriteAsset(name string, framesWide, framesHigh int) (*sprite.Context, error) {
-	i, err := sprite.LoadAsset(name)
+func loadSpriteAsset(colorName, normalName string, framesWide, framesHigh int) (*sprite.Context, error) {
+	c, err := sprite.LoadAsset(colorName)
 	if err != nil {
 		return nil, err
 	}
-	s, err := sprite.New(i, nil, framesWide, framesHigh)
+	n, err := sprite.LoadAsset(normalName)
+	if err != nil {
+		return nil, err
+	}
+	s, err := sprite.New(c, n, framesWide, framesHigh)
 	if err != nil {
 		return nil, err
 	}

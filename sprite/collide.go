@@ -23,7 +23,7 @@ func Collide(t Sprite, g *Group, dokill bool) []Sprite {
 		return nil
 	}
 	for ttb := range t.Bounds() {
-		for _, s := range g.sprites {
+		for _, s := range g.Sprites {
 			for stb := range s.Bounds() {
 				if testBounds(ttb, stb) {
 					hits = append(hits, s)

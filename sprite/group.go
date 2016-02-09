@@ -19,7 +19,7 @@ import "github.com/hurricanerix/shade/shapes"
 // Group TODO doc
 type Group struct {
 	// TODO: maybe Group contain a list of Entities
-	sprites []Sprite
+	Sprites []Sprite
 }
 
 // NewGroup TODO doc
@@ -30,12 +30,12 @@ func NewGroup() *Group {
 
 // Add TODO doc
 func (g *Group) Add(s Sprite) {
-	g.sprites = append(g.sprites, s)
+	g.Sprites = append(g.Sprites, s)
 }
 
 // Update TODO doc
 func (g *Group) Update(dt float32, cg *Group) {
-	for _, s := range g.sprites {
+	for _, s := range g.Sprites {
 		s.Update(dt, cg)
 	}
 }
@@ -49,15 +49,15 @@ func (g *Group) Bounds() chan shapes.Rect {
 }
 
 func (g *Group) Bind(program uint32) error {
-	for _, s := range g.sprites {
+	for _, s := range g.Sprites {
 		s.Bind(program)
 	}
 	return nil
 }
 
 // Draw TODO doc
-func (g *Group) Draw() {
-	for _, s := range g.sprites {
-		s.Draw()
+func (g *Group) Draw(e *Effects) {
+	for _, s := range g.Sprites {
+		s.Draw(e)
 	}
 }

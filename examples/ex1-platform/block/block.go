@@ -62,8 +62,8 @@ func (b *Block) Update(dt float32, g *sprite.Group) {
 }
 
 // Draw TODO doc
-func (b *Block) Draw() {
-	b.Sprite.Draw(mgl32.Vec3{b.Rect.X, b.Rect.Y, 0.0}, nil)
+func (b *Block) Draw(e *sprite.Effects) {
+	b.Sprite.Draw(mgl32.Vec3{b.Rect.X, b.Rect.Y, 0.0}, e)
 }
 
 // Bounds TODO doc

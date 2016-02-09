@@ -41,7 +41,7 @@ type Sprite interface {
 	// TODO rename this to something more interfacer
 	Bind(uint32) error
 	Update(float32, *Group)
-	Draw()
+	Draw(*Effects)
 	Bounds() chan shapes.Rect
 }
 

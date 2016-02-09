@@ -110,7 +110,7 @@ func (c *Ghost) Update(dt float32, g *sprite.Group) {
 }
 
 // Draw TODO doc
-func (c *Ghost) Draw() {
+func (c *Ghost) Draw(e *sprite.Effects) {
 	var x float32 = c.Rect.X
 	var y float32 = c.Rect.Y
 

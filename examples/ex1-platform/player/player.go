@@ -23,6 +23,7 @@ import (
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/events"
+	"github.com/hurricanerix/shade/light"
 	"github.com/hurricanerix/shade/shapes"
 	"github.com/hurricanerix/shade/sprite"
 )
@@ -36,6 +37,7 @@ func init() {
 type Player struct {
 	Sprite   *sprite.Context
 	Rect     *shapes.Rect
+	Light    *light.Positional
 	resting  bool
 	dy       float32
 	leftKey  bool
@@ -55,6 +57,13 @@ func New(x, y float32, s *sprite.Context, group *sprite.Group) (*Player, error) 
 		return &p, fmt.Errorf("could create rect: %v", err)
 	}
 	p.Rect = rect
+
+	light := light.Positional{
+		Pos:   mgl32.Vec3{float32(s.Width) / 2, float32(s.Height), 50.0},
+		Color: mgl32.Vec4{0.7, 0.7, 1.0, 1.0},
+		Power: 10000,
+	}
+	p.Light = &light
 
 	// TODO: this should probably be added outside of player
 	group.Add(&p)
@@ -129,11 +138,13 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 			}
 		}
 	}
+	p.Light.Pos[0] = p.Rect.X + float32(p.Sprite.Width)
+	p.Light.Pos[1] = p.Rect.Y + float32(p.Sprite.Height)
 }
 
 // Draw TODO doc
-func (p *Player) Draw() {
-	p.Sprite.Draw(mgl32.Vec3{p.Rect.X, p.Rect.Y, 0.0}, nil)
+func (p *Player) Draw(e *sprite.Effects) {
+	p.Sprite.Draw(mgl32.Vec3{p.Rect.X, p.Rect.Y, 0.0}, e)
 }
 
 // Bounds TODO doc
