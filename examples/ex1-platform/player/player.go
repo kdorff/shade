@@ -36,6 +36,7 @@ func init() {
 // Player TODO doc
 type Player struct {
 	Sprite   *sprite.Context
+	Pos      mgl32.Vec3
 	Rect     *shapes.Rect
 	Light    *light.Positional
 	Facing   float32
@@ -51,10 +52,12 @@ func New(x, y float32, s *sprite.Context, group *sprite.Group) (*Player, error) 
 	// TODO should take a group in as a argument
 	p := Player{
 		Sprite: s,
+		Pos:    mgl32.Vec3{x, y, 1.0},
 		Facing: 2,
 	}
 
-	rect, err := shapes.NewRect(x, y, float32(p.Sprite.Width), float32(p.Sprite.Height))
+	//rect, err := shapes.NewRect(x, y, float32(p.Sprite.Width), float32(p.Sprite.Height))
+	rect, err := shapes.NewRect(32, 0, 96, 96) // TODO: Change API: Left, Bottom, Right, Top
 	if err != nil {
 		return &p, fmt.Errorf("could create rect: %v", err)
 	}
@@ -103,54 +106,62 @@ func (p *Player) Bind(program uint32) error {
 
 // Update TODO doc
 func (p *Player) Update(dt float32, g *sprite.Group) {
-	lastR := shapes.Rect{p.Rect.X, p.Rect.Y, p.Rect.Width, p.Rect.Height}
+	lastPos := mgl32.Vec3{p.Pos[0], p.Pos[1], p.Pos[2]}
 
 	if p.leftKey {
-		p.Rect.X -= 300.0 * dt
-		p.Light.Pos[0] = p.Rect.Left()
+		p.Pos[0] -= 300.0 * dt
+		p.Light.Pos[0] = p.Pos[0]
 		p.Facing = 1
 	}
 	if p.rightKey {
-		p.Rect.X += 300.0 * dt
+		p.Pos[0] += 300.0 * dt
 		p.Facing = 2
-		p.Light.Pos[0] = p.Rect.Right()
+		p.Light.Pos[0] = p.Pos[0] + float32(p.Sprite.Width)
 	}
 	if p.resting && p.jumpKey {
 		p.dy = 1500.0
 	}
 	p.dy = float32(math.Min(float64(1500.0), float64(p.dy-40.0)))
 
-	p.Rect.Y += p.dy * dt
+	p.Pos[1] += p.dy * dt
 
-	newR := p.Rect
+	newPos := &p.Pos
 	p.resting = false
 
 	for _, cell := range sprite.Collide(p, g, false) {
 		for cb := range cell.Bounds() {
-			if lastR.Right() <= cb.Left() && newR.Right() > cb.Left() {
-				newR.X = lastR.X
-			}
-			if lastR.Left() >= cb.Right() && newR.Left() < cb.Right() {
-				newR.X = lastR.X
-			}
-			if lastR.Bottom() >= cb.Top() && newR.Bottom() < cb.Top() {
+			/*
+				if lastPos[0]+p.Rect.Width <= cb.Left() && newPos[0]+p.Rect.Width > cb.Left() {
+					println("LEFT", cb.Left())
+					newPos[0] = lastPos[0]
+				}
+				if lastPos[0]+p.Rect.Width >= cb.Right() && newPos[0]+p.Rect.X < cb.Right() {
+					println("RIGHT", cb.Right())
+					newPos[0] = lastPos[0]
+				}
+			*/
+			if lastPos[1]+p.Rect.Y >= cb.Top() && newPos[1]+p.Rect.Y < cb.Top() {
 				p.resting = true
-				p.Rect.Y = cb.Top() + 1
+				p.Pos[1] = cb.Top() + 1
 				p.dy = 0.0
 			}
-			if lastR.Top() <= cb.Bottom() && newR.Top() > cb.Bottom() {
-				newR.Y = cb.Bottom() - 1 - float32(p.Sprite.Height)
-				p.dy = 0.0
-			}
+			/*
+
+				if lastPos[1]+p.Rect.Top() <= cb.Bottom() && newPos[1]+p.Rect.Top() > cb.Bottom() {
+					println("TOP", cb.Top())
+					newPos[1] = cb.Bottom() - 1 - float32(p.Sprite.Height)
+					p.dy = 0.0
+				}
+			*/
 		}
 	}
-	p.Light.Pos[1] = p.Rect.Y + float32(p.Sprite.Height)
+	p.Light.Pos[1] = p.Pos[1] + float32(p.Sprite.Height)
 
 }
 
 // Draw TODO doc
 func (p *Player) Draw(e *sprite.Effects) {
-	p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, mgl32.Vec3{p.Rect.X, p.Rect.Y, 0.0}, e)
+	p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.Pos, e)
 }
 
 // Bounds TODO doc

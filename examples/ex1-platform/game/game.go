@@ -114,7 +114,7 @@ func (c *Context) Main(screen *display.Context, config Config) {
 			scene.Player.HandleEvent(event, dt/1000.0)
 		}
 
-		cam.Move(mgl32.Vec3{scene.Player.Rect.X, scene.Player.Rect.Y, 0.0})
+		cam.Move(mgl32.Vec3{scene.Player.Pos[0], scene.Player.Pos[1], 0.0})
 
 		scene.Sprites.Update(dt/1000.0, scene.Walls)
 
@@ -135,7 +135,8 @@ func (c *Context) Main(screen *display.Context, config Config) {
 			msg := "Dev Mode!\n"
 			msg += fmt.Sprintf("Camera Pos: %.0f, %.0f\n", cam.Pos[0], cam.Pos[1])
 			msg += fmt.Sprintf("Player {\n")
-			msg += fmt.Sprintf("  Pos: %.0f, %.0f\n", scene.Player.Rect.X, scene.Player.Rect.Y)
+			msg += fmt.Sprintf("  Pos: %.0f, %.0f\n", scene.Player.Pos[0], scene.Player.Pos[1])
+			msg += fmt.Sprintf("  Rect: %.0f, %.0f, %.0f, %.0f\n", scene.Player.Rect.X, scene.Player.Rect.Y, scene.Player.Rect.Width, scene.Player.Rect.Height)
 			msg += fmt.Sprintf("  Facing: %.0f\n", scene.Player.Facing)
 			msg += fmt.Sprintf("  Light: {\n")
 			msg += fmt.Sprintf("    Pos: %.0f, %.0f\n", scene.Player.Light.Pos[0], scene.Player.Light.Pos[1])
