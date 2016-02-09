@@ -17,6 +17,7 @@ package game
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"runtime"
 
@@ -28,6 +29,7 @@ import (
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/examples/ex1-platform/block"
 	"github.com/hurricanerix/shade/examples/ex1-platform/player"
+	"github.com/hurricanerix/shade/fonts"
 	"github.com/hurricanerix/shade/sprite"
 	"github.com/hurricanerix/shade/time/clock"
 )
@@ -35,6 +37,11 @@ import (
 func init() {
 	// GLFW event handling must run on the main OS thread
 	runtime.LockOSThread()
+}
+
+// Config TODO doc
+type Config struct {
+	DevMode bool
 }
 
 // Context TODO doc
@@ -56,15 +63,15 @@ type Scene struct {
 }
 
 // Main TODO doc
-func (c *Context) Main(screen *display.Context) {
+func (c *Context) Main(screen *display.Context, config Config) {
 	cam, err := camera.New()
 	if err != nil {
 		panic(err)
 	}
 	cam.Offset = mgl32.Vec2{200, 100}
-	cam.Top = 64 * 6.5 // TODO: should be 64 x 14
-	cam.Right = 64 * 54
-	cam.Left = 1
+	cam.TopStop = 64 * 6.5 // TODO: should be 64 x 14
+	cam.RightStop = 64 * 54
+	cam.LeftStop = 1
 	cam.Bind(c.Screen.Program)
 
 	scene, err := loadMap("map.data")
@@ -78,6 +85,12 @@ func (c *Context) Main(screen *display.Context) {
 	}
 
 	scene.Sprites.Bind(screen.Program)
+
+	font, err := fonts.SimpleASCII()
+	if err != nil {
+		panic(err)
+	}
+	font.Bind(screen.Program)
 
 	for running := true; running; {
 
@@ -113,6 +126,23 @@ func (c *Context) Main(screen *display.Context) {
 
 		scene.Sprites.Draw(&effect)
 
+		if config.DevMode {
+			deveff := sprite.Effects{
+				EnableLighting: false,
+				Scale:          mgl32.Vec3{2.0, 2.0, 1.0},
+				Tint:           mgl32.Vec4{1.0, 1.0, 1.0, 1.0},
+			}
+			msg := "Dev Mode!\n"
+			msg += fmt.Sprintf("Camera Pos: %.0f, %.0f\n", cam.Pos[0], cam.Pos[1])
+			msg += fmt.Sprintf("Player {\n")
+			msg += fmt.Sprintf("  Pos: %.0f, %.0f\n", scene.Player.Rect.X, scene.Player.Rect.Y)
+			msg += fmt.Sprintf("  Facing: %.0f\n", scene.Player.Facing)
+			msg += fmt.Sprintf("  Light: {\n")
+			msg += fmt.Sprintf("    Pos: %.0f, %.0f\n", scene.Player.Light.Pos[0], scene.Player.Light.Pos[1])
+			msg += fmt.Sprintf("  }\n")
+			msg += fmt.Sprintf("}\n")
+			font.DrawText(mgl32.Vec3{cam.Left + 20, cam.Top - 40, 0}, &deveff, msg)
+		}
 		screen.Flip()
 
 		// TODO refector events to be cleaner

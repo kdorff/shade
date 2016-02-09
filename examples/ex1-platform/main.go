@@ -26,12 +26,14 @@ import (
 )
 
 var (
+	dev      bool
 	nosplash bool
 )
 
 func init() {
 	// GLFW event handling must run on the main OS thread
 	runtime.LockOSThread()
+	flag.BoolVar(&dev, "dev", false, "dev mode.")
 	flag.BoolVar(&nosplash, "nosplash", false, "don't show splash screen.")
 }
 
@@ -54,5 +56,7 @@ func main() {
 		splash.Main(screen)
 	}
 
-	g.Main(screen)
+	config := game.Config{DevMode: dev}
+
+	g.Main(screen, config)
 }

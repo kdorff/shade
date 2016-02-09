@@ -21,14 +21,18 @@ import (
 )
 
 type Context struct {
-	Pos    mgl32.Vec3
-	Width  float32
-	Height float32
-	Offset mgl32.Vec2
-	Top    float32
-	Bottom float32
-	Left   float32
-	Right  float32
+	Pos        mgl32.Vec3
+	Width      float32
+	Height     float32
+	Offset     mgl32.Vec2
+	Top        float32
+	Bottom     float32
+	Left       float32
+	Right      float32
+	TopStop    float32
+	BottomStop float32
+	LeftStop   float32
+	RightStop  float32
 
 	ProjMatrix    mgl32.Mat4
 	viewMatrixLoc int32
@@ -63,16 +67,21 @@ func (c *Context) Move(pos mgl32.Vec3) {
 	pos[0] -= c.Offset[0]
 	pos[1] -= c.Offset[1]
 
-	if c.Left != 0 && pos[0] < c.Left {
-		pos[0] = c.Left
-	} else if c.Right != 0 && pos[0] > c.Right {
-		pos[0] = c.Right
+	if c.LeftStop != 0 && pos[0] < c.LeftStop {
+		pos[0] = c.LeftStop
+	} else if c.RightStop != 0 && pos[0] > c.RightStop {
+		pos[0] = c.RightStop
 	}
-	if c.Top != 0 && pos[1] > c.Top {
-		pos[1] = c.Top
-	} else if c.Bottom != 0 && pos[1] < c.Bottom {
-		pos[1] = c.Bottom
+	if c.TopStop != 0 && pos[1] > c.TopStop {
+		pos[1] = c.TopStop
+	} else if c.BottomStop != 0 && pos[1] < c.BottomStop {
+		pos[1] = c.BottomStop
 	}
+
+	c.Left = c.Pos[0]
+	c.Right = c.Pos[0] + c.Width
+	c.Bottom = c.Pos[1]
+	c.Top = c.Pos[1] + c.Height
 
 	lerp := float32(0.1)
 	c.Pos[0] = c.Pos[0] + (pos[0]-c.Pos[0])*lerp
