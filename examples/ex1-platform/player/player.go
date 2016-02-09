@@ -38,6 +38,7 @@ type Player struct {
 	Sprite   *sprite.Context
 	Rect     *shapes.Rect
 	Light    *light.Positional
+	Facing   float32
 	resting  bool
 	dy       float32
 	leftKey  bool
@@ -50,6 +51,7 @@ func New(x, y float32, s *sprite.Context, group *sprite.Group) (*Player, error) 
 	// TODO should take a group in as a argument
 	p := Player{
 		Sprite: s,
+		Facing: 2,
 	}
 
 	rect, err := shapes.NewRect(x, y, float32(p.Sprite.Width), float32(p.Sprite.Height))
@@ -105,9 +107,13 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 
 	if p.leftKey {
 		p.Rect.X -= 300.0 * dt
+		p.Light.Pos[0] = p.Rect.Left()
+		p.Facing = 1
 	}
 	if p.rightKey {
 		p.Rect.X += 300.0 * dt
+		p.Facing = 2
+		p.Light.Pos[0] = p.Rect.Right()
 	}
 	if p.resting && p.jumpKey {
 		p.dy = 1500.0
@@ -138,13 +144,13 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 			}
 		}
 	}
-	p.Light.Pos[0] = p.Rect.X + float32(p.Sprite.Width)
 	p.Light.Pos[1] = p.Rect.Y + float32(p.Sprite.Height)
+
 }
 
 // Draw TODO doc
 func (p *Player) Draw(e *sprite.Effects) {
-	p.Sprite.Draw(mgl32.Vec3{p.Rect.X, p.Rect.Y, 0.0}, e)
+	p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, mgl32.Vec3{p.Rect.X, p.Rect.Y, 0.0}, e)
 }
 
 // Bounds TODO doc

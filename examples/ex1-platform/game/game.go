@@ -127,7 +127,7 @@ func loadMap(path string) (*Scene, error) {
 	scene.Sprites = sprite.NewGroup()
 	scene.Walls = sprite.NewGroup()
 
-	playerSprite, err := loadSpriteAsset("assets/gopher128x128.png", "assets/gopher128x128.normal.png", 1, 1)
+	playerSprite, err := loadSpriteAsset("assets/gopher128x128.png", "assets/gopher128x128.normal.png", 1, 2)
 	if err != nil {
 		return &scene, err
 	}
