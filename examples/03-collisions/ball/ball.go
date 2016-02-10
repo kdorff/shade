@@ -16,11 +16,11 @@
 package ball
 
 import (
-	"fmt"
 	"math"
 	"runtime"
 
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/shapes"
 	"github.com/hurricanerix/shade/sprite"
 )
@@ -32,31 +32,36 @@ func init() {
 
 // Ball TODO doc
 type Ball struct {
+	Pos    mgl32.Vec3
 	Sprite *sprite.Context
-	Rect   *shapes.Rect
+	Bounds *shapes.Shape
 	dx     float32
 	dy     float32
 }
 
 // New TODO doc
-func New(x, y, speed, angle float32, s *sprite.Context, group *sprite.Group) (*Ball, error) {
+func New(x, y, speed, angle float32, s *sprite.Context, group *[]entity.Entity) (*Ball, error) {
 	// TODO should take a group in as a argument
 	b := Ball{
+		Pos:    mgl32.Vec3{x, y, 1.0},
 		Sprite: s,
+		Bounds: shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Height) / 2}, float32(s.Width)/2),
 	}
 
 	b.dx = float32(math.Cos(float64(angle))) * speed
 	b.dy = float32(math.Sin(float64(angle))) * speed
 
-	rect, err := shapes.NewRect(x, y, float32(b.Sprite.Width), float32(b.Sprite.Height))
-	if err != nil {
-		return &b, fmt.Errorf("could create rect: %v", err)
-	}
-	b.Rect = rect
-
 	// TODO: this should probably be added outside of ball
-	group.Add(&b)
+	*group = append(*group, &b)
 	return &b, nil
+}
+
+func (b Ball) Type() string {
+	return "ball"
+}
+
+func (b Ball) Label() string {
+	return ""
 }
 
 // Bind TODO doc
@@ -65,46 +70,41 @@ func (b *Ball) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (b *Ball) Update(dt float32, g *sprite.Group) {
-	lastR := shapes.Rect{b.Rect.X, b.Rect.Y, b.Rect.Width, b.Rect.Height}
+func (b *Ball) Update(dt float32, g []entity.Entity) {
+	lastPos := mgl32.Vec3{b.Pos[0], b.Pos[1], b.Pos[2]}
 
-	b.Rect.X += b.dx * dt
-	b.Rect.Y += b.dy * dt
+	b.Pos[0] += b.dx * dt
+	b.Pos[1] += b.dy * dt
 
-	newR := b.Rect
+	newPos := &b.Pos
 
 	switchDx := false
 	switchDy := false
 
 	for _, cell := range sprite.Collide(b, g, false) {
-		for cb := range cell.Bounds() {
-			if lastR.Left() <= cb.Right() && lastR.Right() >= cb.Left() {
-				switchDx = true
+		println(cell)
+		/*
+			for cb := range cell.Bounds() {
+				if lastR.Left() <= cb.Right() && lastR.Right() >= cb.Left() {
+					switchDx = true
+				}
+				if lastR.Bottom() <= cb.Top() && lastR.Top() >= cb.Bottom() {
+					switchDy = true
+				}
 			}
-			if lastR.Bottom() <= cb.Top() && lastR.Top() >= cb.Bottom() {
-				switchDy = true
-			}
-		}
+		*/
 	}
 	if switchDx {
-		newR.X = lastR.X
+		newPos[0] = lastPos[0]
 		b.dx *= -1
 	}
 	if switchDy {
-		newR.Y = lastR.Y
+		newPos[1] = lastPos[1]
 		b.dy *= -1
 	}
 }
 
 // Draw TODO doc
-func (b *Ball) Draw() {
-	b.Sprite.Draw(mgl32.Vec3{b.Rect.X, b.Rect.Y, 0.0}, nil)
-}
-
-// Bounds TODO doc
-func (b *Ball) Bounds() chan shapes.Rect {
-	ch := make(chan shapes.Rect, 1)
-	ch <- *(b.Rect)
-	close(ch)
-	return ch
+func (b Ball) Draw() {
+	b.Sprite.Draw(b.Pos, nil)
 }

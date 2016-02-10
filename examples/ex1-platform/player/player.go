@@ -22,6 +22,7 @@ import (
 
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/light"
 	"github.com/hurricanerix/shade/shapes"
@@ -35,9 +36,9 @@ func init() {
 
 // Player TODO doc
 type Player struct {
-	Sprite   *sprite.Context
 	Pos      mgl32.Vec3
-	Rect     *shapes.Rect
+	Bounds   *shapes.Shape
+	Sprite   *sprite.Context
 	Light    *light.Positional
 	Facing   float32
 	resting  bool
@@ -48,31 +49,33 @@ type Player struct {
 }
 
 // New TODO doc
-func New(x, y float32, s *sprite.Context, group *sprite.Group) (*Player, error) {
+func New(x, y float32, s *sprite.Context, group *[]entity.Entity) (*Player, error) {
 	// TODO should take a group in as a argument
 	p := Player{
-		Sprite: s,
 		Pos:    mgl32.Vec3{x, y, 1.0},
+		Bounds: shapes.NewRect(32, 0, 96, 96),
+		Sprite: s,
 		Facing: 2,
 	}
 
-	//rect, err := shapes.NewRect(x, y, float32(p.Sprite.Width), float32(p.Sprite.Height))
-	rect, err := shapes.NewRect(32, 0, 96, 96) // TODO: Change API: Left, Bottom, Right, Top
-	if err != nil {
-		return &p, fmt.Errorf("could create rect: %v", err)
-	}
-	p.Rect = rect
-
 	light := light.Positional{
-		Pos:   mgl32.Vec3{p.Rect.Right(), float32(s.Height), 50.0},
+		Pos:   mgl32.Vec3{p.Pos[0], float32(s.Height), 50.0},
 		Color: mgl32.Vec4{0.7, 0.7, 1.0, 1.0},
 		Power: 10000,
 	}
 	p.Light = &light
 
 	// TODO: this should probably be added outside of player
-	group.Add(&p)
+	*group = append(*group, &p)
 	return &p, nil
+}
+
+func (p Player) Type() string {
+	return "player"
+}
+
+func (p Player) Label() string {
+	return ""
 }
 
 // HandleEvent TODO doc
@@ -105,7 +108,7 @@ func (p *Player) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (p *Player) Update(dt float32, g *sprite.Group) {
+func (p *Player) Update(dt float32, g *[]entity.Entity) {
 	lastPos := mgl32.Vec3{p.Pos[0], p.Pos[1], p.Pos[2]}
 
 	if p.leftKey {
@@ -127,10 +130,19 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 
 	newPos := &p.Pos
 	p.resting = false
+	println(newPos)
+	fmt.Println(lastPos)
+
+	if p.Pos[1] < 128 {
+		p.resting = true
+		p.Pos[1] = 128
+		p.dy = 0.0
+	}
 
 	for _, cell := range sprite.Collide(p, g, false) {
-		for cb := range cell.Bounds() {
-			/*
+		println(cell)
+		//for cb := range cell.Bounds() {
+		/*
 				if lastPos[0]+p.Rect.Width <= cb.Left() && newPos[0]+p.Rect.Width > cb.Left() {
 					println("LEFT", cb.Left())
 					newPos[0] = lastPos[0]
@@ -139,21 +151,22 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 					println("RIGHT", cb.Right())
 					newPos[0] = lastPos[0]
 				}
-			*/
+
 			if lastPos[1]+p.Rect.Y >= cb.Top() && newPos[1]+p.Rect.Y < cb.Top() {
 				p.resting = true
 				p.Pos[1] = cb.Top() + 1
 				p.dy = 0.0
 			}
-			/*
+		*/
+		/*
 
-				if lastPos[1]+p.Rect.Top() <= cb.Bottom() && newPos[1]+p.Rect.Top() > cb.Bottom() {
-					println("TOP", cb.Top())
-					newPos[1] = cb.Bottom() - 1 - float32(p.Sprite.Height)
-					p.dy = 0.0
-				}
-			*/
-		}
+			if lastPos[1]+p.Rect.Top() <= cb.Bottom() && newPos[1]+p.Rect.Top() > cb.Bottom() {
+				println("TOP", cb.Top())
+				newPos[1] = cb.Bottom() - 1 - float32(p.Sprite.Height)
+				p.dy = 0.0
+			}
+		*/
+		//}
 	}
 	p.Light.Pos[1] = p.Pos[1] + float32(p.Sprite.Height)
 
@@ -162,12 +175,4 @@ func (p *Player) Update(dt float32, g *sprite.Group) {
 // Draw TODO doc
 func (p *Player) Draw(e *sprite.Effects) {
 	p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.Pos, e)
-}
-
-// Bounds TODO doc
-func (p *Player) Bounds() chan shapes.Rect {
-	ch := make(chan shapes.Rect, 1)
-	ch <- *(p.Rect)
-	close(ch)
-	return ch
 }

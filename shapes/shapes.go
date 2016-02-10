@@ -11,45 +11,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// Package rect TODO doc
+// Package shapes TODO doc
 
 package shapes
 
-// Rect TODO doc
-type Rect struct {
-	X      float32
-	Y      float32
-	Width  float32
-	Height float32
+import "github.com/go-gl/mathgl/mgl32"
+
+type Shape struct {
+	Type string
+	Data []float32
 }
 
 // NewRect TODO doc
-func NewRect(x, y, width, height float32) (*Rect, error) {
-	r := Rect{
-		X:      x,
-		Y:      y,
-		Width:  width,
-		Height: height,
+func NewRect(left, right, bottom, top float32) *Shape {
+	r := Shape{
+		Type: "rect",
+		Data: []float32{left, right, bottom, top},
 	}
-	return &r, nil
+	return &r
 }
 
-// Left TODO doc
-func (r Rect) Left() float32 {
-	return r.X
-}
-
-// Right TODO doc
-func (r Rect) Right() float32 {
-	return r.X + r.Width
-}
-
-// Top TODO doc
-func (r Rect) Top() float32 {
-	return r.Y + r.Height
-}
-
-// Bottom TODO doc
-func (r Rect) Bottom() float32 {
-	return r.Y
+// NewCircle TODO doc
+func NewCircle(center mgl32.Vec2, radius float32) *Shape {
+	r := Shape{
+		Type: "circle",
+		Data: []float32{center[0], center[1], radius},
+	}
+	return &r
 }

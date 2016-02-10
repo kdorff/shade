@@ -11,28 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+// Package entity TODO doc
 
-package sprite
+package entity
 
-import "github.com/hurricanerix/shade/entity"
-
-// Collide TODO doc
-func Collide(t entity.Entity, g *[]entity.Entity, dokill bool) []Sprite {
-	/*
-		var hits []Sprite
-		if g == nil {
-			return nil
-		}
-		for ttb := range t.Bounds() {
-			for _, s := range g.Sprites {
-				for stb := range s.Bounds() {
-					if testBounds(ttb, stb) {
-						hits = append(hits, s)
-					}
-				}
-			}
-		}
-		return hits
-	*/
-	return nil
+// Entity TODO doc
+type Entity interface {
+	Type() string
+	Label() string
 }

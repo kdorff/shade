@@ -19,6 +19,7 @@ import (
 	"runtime"
 
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/shapes"
 	"github.com/hurricanerix/shade/sprite"
 )
@@ -30,27 +31,30 @@ func init() {
 
 // Player TODO doc
 type Block struct {
+	Pos    mgl32.Vec3
 	Sprite *sprite.Context
-	Rect   *shapes.Rect
+	Bounds *shapes.Shape
 }
 
 // New TODO doc
-func New(x, y float32, s *sprite.Context, group *sprite.Group) (*Block, error) {
+func New(x, y float32, s *sprite.Context, group *[]entity.Entity) (*Block, error) {
 	// TODO should take a group in as a argument
 	b := Block{
+		Pos:    mgl32.Vec3{x, y, 1},
 		Sprite: s,
+		Bounds: shapes.NewRect(0, 0, float32(s.Width), float32(s.Height)),
 	}
-
-	rect, err := shapes.NewRect(x, y, float32(b.Sprite.Width), float32(b.Sprite.Height))
-
-	if err != nil {
-		return &b, err
-	}
-	b.Rect = rect
-
 	// TODO: this should probably be added outside of player
-	group.Add(&b)
+	*group = append(*group, &b)
 	return &b, nil
+}
+
+func (b Block) Type() string {
+	return "block"
+}
+
+func (b Block) Label() string {
+	return ""
 }
 
 // Bind TODO doc
@@ -59,19 +63,11 @@ func (b *Block) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (b *Block) Update(dt float32, g *sprite.Group) {
+func (b *Block) Update(dt float32, g []entity.Entity) {
 	// Blocks don't do anything
 }
 
 // Draw TODO doc
-func (b *Block) Draw() {
-	b.Sprite.Draw(mgl32.Vec3{b.Rect.X, b.Rect.Y, 0.0}, nil)
-}
-
-// Bounds TODO doc
-func (b *Block) Bounds() chan shapes.Rect {
-	ch := make(chan shapes.Rect, 1)
-	ch <- *(b.Rect)
-	close(ch)
-	return ch
+func (b Block) Draw() {
+	b.Sprite.Draw(mgl32.Vec3{b.Pos[0], b.Pos[1], 0.0}, nil)
 }

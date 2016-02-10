@@ -26,9 +26,9 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/gen"
 	"github.com/hurricanerix/shade/light"
-	"github.com/hurricanerix/shade/shapes"
 )
 
 func init() {
@@ -40,9 +40,8 @@ func init() {
 type Sprite interface {
 	// TODO rename this to something more interfacer
 	Bind(uint32) error
-	Update(float32, *Group)
+	Update(float32, []entity.Entity)
 	Draw(*Effects)
-	Bounds() chan shapes.Rect
 }
 
 // Context TODO doc
@@ -341,11 +340,6 @@ func (c *Context) DrawFrame(frame mgl32.Vec2, pos mgl32.Vec3, e *Effects) {
 
 // Update TODO doc
 func (c *Context) Update(dt float32) {
-}
-
-// Bounds TODO doc
-func (c *Context) Bounds() shapes.Rect {
-	return shapes.Rect{}
 }
 
 // Pos(X, Y, Z), Normal(X, Y, Z), Tangent(X, Y, Z), TextureCo(S, T)

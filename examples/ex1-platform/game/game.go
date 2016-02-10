@@ -26,6 +26,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/camera"
 	"github.com/hurricanerix/shade/display"
+	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/examples/ex1-platform/block"
 	"github.com/hurricanerix/shade/examples/ex1-platform/player"
@@ -57,9 +58,9 @@ func New(screen *display.Context) (Context, error) {
 }
 
 type Scene struct {
-	Sprites *sprite.Group
+	Sprites []entity.Entity
 	Player  *player.Player
-	Walls   *sprite.Group
+	Walls   []entity.Entity
 }
 
 // Main TODO doc
@@ -84,7 +85,14 @@ func (c *Context) Main(screen *display.Context, config Config) {
 		panic(err)
 	}
 
-	scene.Sprites.Bind(screen.Program)
+	for _, s := range scene.Sprites {
+		switch s.Type() {
+		case "player":
+			s.(*player.Player).Bind(screen.Program)
+		case "block":
+			s.(*block.Block).Bind(screen.Program)
+		}
+	}
 
 	font, err := fonts.SimpleASCII()
 	if err != nil {
@@ -116,7 +124,7 @@ func (c *Context) Main(screen *display.Context, config Config) {
 
 		cam.Move(mgl32.Vec3{scene.Player.Pos[0], scene.Player.Pos[1], 0.0})
 
-		scene.Sprites.Update(dt/1000.0, scene.Walls)
+		scene.Player.Update(dt/1000.0, &scene.Walls)
 
 		effect := sprite.Effects{
 			Scale:          mgl32.Vec3{1.0, 1.0, 1.0},
@@ -124,7 +132,14 @@ func (c *Context) Main(screen *display.Context, config Config) {
 			AmbientColor:   mgl32.Vec4{0.3, 0.3, 0.3, 1.0},
 			Light:          *scene.Player.Light}
 
-		scene.Sprites.Draw(&effect)
+		for _, s := range scene.Sprites {
+			switch s.Type() {
+			case "player":
+				s.(*player.Player).Draw(&effect)
+			case "block":
+				s.(*block.Block).Draw(&effect)
+			}
+		}
 
 		if config.DevMode {
 			deveff := sprite.Effects{
@@ -136,7 +151,6 @@ func (c *Context) Main(screen *display.Context, config Config) {
 			msg += fmt.Sprintf("Camera Pos: %.0f, %.0f\n", cam.Pos[0], cam.Pos[1])
 			msg += fmt.Sprintf("Player {\n")
 			msg += fmt.Sprintf("  Pos: %.0f, %.0f\n", scene.Player.Pos[0], scene.Player.Pos[1])
-			msg += fmt.Sprintf("  Rect: %.0f, %.0f, %.0f, %.0f\n", scene.Player.Rect.X, scene.Player.Rect.Y, scene.Player.Rect.Width, scene.Player.Rect.Height)
 			msg += fmt.Sprintf("  Facing: %.0f\n", scene.Player.Facing)
 			msg += fmt.Sprintf("  Light: {\n")
 			msg += fmt.Sprintf("    Pos: %.0f, %.0f\n", scene.Player.Light.Pos[0], scene.Player.Light.Pos[1])
@@ -155,8 +169,8 @@ func (c *Context) Main(screen *display.Context, config Config) {
 func loadMap(path string) (*Scene, error) {
 	scene := Scene{}
 
-	scene.Sprites = sprite.NewGroup()
-	scene.Walls = sprite.NewGroup()
+	//scene.Sprites = []entity.Entity
+	//scene.Walls = []entity.Entity
 
 	playerSprite, err := loadSpriteAsset("assets/gopher128x128.png", "assets/gopher128x128.normal.png", 1, 2)
 	if err != nil {
@@ -189,12 +203,12 @@ func loadMap(path string) (*Scene, error) {
 		for _, c := range lines[i] {
 			switch c {
 			case '#':
-				_, err := block.New(float32(x), float32(y), blockSprite, scene.Walls)
+				_, err := block.New(float32(x), float32(y), blockSprite, &scene.Walls)
 				if err != nil {
 					panic(err)
 				}
 			case 'S':
-				p, err := player.New(x, y, playerSprite, scene.Sprites)
+				p, err := player.New(x, y, playerSprite, &scene.Sprites)
 				if err != nil {
 					panic(err)
 				}
@@ -205,7 +219,9 @@ func loadMap(path string) (*Scene, error) {
 		x = 0
 		y += float32(blockSprite.Height)
 	}
-	scene.Sprites.Add(scene.Walls)
+	for _, w := range scene.Walls {
+		scene.Sprites = append(scene.Sprites, w)
+	}
 
 	return &scene, nil
 }

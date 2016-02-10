@@ -26,6 +26,7 @@ import (
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/hurricanerix/shade/camera"
 	"github.com/hurricanerix/shade/display"
+	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/examples/03-collisions/ball"
 	"github.com/hurricanerix/shade/examples/03-collisions/block"
@@ -58,8 +59,9 @@ func main() {
 		panic(err)
 	}
 
-	sprites := sprite.NewGroup()
-	walls := sprite.NewGroup()
+	objects := []entity.Entity{}
+	balls := []entity.Entity{}
+	walls := []entity.Entity{}
 
 	blockSprite, err := loadSprite("block.png", 1, 1)
 	if err != nil {
@@ -70,30 +72,33 @@ func main() {
 	for x := 0; float32(x) < screen.Width; x += 32 {
 		for y := 0; float32(y) < screen.Height; y += 32 {
 			if x == 0 || x == 640-32 || y == 0 || y == 480-32 {
-				_, err := block.New(float32(x), float32(y), blockSprite, walls)
+				_, err := block.New(float32(x), float32(y), blockSprite, &walls)
 				if err != nil {
 					panic(err)
 				}
 			}
 		}
 	}
-	_, err = block.New(float32(blockSprite.Width)*4, float32(blockSprite.Height)*4, blockSprite, walls)
+	_, err = block.New(float32(blockSprite.Width)*4, float32(blockSprite.Height)*4, blockSprite, &walls)
 	if err != nil {
 		panic(err)
 	}
-	_, err = block.New(float32(blockSprite.Width)*4, windowHeight-float32(blockSprite.Height)*5, blockSprite, walls)
+	_, err = block.New(float32(blockSprite.Width)*4, windowHeight-float32(blockSprite.Height)*5, blockSprite, &walls)
 	if err != nil {
 		panic(err)
 	}
-	_, err = block.New(windowWidth-float32(blockSprite.Width)*5, float32(blockSprite.Height)*4, blockSprite, walls)
+	_, err = block.New(windowWidth-float32(blockSprite.Width)*5, float32(blockSprite.Height)*4, blockSprite, &walls)
 	if err != nil {
 		panic(err)
 	}
-	_, err = block.New(windowWidth-float32(blockSprite.Width)*5, windowHeight-float32(blockSprite.Height)*5, blockSprite, walls)
+	_, err = block.New(windowWidth-float32(blockSprite.Width)*5, windowHeight-float32(blockSprite.Height)*5, blockSprite, &walls)
 	if err != nil {
 		panic(err)
 	}
-	sprites.Add(walls)
+
+	for _, w := range walls {
+		objects = append(objects, w)
+	}
 
 	ballSprite, err := loadSprite("ball.png", 1, 1)
 	if err != nil {
@@ -104,11 +109,13 @@ func main() {
 	//rand.Seed(1)
 	rand.Seed(time.Now().Unix())
 
-	addBall(screen.Width/2, screen.Height/2, ballSprite, sprites)
+	addBall(screen.Width/2, screen.Height/2, ballSprite, &balls)
 
 	//	sprites.Bind(screen.Program)
 	for running := true; running; {
 		dt := clock.Tick(30)
+
+		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
 
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -125,14 +132,23 @@ func main() {
 			}
 
 			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeySpace {
-				addBall(screen.Width/2, screen.Height/2, ballSprite, sprites)
+				addBall(screen.Width/2, screen.Height/2, ballSprite, &balls)
 			}
 		}
 
-		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
-
-		sprites.Update(dt/1000.0, walls)
-		sprites.Draw()
+		for _, b := range balls {
+			bs := b.(*ball.Ball)
+			bs.Update(dt/1000.0, walls)
+			bs.Draw()
+		}
+		for _, o := range objects {
+			switch o.Type() {
+			case "ball":
+				o.(*ball.Ball).Draw()
+			case "block":
+				o.(*block.Block).Draw()
+			}
+		}
 
 		screen.Flip()
 
@@ -142,7 +158,7 @@ func main() {
 
 }
 
-func addBall(x, y float32, s *sprite.Context, g *sprite.Group) {
+func addBall(x, y float32, s *sprite.Context, g *[]entity.Entity) {
 	speed := float32(rand.Intn(500) + 200)
 	angle := float32(rand.Intn(360))
 	_, err := ball.New(x, y, speed, angle, s, g)

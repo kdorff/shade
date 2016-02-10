@@ -20,8 +20,8 @@ import (
 	"runtime"
 
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/light"
-	"github.com/hurricanerix/shade/shapes"
 	"github.com/hurricanerix/shade/sprite"
 )
 
@@ -32,8 +32,8 @@ func init() {
 
 // Player TODO doc
 type Ghost struct {
+	Pos          mgl32.Vec3
 	Sprite       *sprite.Context
-	Rect         *shapes.Rect
 	Light        *light.Positional
 	AmbientColor mgl32.Vec4
 	dx           float32
@@ -44,13 +44,8 @@ type Ghost struct {
 }
 
 // New TODO doc
-func New(group *sprite.Group) (*Ghost, error) {
+func New(group *[]entity.Entity) (*Ghost, error) {
 	// TODO should take a group in as a argument
-	c := Ghost{
-		looking:      1,
-		AmbientColor: mgl32.Vec4{0.2, 0.2, 0.2, 1.0},
-	}
-
 	i, err := sprite.LoadAsset("assets/ghost.png")
 	if err != nil {
 		return nil, err
@@ -60,6 +55,13 @@ func New(group *sprite.Group) (*Ghost, error) {
 		return nil, err
 	}
 
+	c := Ghost{
+		Pos:          mgl32.Vec3{-32, 480.0/2 - float32(s.Height)/2, 1.0},
+		Sprite:       s,
+		looking:      1,
+		AmbientColor: mgl32.Vec4{0.2, 0.2, 0.2, 1.0},
+	}
+
 	light := light.Positional{
 		Pos:   mgl32.Vec3{float32(s.Width) / 2, float32(s.Height) / 2, 100.0},
 		Color: mgl32.Vec4{0.7, 0.7, 1.0, 1.0},
@@ -67,22 +69,22 @@ func New(group *sprite.Group) (*Ghost, error) {
 	}
 	c.Light = &light
 
-	c.Sprite = s
-	w := float32(c.Sprite.Width) * 2
-	r, err := shapes.NewRect(-32, 480.0/2-float32(c.Sprite.Height)/2, w, w)
-	if err != nil {
-		return nil, err
-	}
-	c.Rect = r
-
 	c.dx = 0.3
 	c.fx = 0.02
 
 	// TODO: this should probably be added outside of player
 	if group != nil {
-		group.Add(&c)
+		*group = append(*group, &c)
 	}
 	return &c, nil
+}
+
+func (g Ghost) Type() string {
+	return "ghost"
+}
+
+func (g Ghost) Label() string {
+	return ""
 }
 
 // Bind TODO doc
@@ -91,10 +93,10 @@ func (c *Ghost) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (c *Ghost) Update(dt float32, g *sprite.Group) {
-	c.Rect.X += c.dx * dt
+func (c *Ghost) Update(dt float32, g *[]entity.Entity) {
+	c.Pos[0] += c.dx * dt
 	c.frame += c.fx * dt
-	if c.Rect.X >= 400 {
+	if c.Pos[0] >= 400 {
 		c.dx = 0
 		c.looking = -1
 		c.dl = 0.01
@@ -105,14 +107,14 @@ func (c *Ghost) Update(dt float32, g *sprite.Group) {
 		c.AmbientColor[1] += c.dl
 		c.AmbientColor[2] += c.dl
 	}
-	c.Light.Pos[0] = c.Rect.X + float32(c.Sprite.Width)*2
-	c.Light.Pos[1] = c.Rect.Y + float32(c.Sprite.Height)*2
+	c.Light.Pos[0] = c.Pos[0] + float32(c.Sprite.Width)*2
+	c.Light.Pos[1] = c.Pos[1] + float32(c.Sprite.Height)*2
 }
 
 // Draw TODO doc
 func (c *Ghost) Draw(e *sprite.Effects) {
-	var x float32 = c.Rect.X
-	var y float32 = c.Rect.Y
+	var x float32 = c.Pos[0]
+	var y float32 = c.Pos[1]
 
 	top := y + 64.0
 	middle := y + 32.0
@@ -140,12 +142,4 @@ func (c *Ghost) Draw(e *sprite.Effects) {
 
 	c.Sprite.DrawFrame(mgl32.Vec2{float32(f), 2}, mgl32.Vec3{left, bottom, 0.0}, nil)
 	c.Sprite.DrawFrame(mgl32.Vec2{float32(f) + 1, 2}, mgl32.Vec3{right, bottom, 0.0}, nil)
-}
-
-// Bounds TODO doc
-func (c *Ghost) Bounds() chan shapes.Rect {
-	ch := make(chan shapes.Rect, 1)
-	ch <- *(c.Rect)
-	close(ch)
-	return ch
 }
