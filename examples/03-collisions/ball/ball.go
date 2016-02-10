@@ -81,7 +81,7 @@ func (b *Ball) Update(dt float32, g []entity.Entity) {
 	switchDx := false
 	switchDy := false
 
-	for _, cell := range sprite.Collide(b, g, false) {
+	for _, cell := range sprite.Collide(b, &g, false) {
 		println(cell)
 		/*
 			for cb := range cell.Bounds() {
