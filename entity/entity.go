@@ -15,8 +15,15 @@
 
 package entity
 
+import (
+	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/shapes"
+)
+
 // Entity TODO doc
 type Entity interface {
 	Type() string
 	Label() string
+	Pos2() *mgl32.Vec3 // TODO: change this to Pos (will take a huge refactor)
+	Bounds() *shapes.Shape
 }
