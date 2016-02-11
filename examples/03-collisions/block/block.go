@@ -33,7 +33,7 @@ func init() {
 type Block struct {
 	Pos    mgl32.Vec3
 	Sprite *sprite.Context
-	Bounds *shapes.Shape
+	Shape  *shapes.Shape
 }
 
 // New TODO doc
@@ -42,11 +42,19 @@ func New(x, y float32, s *sprite.Context, group *[]entity.Entity) (*Block, error
 	b := Block{
 		Pos:    mgl32.Vec3{x, y, 1},
 		Sprite: s,
-		Bounds: shapes.NewRect(0, 0, float32(s.Width), float32(s.Height)),
+		Shape:  shapes.NewRect(0, 0, float32(s.Width), float32(s.Height)),
 	}
 	// TODO: this should probably be added outside of player
 	*group = append(*group, &b)
 	return &b, nil
+}
+
+func (b Block) Bounds() *shapes.Shape {
+	return b.Shape
+}
+
+func (b Block) Pos2() *mgl32.Vec3 {
+	return &b.Pos
 }
 
 func (b Block) Type() string {

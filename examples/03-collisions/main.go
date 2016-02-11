@@ -16,6 +16,7 @@
 package main
 
 import (
+	"fmt"
 	_ "image/png"
 	"log"
 	"math/rand"
@@ -24,12 +25,14 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/camera"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/examples/03-collisions/ball"
 	"github.com/hurricanerix/shade/examples/03-collisions/block"
+	"github.com/hurricanerix/shade/fonts"
 	"github.com/hurricanerix/shade/sprite"
 	"github.com/hurricanerix/shade/time/clock"
 )
@@ -58,6 +61,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	font, err := fonts.SimpleASCII()
+	if err != nil {
+		panic(err)
+	}
+	font.Bind(screen.Program)
 
 	objects := []entity.Entity{}
 	balls := []entity.Entity{}
@@ -136,10 +145,15 @@ func main() {
 			}
 		}
 
+		fonty := float32(50)
 		for _, b := range balls {
 			bs := b.(*ball.Ball)
 			bs.Update(dt/1000.0, walls)
 			bs.Draw()
+			pos := mgl32.Vec3{50, fonty, 0}
+			msg := fmt.Sprintf("Ball: (%.0f, %.0f)\n", b.Pos2()[0], b.Pos2()[1])
+			font.DrawText(pos, nil, msg)
+			fonty += 10
 		}
 		for _, o := range objects {
 			switch o.Type() {
@@ -154,6 +168,7 @@ func main() {
 
 		// TODO refector events to be cleaner
 		glfw.PollEvents()
+		//os.Exit(0)
 	}
 
 }

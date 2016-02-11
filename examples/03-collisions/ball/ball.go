@@ -16,7 +16,9 @@
 package ball
 
 import (
+	"fmt"
 	"math"
+	"os"
 	"runtime"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -34,7 +36,7 @@ func init() {
 type Ball struct {
 	Pos    mgl32.Vec3
 	Sprite *sprite.Context
-	Bounds *shapes.Shape
+	Shape  *shapes.Shape
 	dx     float32
 	dy     float32
 }
@@ -45,9 +47,10 @@ func New(x, y, speed, angle float32, s *sprite.Context, group *[]entity.Entity) 
 	b := Ball{
 		Pos:    mgl32.Vec3{x, y, 1.0},
 		Sprite: s,
-		Bounds: shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Height) / 2}, float32(s.Width)/2),
+		Shape:  shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Height) / 2}, float32(s.Width)/2),
 	}
 
+	//speed = 10
 	b.dx = float32(math.Cos(float64(angle))) * speed
 	b.dy = float32(math.Sin(float64(angle))) * speed
 
@@ -69,30 +72,57 @@ func (b *Ball) Bind(program uint32) error {
 	return b.Sprite.Bind(program)
 }
 
+func (b Ball) Bounds() *shapes.Shape {
+	return b.Shape
+}
+
+func (b Ball) Pos2() *mgl32.Vec3 {
+	return &b.Pos
+}
+
 // Update TODO doc
 func (b *Ball) Update(dt float32, g []entity.Entity) {
 	lastPos := mgl32.Vec3{b.Pos[0], b.Pos[1], b.Pos[2]}
 
-	b.Pos[0] += b.dx * dt
-	b.Pos[1] += b.dy * dt
-
 	newPos := &b.Pos
+
+	newPos[0] += b.dx * dt
+	newPos[1] += b.dy * dt
 
 	switchDx := false
 	switchDy := false
 
-	for _, cell := range sprite.Collide(b, &g, false) {
-		println(cell)
-		/*
-			for cb := range cell.Bounds() {
-				if lastR.Left() <= cb.Right() && lastR.Right() >= cb.Left() {
-					switchDx = true
-				}
-				if lastR.Bottom() <= cb.Top() && lastR.Top() >= cb.Bottom() {
-					switchDy = true
-				}
-			}
-		*/
+	if newPos[0] < 0 || newPos[0] > 640 {
+		switchDx = true
+	}
+	if newPos[1] < 0 || newPos[1] > 480 {
+		switchDy = true
+	}
+
+	fmt.Println(b)
+	fmt.Println(b.Bounds())
+
+	for _, e := range *sprite.Collide(b, &g, false) {
+		eb := e.Bounds()
+		if eb == nil {
+			continue
+		}
+		ep := e.Pos2()
+		if ep == nil {
+			continue
+		}
+
+		fmt.Println(e)
+		fmt.Println(e.Bounds())
+
+		if lastPos[0]+b.Shape.Data[0] <= ep[0]+eb.Data[1] && lastPos[0]+b.Shape.Data[1] >= ep[0]+eb.Data[0] {
+			println("switchDx = true")
+		}
+		if lastPos[1]+b.Shape.Data[2] <= ep[1]+eb.Data[3] && lastPos[1]+b.Shape.Data[2] >= ep[1]+eb.Data[2] {
+			println("switchDy = true")
+		}
+
+		os.Exit(1)
 	}
 	if switchDx {
 		newPos[0] = lastPos[0]
