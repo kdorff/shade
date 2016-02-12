@@ -34,7 +34,7 @@ type Player struct {
 	Pos       mgl32.Vec3
 	Sprites   []*sprite.Context
 	Shapes    []*shapes.Shape
-	Collision bool
+	Collision *sprite.Collision
 	With      string
 	current   int
 }
@@ -79,11 +79,10 @@ func (p Player) Pos2() *mgl32.Vec3 {
 
 // Update TODO doc
 func (p *Player) Update(dt float32, g []entity.Entity) {
-	p.Collision = false
+	p.Collision = nil
 	p.With = ""
-	for _, e := range *sprite.Collide(p, &g, false) {
-		p.Collision = true
-		p.With = e.Type()
+	for _, c := range *sprite.Collide(p, &g, false) {
+		p.Collision = &c
 	}
 }
 

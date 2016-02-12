@@ -16,7 +16,6 @@
 package main
 
 import (
-	"fmt"
 	_ "image/png"
 	"log"
 	"math/rand"
@@ -25,14 +24,12 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
-	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/camera"
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/examples/03-collisions/ball"
 	"github.com/hurricanerix/shade/examples/03-collisions/block"
-	"github.com/hurricanerix/shade/fonts"
 	"github.com/hurricanerix/shade/sprite"
 	"github.com/hurricanerix/shade/time/clock"
 )
@@ -62,17 +59,11 @@ func main() {
 		panic(err)
 	}
 
-	font, err := fonts.SimpleASCII()
-	if err != nil {
-		panic(err)
-	}
-	font.Bind(screen.Program)
-
 	objects := []entity.Entity{}
 	balls := []entity.Entity{}
 	walls := []entity.Entity{}
 
-	blockSprite, err := loadSprite("block.png", 1, 1)
+	blockSprite, err := loadSprite("assets/block32x32.png", "", 2, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -109,7 +100,7 @@ func main() {
 		objects = append(objects, w)
 	}
 
-	ballSprite, err := loadSprite("ball.png", 1, 1)
+	ballSprite, err := loadSprite("assets/ball.png", "", 1, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -125,7 +116,7 @@ func main() {
 	for running := true; running; {
 		dt := clock.Tick(30)
 
-		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
+		screen.Fill(0.0, 0.0, 0.0)
 
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -146,15 +137,10 @@ func main() {
 			}
 		}
 
-		fonty := float32(50)
 		for _, b := range balls {
 			bs := b.(*ball.Ball)
 			bs.Update(dt/1000.0, objects)
 			bs.Draw()
-			pos := mgl32.Vec3{50, fonty, 0}
-			msg := fmt.Sprintf("Ball: (%.0f, %.0f)\n", b.Pos2()[0], b.Pos2()[1])
-			font.DrawText(pos, nil, msg)
-			fonty += 10
 		}
 		for _, o := range objects {
 			switch o.Type() {
@@ -182,12 +168,17 @@ func addBall(x, y float32, s *sprite.Context, g *[]entity.Entity) *ball.Ball {
 	return b
 }
 
-func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error) {
-	i, err := sprite.Load(path)
+func loadSprite(colorName, normalName string, framesWide, framesHigh int) (*sprite.Context, error) {
+	c, err := sprite.LoadAsset(colorName)
 	if err != nil {
 		return nil, err
 	}
-	s, err := sprite.New(i, nil, framesWide, framesHigh)
+
+	n, err := sprite.LoadAsset(normalName)
+	if err != nil {
+		return nil, err
+	}
+	s, err := sprite.New(c, n, framesWide, framesHigh)
 	if err != nil {
 		return nil, err
 	}

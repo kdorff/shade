@@ -99,33 +99,35 @@ func (b *Ball) Update(dt float32, g []entity.Entity) {
 		}
 	*/
 
-	for _, e := range *sprite.Collide(b, &g, false) {
-		eb := e.Bounds()
+	for _, c := range *sprite.Collide(b, &g, false) {
+		eb := c.Entity.Bounds()
 		if eb == nil {
 			continue
 		}
-		ep := e.Pos2()
+		ep := c.Entity.Pos2()
 		if ep == nil {
 			continue
 		}
 
-		if eb.Type == "circle" {
+		//if eb.Type == "circle" {
+		//switchDx = true
+		//switchDy = true
+		//e.(*Ball).dx *= -1
+		//e.(*Ball).dy *= -1
+		//} else if eb.Type == "rect" {
+		if c.Dir[0] > c.Dir[1] {
+			switchDx = true
+			if eb.Type == "circle" {
+				c.Entity.(*Ball).dx *= -1
+				c.Entity.(*Ball).dy *= -1
+			}
+		} else if c.Dir[1] > c.Dir[0] {
+			switchDy = true
+		} else {
 			switchDx = true
 			switchDy = true
-			e.(*Ball).dx *= -1
-			e.(*Ball).dy *= -1
-		} else if eb.Type == "rect" {
-			if (newPos[0]-b.Shape.Data[0] <= ep[0]+eb.Data[0] && newPos[0]-b.Shape.Data[0] <= ep[0]+eb.Data[0]) ||
-				(newPos[0]+b.Shape.Data[0] >= ep[0]+eb.Data[1] && newPos[0]+b.Shape.Data[0] <= ep[0]+eb.Data[1]) {
-				switchDx = true
-				println("switchDx = true")
-			}
-			if (newPos[1]-b.Shape.Data[0] <= ep[1]+eb.Data[2] && newPos[1]-b.Shape.Data[0] <= ep[1]+eb.Data[2]) ||
-				(newPos[1]+b.Shape.Data[0] >= ep[1]+eb.Data[3] && newPos[1]+b.Shape.Data[0] <= ep[1]+eb.Data[3]) {
-				switchDy = true
-				println("switchDy = true")
-			}
 		}
+		//}
 	}
 	if switchDx {
 		newPos[0] = lastPos[0]

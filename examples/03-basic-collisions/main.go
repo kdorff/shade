@@ -164,8 +164,14 @@ func main() {
 		pl.Draw()
 
 		msg = fmt.Sprintf("(%.0f,%.0f)\n", pl.Pos[0], pl.Pos[1])
-		msg += fmt.Sprintf("Collision: %t\n", pl.Collision)
-		msg += fmt.Sprintf("With: %s\n", pl.With)
+		if pl.Collision == nil {
+			msg += fmt.Sprintf("Collision: nil\n")
+		} else {
+			msg += fmt.Sprintf("Collision: {\n")
+			msg += fmt.Sprintf("  Type: %s\n", pl.Collision.Entity.Type())
+			msg += fmt.Sprintf("  Dir: (%.1f,%.1f,%.1f)\n", pl.Collision.Dir[0], pl.Collision.Dir[1], pl.Collision.Dir[2])
+			msg += fmt.Sprintf("}\n")
+		}
 		b := pl.Bounds()
 
 		if b.Type == "rect" {
