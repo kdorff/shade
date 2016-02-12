@@ -16,7 +16,6 @@
 package player
 
 import (
-	"fmt"
 	"math"
 	"runtime"
 
@@ -37,7 +36,7 @@ func init() {
 // Player TODO doc
 type Player struct {
 	Pos      mgl32.Vec3
-	Bounds   *shapes.Shape
+	Shape    *shapes.Shape
 	Sprite   *sprite.Context
 	Light    *light.Positional
 	Facing   float32
@@ -53,7 +52,7 @@ func New(x, y float32, s *sprite.Context, group *[]entity.Entity) (*Player, erro
 	// TODO should take a group in as a argument
 	p := Player{
 		Pos:    mgl32.Vec3{x, y, 1.0},
-		Bounds: shapes.NewRect(32, 0, 96, 96),
+		Shape:  shapes.NewRect(32, 96, 0, 96),
 		Sprite: s,
 		Facing: 2,
 	}
@@ -66,8 +65,18 @@ func New(x, y float32, s *sprite.Context, group *[]entity.Entity) (*Player, erro
 	p.Light = &light
 
 	// TODO: this should probably be added outside of player
-	*group = append(*group, &p)
+	if group != nil {
+		*group = append(*group, &p)
+	}
 	return &p, nil
+}
+
+func (p Player) Bounds() *shapes.Shape {
+	return p.Shape
+}
+
+func (p Player) Pos2() *mgl32.Vec3 {
+	return &p.Pos
 }
 
 func (p Player) Type() string {
@@ -108,7 +117,7 @@ func (p *Player) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (p *Player) Update(dt float32, g *[]entity.Entity) {
+func (p *Player) Update(dt float32, g []entity.Entity) {
 	lastPos := mgl32.Vec3{p.Pos[0], p.Pos[1], p.Pos[2]}
 
 	if p.leftKey {
@@ -130,49 +139,39 @@ func (p *Player) Update(dt float32, g *[]entity.Entity) {
 
 	newPos := &p.Pos
 	p.resting = false
-	println(newPos)
-	fmt.Println(lastPos)
 
-	if p.Pos[1] < 128 {
+	if p.Pos[1] < 127 {
 		p.resting = true
 		p.Pos[1] = 128
 		p.dy = 0.0
 	}
 
-	for _, cell := range sprite.Collide(p, g, false) {
-		println(cell)
-		//for cb := range cell.Bounds() {
-		/*
-				if lastPos[0]+p.Rect.Width <= cb.Left() && newPos[0]+p.Rect.Width > cb.Left() {
-					println("LEFT", cb.Left())
-					newPos[0] = lastPos[0]
-				}
-				if lastPos[0]+p.Rect.Width >= cb.Right() && newPos[0]+p.Rect.X < cb.Right() {
-					println("RIGHT", cb.Right())
-					newPos[0] = lastPos[0]
-				}
+	for _, c := range *sprite.Collide(p, &g, false) {
+		pos := c.Entity.Pos2()
 
-			if lastPos[1]+p.Rect.Y >= cb.Top() && newPos[1]+p.Rect.Y < cb.Top() {
-				p.resting = true
-				p.Pos[1] = cb.Top() + 1
-				p.dy = 0.0
-			}
-		*/
-		/*
+		if c.Dir[0] > 0.5 {
+			newPos[0] = lastPos[0]
+		} else if c.Dir[0] < -0.5 {
+			newPos[0] = lastPos[0]
+		}
 
-			if lastPos[1]+p.Rect.Top() <= cb.Bottom() && newPos[1]+p.Rect.Top() > cb.Bottom() {
-				println("TOP", cb.Top())
-				newPos[1] = cb.Bottom() - 1 - float32(p.Sprite.Height)
-				p.dy = 0.0
-			}
-		*/
-		//}
+		if c.Dir[1] > 0.5 {
+			// Hit top of tile
+			newPos[1] = pos[1]
+		} else if c.Dir[1] < -0.5 {
+			// Hit bottom of tile
+			p.resting = true
+			newPos[1] = pos[1] + 64 + 1
+			p.dy = 0.0
+		}
 	}
 	p.Light.Pos[1] = p.Pos[1] + float32(p.Sprite.Height)
 
 }
 
 // Draw TODO doc
-func (p *Player) Draw(e *sprite.Effects) {
-	p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.Pos, e)
+func (p *Player) Draw() {
+	//e *sprite.Effects) {
+	//p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.Pos, e)
+	p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.Pos, nil)
 }

@@ -22,6 +22,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/light"
+	"github.com/hurricanerix/shade/shapes"
 	"github.com/hurricanerix/shade/sprite"
 )
 
@@ -34,6 +35,7 @@ func init() {
 type Ghost struct {
 	Pos          mgl32.Vec3
 	Sprite       *sprite.Context
+	Shape        *shapes.Shape
 	Light        *light.Positional
 	AmbientColor mgl32.Vec4
 	dx           float32
@@ -58,6 +60,7 @@ func New(group *[]entity.Entity) (*Ghost, error) {
 	c := Ghost{
 		Pos:          mgl32.Vec3{-32, 480.0/2 - float32(s.Height)/2, 1.0},
 		Sprite:       s,
+		Shape:        shapes.NewRect(0, float32(s.Width), 0, float32(s.Height)),
 		looking:      1,
 		AmbientColor: mgl32.Vec4{0.2, 0.2, 0.2, 1.0},
 	}
@@ -87,13 +90,21 @@ func (g Ghost) Label() string {
 	return ""
 }
 
+func (g Ghost) Bounds() *shapes.Shape {
+	return g.Shape
+}
+
+func (g Ghost) Pos2() *mgl32.Vec3 {
+	return &g.Pos
+}
+
 // Bind TODO doc
 func (c *Ghost) Bind(program uint32) error {
 	return c.Sprite.Bind(program)
 }
 
 // Update TODO doc
-func (c *Ghost) Update(dt float32, g *[]entity.Entity) {
+func (c *Ghost) Update(dt float32, g []entity.Entity) {
 	c.Pos[0] += c.dx * dt
 	c.frame += c.fx * dt
 	if c.Pos[0] >= 400 {
@@ -112,7 +123,8 @@ func (c *Ghost) Update(dt float32, g *[]entity.Entity) {
 }
 
 // Draw TODO doc
-func (c *Ghost) Draw(e *sprite.Effects) {
+func (c *Ghost) Draw() {
+	//e *sprite.Effects) {
 	var x float32 = c.Pos[0]
 	var y float32 = c.Pos[1]
 

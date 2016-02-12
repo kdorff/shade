@@ -124,20 +124,22 @@ func (c *Context) Main(screen *display.Context, config Config) {
 
 		cam.Move(mgl32.Vec3{scene.Player.Pos[0], scene.Player.Pos[1], 0.0})
 
-		scene.Player.Update(dt/1000.0, &scene.Walls)
+		scene.Player.Update(dt/1000.0, scene.Walls)
 
-		effect := sprite.Effects{
-			Scale:          mgl32.Vec3{1.0, 1.0, 1.0},
-			EnableLighting: true,
-			AmbientColor:   mgl32.Vec4{0.3, 0.3, 0.3, 1.0},
-			Light:          *scene.Player.Light}
+		/*
+			effect := sprite.Effects{
+				Scale:          mgl32.Vec3{1.0, 1.0, 1.0},
+				EnableLighting: true,
+				AmbientColor:   mgl32.Vec4{0.3, 0.3, 0.3, 1.0},
+				Light:          *scene.Player.Light}
+		*/
 
 		for _, s := range scene.Sprites {
 			switch s.Type() {
 			case "player":
-				s.(*player.Player).Draw(&effect)
+				s.(*player.Player).Draw()
 			case "block":
-				s.(*block.Block).Draw(&effect)
+				s.(*block.Block).Draw()
 			}
 		}
 

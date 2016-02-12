@@ -33,7 +33,7 @@ func init() {
 type Block struct {
 	Pos    mgl32.Vec3
 	Sprite *sprite.Context
-	Bounds *shapes.Shape
+	Shape  *shapes.Shape
 }
 
 // New TODO doc
@@ -42,11 +42,13 @@ func New(x, y float32, s *sprite.Context, group *[]entity.Entity) (*Block, error
 	b := Block{
 		Pos:    mgl32.Vec3{x, y, 1.0},
 		Sprite: s,
-		Bounds: shapes.NewRect(0, 0, float32(s.Width), float32(s.Height)),
+		Shape:  shapes.NewRect(0, float32(s.Width), 0, float32(s.Height)),
 	}
 
 	// TODO: this should probably be added outside of player
-	*group = append(*group, &b)
+	if group != nil {
+		*group = append(*group, &b)
+	}
 	return &b, nil
 }
 
@@ -58,17 +60,27 @@ func (b Block) Label() string {
 	return ""
 }
 
+func (b Block) Bounds() *shapes.Shape {
+	return b.Shape
+}
+
+func (b Block) Pos2() *mgl32.Vec3 {
+	return &b.Pos
+}
+
 // Bind TODO doc
 func (b *Block) Bind(program uint32) error {
 	return b.Sprite.Bind(program)
 }
 
 // Update TODO doc
-func (b *Block) Update(dt float32, g *[]entity.Entity) {
+func (b *Block) Update(dt float32, g []entity.Entity) {
 	// TODO: Myabe handeling events should be done here, and not in a seperate "HandleEvents" func?
 }
 
 // Draw TODO doc
-func (b Block) Draw(e *sprite.Effects) {
-	b.Sprite.Draw(b.Pos, e)
+func (b Block) Draw() {
+	//e *sprite.Effects) {
+	//b.Sprite.Draw(b.Pos, e)
+	b.Sprite.Draw(b.Pos, nil)
 }
