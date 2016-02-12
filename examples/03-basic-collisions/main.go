@@ -19,9 +19,7 @@ import (
 	"fmt"
 	_ "image/png"
 	"log"
-	"math/rand"
 	"runtime"
-	"time"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
@@ -30,9 +28,11 @@ import (
 	"github.com/hurricanerix/shade/display"
 	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/events"
-	"github.com/hurricanerix/shade/examples/03-collisions/ball"
-	"github.com/hurricanerix/shade/examples/03-collisions/block"
+	"github.com/hurricanerix/shade/examples/03-basic-collisions/ball"
+	"github.com/hurricanerix/shade/examples/03-basic-collisions/block"
+	"github.com/hurricanerix/shade/examples/03-basic-collisions/player"
 	"github.com/hurricanerix/shade/fonts"
+	"github.com/hurricanerix/shade/shapes"
 	"github.com/hurricanerix/shade/sprite"
 	"github.com/hurricanerix/shade/time/clock"
 )
@@ -57,75 +57,55 @@ func main() {
 	}
 	cam.Bind(screen.Program)
 
-	clock, err := clock.New()
-	if err != nil {
-		panic(err)
-	}
-
 	font, err := fonts.SimpleASCII()
 	if err != nil {
 		panic(err)
 	}
 	font.Bind(screen.Program)
 
-	objects := []entity.Entity{}
-	balls := []entity.Entity{}
-	walls := []entity.Entity{}
+	clock, err := clock.New()
+	if err != nil {
+		panic(err)
+	}
 
-	blockSprite, err := loadSprite("block.png", 1, 1)
+	objects := []entity.Entity{}
+
+	blockSprite, err := loadSprite("assets/block32x32.png", "", 2, 1)
 	if err != nil {
 		panic(err)
 	}
 	blockSprite.Bind(screen.Program)
-
-	for x := 0; float32(x) < screen.Width; x += 32 {
-		for y := 0; float32(y) < screen.Height; y += 32 {
-			if x == 0 || x == 640-32 || y == 0 || y == 480-32 {
-				_, err := block.New(float32(x), float32(y), blockSprite, &walls)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-	}
-	_, err = block.New(float32(blockSprite.Width)*4, float32(blockSprite.Height)*4, blockSprite, &walls)
-	if err != nil {
-		panic(err)
-	}
-	_, err = block.New(float32(blockSprite.Width)*4, windowHeight-float32(blockSprite.Height)*5, blockSprite, &walls)
-	if err != nil {
-		panic(err)
-	}
-	_, err = block.New(windowWidth-float32(blockSprite.Width)*5, float32(blockSprite.Height)*4, blockSprite, &walls)
-	if err != nil {
-		panic(err)
-	}
-	_, err = block.New(windowWidth-float32(blockSprite.Width)*5, windowHeight-float32(blockSprite.Height)*5, blockSprite, &walls)
+	_, err = block.New(0, float32(windowWidth)/4, float32(windowHeight)/2, blockSprite, &objects)
 	if err != nil {
 		panic(err)
 	}
 
-	for _, w := range walls {
-		objects = append(objects, w)
-	}
-
-	ballSprite, err := loadSprite("ball.png", 1, 1)
+	ballSprite, err := loadSprite("assets/ball.png", "", 1, 1)
 	if err != nil {
 		panic(err)
 	}
 	ballSprite.Bind(screen.Program)
+	_, err = ball.New(float32(windowWidth)/2+float32(windowWidth)/4, float32(windowHeight)/2, ballSprite, &objects)
+	if err != nil {
+		panic(err)
+	}
 
-	//rand.Seed(1)
-	rand.Seed(time.Now().Unix())
-
-	b := addBall(screen.Width/2, screen.Height/2, ballSprite, &balls)
-	objects = append(objects, b)
+	//shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Height) / 2}, float32(s.Width)/2),
+	tmpSprites := []*sprite.Context{blockSprite, ballSprite}
+	tmpShapes := []*shapes.Shape{
+		shapes.NewRect(0, 0, float32(blockSprite.Width), float32(blockSprite.Height)),
+		shapes.NewCircle(mgl32.Vec2{float32(ballSprite.Width) / 2, float32(ballSprite.Height) / 2}, float32(ballSprite.Width)),
+	}
+	pl, err := player.New(0, 0, tmpSprites, tmpShapes, nil)
+	if err != nil {
+		panic(err)
+	}
 
 	//	sprites.Bind(screen.Program)
 	for running := true; running; {
 		dt := clock.Tick(30)
 
-		screen.Fill(200.0/256.0, 200/256.0, 200/256.0)
+		screen.Fill(0.3, 0.3, 0.6)
 
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -142,28 +122,27 @@ func main() {
 			}
 
 			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeySpace {
-				addBall(screen.Width/2, screen.Height/2, ballSprite, &balls)
+				pl.NextShape()
+			}
+			if !event.KeyEvent {
+				pl.Pos[0] = event.X
+				pl.Pos[1] = float32(windowHeight) - event.Y
 			}
 		}
 
-		fonty := float32(50)
-		for _, b := range balls {
-			bs := b.(*ball.Ball)
-			bs.Update(dt/1000.0, objects)
-			bs.Draw()
-			pos := mgl32.Vec3{50, fonty, 0}
-			msg := fmt.Sprintf("Ball: (%.0f, %.0f)\n", b.Pos2()[0], b.Pos2()[1])
-			font.DrawText(pos, nil, msg)
-			fonty += 10
+		for _, e := range objects {
+			e.Draw()
 		}
-		for _, o := range objects {
-			switch o.Type() {
-			case "ball":
-				o.(*ball.Ball).Draw()
-			case "block":
-				o.(*block.Block).Draw()
-			}
+
+		pl.Update(dt/1000.0, &objects)
+		pl.Draw()
+
+		e := sprite.Effects{
+			Scale: mgl32.Vec3{3.0, 3.0, 1.0},
 		}
+		msg := fmt.Sprintf("Collision: %t", pl.Collision)
+		pos := mgl32.Vec3{50, 50, 0}
+		font.DrawText(pos, &e, msg)
 
 		screen.Flip()
 
@@ -172,22 +151,18 @@ func main() {
 	}
 }
 
-func addBall(x, y float32, s *sprite.Context, g *[]entity.Entity) *ball.Ball {
-	speed := float32(rand.Intn(500) + 200)
-	angle := float32(rand.Intn(360))
-	b, err := ball.New(x, y, speed, angle, s, g)
-	if err != nil {
-		panic(err)
-	}
-	return b
-}
-
-func loadSprite(path string, framesWide, framesHigh int) (*sprite.Context, error) {
-	i, err := sprite.Load(path)
+func loadSprite(colorName, normalName string, framesWide, framesHigh int) (*sprite.Context, error) {
+	c, err := sprite.LoadAsset(colorName)
 	if err != nil {
 		return nil, err
 	}
-	s, err := sprite.New(i, nil, framesWide, framesHigh)
+
+	n, err := sprite.LoadAsset(normalName)
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := sprite.New(c, n, framesWide, framesHigh)
 	if err != nil {
 		return nil, err
 	}

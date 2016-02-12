@@ -18,6 +18,7 @@ package camera
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/hurricanerix/shade/entity"
 )
 
 type Context struct {
@@ -96,5 +97,8 @@ func (c *Context) Move(pos mgl32.Vec3) {
 	gl.UniformMatrix4fv(c.viewMatrixLoc, 1, false, &c.ViewMatrix[0])
 }
 
-func (c *Context) Update(dt float32) {
+func (c *Context) Update(dt float32, g *[]entity.Entity) {
+}
+
+func (c Context) Draw() {
 }
