@@ -44,7 +44,7 @@ func New(style, x, y float32, s *sprite.Context, group *[]entity.Entity) (*Block
 		Pos:    mgl32.Vec3{x, y, 1},
 		Sprite: s,
 		Style:  style,
-		Shape:  shapes.NewRect(0, 0, float32(s.Width), float32(s.Height)),
+		Shape:  shapes.NewRect(0, float32(s.Width), 0, float32(s.Height)),
 	}
 	// TODO: this should probably be added outside of player
 	if group != nil {
@@ -75,7 +75,7 @@ func (b *Block) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (b *Block) Update(dt float32, g *[]entity.Entity) {
+func (b *Block) Update(dt float32, g []entity.Entity) {
 	// Blocks don't do anything
 }
 

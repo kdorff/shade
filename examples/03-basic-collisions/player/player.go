@@ -35,6 +35,7 @@ type Player struct {
 	Sprites   []*sprite.Context
 	Shapes    []*shapes.Shape
 	Collision bool
+	With      string
 	current   int
 }
 
@@ -45,6 +46,7 @@ func New(x, y float32, sprites []*sprite.Context, shps []*shapes.Shape, group *[
 		Pos:     mgl32.Vec3{x, y, 1.0},
 		Sprites: sprites,
 		Shapes:  shps,
+		current: 1,
 	}
 
 	// TODO: this should probably be added outside of ball
@@ -76,10 +78,12 @@ func (p Player) Pos2() *mgl32.Vec3 {
 }
 
 // Update TODO doc
-func (p *Player) Update(dt float32, g *[]entity.Entity) {
+func (p *Player) Update(dt float32, g []entity.Entity) {
 	p.Collision = false
-	for _ = range *sprite.Collide(p, g, false) {
+	p.With = ""
+	for _, e := range *sprite.Collide(p, &g, false) {
 		p.Collision = true
+		p.With = e.Type()
 	}
 }
 

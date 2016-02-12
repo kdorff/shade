@@ -85,7 +85,7 @@ func main() {
 		panic(err)
 	}
 	ballSprite.Bind(screen.Program)
-	_, err = ball.New(float32(windowWidth)/2+float32(windowWidth)/4, float32(windowHeight)/2, ballSprite, &objects)
+	_, err = ball.New(float32(windowWidth)/2, float32(windowHeight)/2, ballSprite, &objects)
 	if err != nil {
 		panic(err)
 	}
@@ -93,14 +93,18 @@ func main() {
 	//shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Height) / 2}, float32(s.Width)/2),
 	tmpSprites := []*sprite.Context{blockSprite, ballSprite}
 	tmpShapes := []*shapes.Shape{
-		shapes.NewRect(0, 0, float32(blockSprite.Width), float32(blockSprite.Height)),
-		shapes.NewCircle(mgl32.Vec2{float32(ballSprite.Width) / 2, float32(ballSprite.Height) / 2}, float32(ballSprite.Width)),
+		shapes.NewRect(0, float32(blockSprite.Width), 0, float32(blockSprite.Height)),
+		shapes.NewCircle(mgl32.Vec2{float32(ballSprite.Width) / 2, float32(ballSprite.Height) / 2}, float32(ballSprite.Width)/2),
 	}
 	pl, err := player.New(0, 0, tmpSprites, tmpShapes, nil)
 	if err != nil {
 		panic(err)
 	}
+	efx := sprite.Effects{
+		Scale: mgl32.Vec3{2.0, 2.0, 1.0},
+	}
 
+	var msg string
 	//	sprites.Bind(screen.Program)
 	for running := true; running; {
 		dt := clock.Tick(30)
@@ -132,17 +136,52 @@ func main() {
 
 		for _, e := range objects {
 			e.Draw()
+			if e.Type() == "block" {
+				tmp := e.(*block.Block)
+				msg = fmt.Sprintf("Pos: (%.0f,%.0f)\n", tmp.Pos[0], tmp.Pos[1])
+				msg += fmt.Sprintf("Data: [\n")
+				msg += fmt.Sprintf("  Left: %.0f\n", tmp.Shape.Data[0])
+				msg += fmt.Sprintf("  Right: %.0f\n", tmp.Shape.Data[1])
+				msg += fmt.Sprintf("  Top: %.0f\n", tmp.Shape.Data[2])
+				msg += fmt.Sprintf("  Bottom: %.0f\n", tmp.Shape.Data[3])
+				msg += fmt.Sprintf("]\n")
+				//_, h := font.SizeText(&efx, msg)
+				font.DrawText(mgl32.Vec3{0, float32(windowHeight) - 16, 0}, &efx, msg)
+			} else {
+				tmp := e.(*ball.Ball)
+				msg = fmt.Sprintf("Pos: (%.0f,%.0f)\n", tmp.Pos[0], tmp.Pos[1])
+				msg += fmt.Sprintf("Data: [\n")
+				msg += fmt.Sprintf("  Center: (%.0f, %.0f)\n", tmp.Shape.Data[0], tmp.Shape.Data[1])
+				msg += fmt.Sprintf("  Radius: %.0f\n", tmp.Shape.Data[2])
+				msg += fmt.Sprintf("]\n")
+				w, _ := font.SizeText(&efx, msg)
+				font.DrawText(mgl32.Vec3{float32(windowWidth) - w, float32(windowHeight) - 16, 0}, &efx, msg)
+			}
+
 		}
 
-		pl.Update(dt/1000.0, &objects)
+		pl.Update(dt/1000.0, objects)
 		pl.Draw()
 
-		e := sprite.Effects{
-			Scale: mgl32.Vec3{3.0, 3.0, 1.0},
+		msg = fmt.Sprintf("(%.0f,%.0f)\n", pl.Pos[0], pl.Pos[1])
+		msg += fmt.Sprintf("Collision: %t\n", pl.Collision)
+		msg += fmt.Sprintf("With: %s\n", pl.With)
+		b := pl.Bounds()
+
+		if b.Type == "rect" {
+			msg += fmt.Sprintf("Data: [\n")
+			msg += fmt.Sprintf("  Left: %.0f\n", b.Data[0])
+			msg += fmt.Sprintf("  Right: %.0f\n", b.Data[1])
+			msg += fmt.Sprintf("  Top: %.0f\n", b.Data[2])
+			msg += fmt.Sprintf("  Bottom: %.0f\n", b.Data[3])
+			msg += fmt.Sprintf("]\n")
+		} else {
+			msg += fmt.Sprintf("Data: [\n")
+			msg += fmt.Sprintf("  Center: (%.0f, %.0f)\n", b.Data[0], b.Data[1])
+			msg += fmt.Sprintf("  Radius: %.0f\n", b.Data[2])
+			msg += fmt.Sprintf("]\n")
 		}
-		msg := fmt.Sprintf("Collision: %t", pl.Collision)
-		pos := mgl32.Vec3{50, 50, 0}
-		font.DrawText(pos, &e, msg)
+		font.DrawText(mgl32.Vec3{pl.Pos[0], pl.Pos[1] - 16, 0}, &efx, msg)
 
 		screen.Flip()
 

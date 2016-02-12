@@ -26,6 +26,6 @@ type Entity interface {
 	Label() string
 	Pos2() *mgl32.Vec3 // TODO: change this to Pos (will take a huge refactor)
 	Bounds() *shapes.Shape
-	Update(dt float32, g *[]Entity)
+	Update(dt float32, g []Entity)
 	Draw()
 }

@@ -74,7 +74,7 @@ func (b Ball) Pos2() *mgl32.Vec3 {
 }
 
 // Update TODO doc
-func (b *Ball) Update(dt float32, g *[]entity.Entity) {
+func (b *Ball) Update(dt float32, g []entity.Entity) {
 }
 
 // Draw TODO doc

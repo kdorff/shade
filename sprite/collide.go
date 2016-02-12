@@ -61,7 +61,6 @@ func Collide(t entity.Entity, g *[]entity.Entity, dokill bool) *[]entity.Entity 
 }
 
 func rectTest(ap, bp *mgl32.Vec3, ab, bb *shapes.Shape, ignoreZ bool) bool {
-
 	apt := mgl32.Vec3{
 		ap[0] + ab.Data[0],
 		ap[1] + ab.Data[2],
@@ -89,10 +88,14 @@ func circleTest(ap, bp *mgl32.Vec3, ab, bb *shapes.Shape, ignoreZ bool) bool {
 	if ap[0] == bp[0] && ap[1] == bp[1] && ab.Data[0] == bb.Data[0] {
 		return false
 	}
+
+	apt := mgl32.Vec2{ap[0] + ab.Data[0], ap[1] + ab.Data[1]}
+	bpt := mgl32.Vec2{bp[0] + bb.Data[0], bp[1] + bb.Data[1]}
+
 	// distance between centers
 	d := math.Sqrt(
-		math.Pow(float64(ap[0])-float64(bp[0]), 2) +
-			math.Pow(float64(ap[1])-float64(bp[1]), 2))
+		math.Pow(float64(apt[0])-float64(bpt[0]), 2) +
+			math.Pow(float64(apt[1])-float64(bpt[1]), 2))
 	// Sum of radiuses
 	if d <= float64(ab.Data[2])+float64(bb.Data[2]) {
 		return true
@@ -105,18 +108,17 @@ func mixedTest(ap, bp *mgl32.Vec3, ab, bb *shapes.Shape, ignoreZ bool) bool {
 	var rs *shapes.Shape
 	var cp *mgl32.Vec3
 	var cs *shapes.Shape
-
 	if ab.Type == "rect" {
 		rp = ap
 		rs = ab
-		cp = bp
+		cp = &mgl32.Vec3{bp[0] + bb.Data[0] - bb.Data[2], bp[1] + bb.Data[1] - bb.Data[2]}
 		cs = bb
 	} else {
 		rp = bp
 		rs = bb
-		cp = ap
+		cp = &mgl32.Vec3{ap[0] + ab.Data[0] - ab.Data[2], ap[1] + ab.Data[1] - ab.Data[2]}
 		cs = ab
 	}
-	w := float32(cs.Data[2])
-	return rectTest(rp, cp, rs, shapes.NewRect(w*-1, w*-1, w, w), ignoreZ)
+	w := float32(cs.Data[2]) * 2
+	return rectTest(rp, cp, rs, shapes.NewRect(0, w, 0, w), ignoreZ)
 }
