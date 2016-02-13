@@ -106,8 +106,8 @@ func main() {
 	}
 	ballSprite.Bind(screen.Program)
 
-	//rand.Seed(1)
 	rand.Seed(time.Now().Unix())
+	//rand.Seed(1)
 
 	b := addBall(screen.Width/2, screen.Height/2, ballSprite, &balls)
 	objects = append(objects, b)
@@ -133,7 +133,8 @@ func main() {
 			}
 
 			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeySpace {
-				addBall(screen.Width/2, screen.Height/2, ballSprite, &balls)
+				b := addBall(screen.Width/2, screen.Height/2, ballSprite, &balls)
+				objects = append(objects, b)
 			}
 		}
 

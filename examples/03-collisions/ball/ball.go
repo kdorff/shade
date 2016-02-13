@@ -45,10 +45,9 @@ func New(x, y, speed, angle float32, s *sprite.Context, group *[]entity.Entity) 
 	b := Ball{
 		Pos:    mgl32.Vec3{x, y, 1.0},
 		Sprite: s,
-		Shape:  shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Height) / 2}, float32(s.Width)/2),
+		Shape:  shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Width) / 2}, float32(s.Width)/2),
 	}
 
-	//speed = 10
 	b.dx = float32(math.Cos(float64(angle))) * speed
 	b.dy = float32(math.Sin(float64(angle))) * speed
 
@@ -81,23 +80,11 @@ func (b Ball) Pos2() *mgl32.Vec3 {
 // Update TODO doc
 func (b *Ball) Update(dt float32, g []entity.Entity) {
 	lastPos := mgl32.Vec3{b.Pos[0], b.Pos[1], b.Pos[2]}
-
-	newPos := &b.Pos
-
-	newPos[0] += b.dx * dt
-	newPos[1] += b.dy * dt
-
 	switchDx := false
 	switchDy := false
 
-	/*
-		if newPos[0] < 0 || newPos[0] > 640 {
-			switchDx = true
-		}
-		if newPos[1] < 0 || newPos[1] > 480 {
-			switchDy = true
-		}
-	*/
+	b.Pos[0] += b.dx * dt
+	b.Pos[1] += b.dy * dt
 
 	for _, c := range *sprite.Collide(b, &g, false) {
 		eb := c.Entity.Bounds()
@@ -109,32 +96,32 @@ func (b *Ball) Update(dt float32, g []entity.Entity) {
 			continue
 		}
 
-		//if eb.Type == "circle" {
-		//switchDx = true
-		//switchDy = true
-		//e.(*Ball).dx *= -1
-		//e.(*Ball).dy *= -1
-		//} else if eb.Type == "rect" {
-		if c.Dir[0] > c.Dir[1] {
+		if math.Abs(float64(c.Dir[0])) > math.Abs(float64(c.Dir[1])) {
 			switchDx = true
+			if eb.Type == "circle" {
+				c.Entity.(*Ball).dx *= -1
+			}
+		} else if math.Abs(float64(c.Dir[1])) > math.Abs(float64(c.Dir[0])) {
+			switchDy = true
 			if eb.Type == "circle" {
 				c.Entity.(*Ball).dx *= -1
 				c.Entity.(*Ball).dy *= -1
 			}
-		} else if c.Dir[1] > c.Dir[0] {
-			switchDy = true
 		} else {
 			switchDx = true
 			switchDy = true
+			if eb.Type == "circle" {
+				c.Entity.(*Ball).dx *= -1
+				c.Entity.(*Ball).dy *= -1
+			}
 		}
-		//}
 	}
 	if switchDx {
-		newPos[0] = lastPos[0]
+		b.Pos[0] = lastPos[0]
 		b.dx *= -1
 	}
 	if switchDy {
-		newPos[1] = lastPos[1]
+		b.Pos[1] = lastPos[1]
 		b.dy *= -1
 	}
 }
