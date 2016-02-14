@@ -51,10 +51,10 @@ func SetMode(title string, width, height int) (*Context, error) {
 	//defer glfw.Terminate()
 
 	glfw.WindowHint(glfw.Resizable, glfw.False)
-	glfw.WindowHint(glfw.ContextVersionMajor, 3)
-	glfw.WindowHint(glfw.ContextVersionMinor, 3)
-	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+	glfw.WindowHint(glfw.ContextVersionMajor, 2)
+	glfw.WindowHint(glfw.ContextVersionMinor, 1)
+	//glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+	//glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 	window, err := glfw.CreateWindow(640, 480, title, nil, nil)
 	if err != nil {
 		return &c, fmt.Errorf("failed to create window: %v", err)
@@ -162,7 +162,7 @@ func compileShader(source string, shaderType uint32) (uint32, error) {
 }
 
 var vertexShader = `
-#version 330
+#version 120
 
 uniform mat4 ProjMatrix;
 uniform mat4 ViewMatrix;
@@ -170,15 +170,21 @@ uniform mat4 ModelMatrix;
 uniform mat3 TexMatrix;
 uniform vec3 LightPos;
 
-in vec3 MCVertex;
-in vec3 MCNormal;
-in vec3 MCTangent;
-in vec2 TexCoord0;
+attribute vec3 MCVertex;
+attribute vec3 MCNormal;
+attribute vec3 MCTangent;
+attribute vec2 TexCoord0;
 
-smooth out vec2 TexCoord;
-smooth out vec3 Pos;
-smooth out vec3 LightDir;
-smooth out vec3 EyeDir;
+varying vec2 TexCoord;
+varying vec3 Pos;
+varying vec3 LightDir;
+varying vec3 EyeDir;
+
+
+mat3 inv(mat3 m) {
+	// TDOO implement inverse func
+	return m;
+}
 
 void main() {
   mat4 mvMatrix = ViewMatrix * ModelMatrix;
@@ -189,7 +195,7 @@ void main() {
   TexCoord = vec3(TexMatrix * vec3(TexCoord0, 1.0)).st;
 
   mat3 normalMatrix = mat3x3(mvMatrix);
-  normalMatrix = inverse(normalMatrix);
+  normalMatrix = inv(normalMatrix);
   normalMatrix = transpose(normalMatrix);
 
   mat3 mv3Matrix = mat3(mvMatrix);
@@ -213,7 +219,7 @@ void main() {
 ` + "\x00"
 
 var fragmentShader = `
-#version 330
+#version 120
 
 uniform int AddColor;
 uniform vec4 AColor;
@@ -226,16 +232,16 @@ uniform vec3 LightPos;
 uniform vec4 LightColor;
 uniform float LightPower;
 
-smooth in vec3 Pos;
-smooth in vec3 LightDir;
-smooth in vec3 EyeDir;
-smooth in vec2 TexCoord;
+varying vec3 Pos;
+varying vec3 LightDir;
+varying vec3 EyeDir;
+varying vec2 TexCoord;
 
-out vec4 FragColor;
+// out vec4 FragColor;
 
 void main() {
-  float alpha = texture(ColorMap, TexCoord.st).a;
-  vec3 diffuse = texture(ColorMap, TexCoord.st).rgb;
+  float alpha = texture2D(ColorMap, TexCoord.st).a;
+  vec3 diffuse = texture2D(ColorMap, TexCoord.st).rgb;
   if (AddColor == 1) {
     diffuse = clamp(diffuse + AColor.rgb, 0.0, 1.0);
   }
@@ -245,7 +251,7 @@ void main() {
   vec3 ambient = AmbientColor.rgb * diffuse;
   vec3 specular = diffuse/8;
 
-  vec3 normal = texture(NormalMap, TexCoord.st).rgb * 2 - 1;
+  vec3 normal = texture2D(NormalMap, TexCoord.st).rgb * 2 - 1;
   float distance = length(LightPos - Pos);
 
   vec3 n = normalize(normal);
@@ -258,7 +264,7 @@ void main() {
 
   float cosAlpha = clamp(dot(e, r), 0.0, 1.0);
 
-  FragColor = vec4(
+  gl_FragColor = vec4(
     ambient +
     diffuse * LightColor.rgb * LightPower * cosTheta /
       (distance * distance) +
