@@ -38,6 +38,17 @@ type Context struct {
 	Program uint32
 }
 
+func createWindow(major, minor int, title string) (*glfw.Window, error) {
+	glfw.WindowHint(glfw.Resizable, glfw.False)
+	glfw.WindowHint(glfw.ContextVersionMajor, major)
+	glfw.WindowHint(glfw.ContextVersionMinor, minor)
+	if major != 2 && minor != 1 {
+		glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+		glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+	}
+	return glfw.CreateWindow(640, 480, title, nil, nil)
+}
+
 // SetMode TODO doc
 func SetMode(title string, width, height int) (*Context, error) {
 	c := Context{
@@ -50,15 +61,25 @@ func SetMode(title string, width, height int) (*Context, error) {
 	// TODO: move this to a terminate function
 	//defer glfw.Terminate()
 
-	glfw.WindowHint(glfw.Resizable, glfw.False)
-	glfw.WindowHint(glfw.ContextVersionMajor, 2)
-	glfw.WindowHint(glfw.ContextVersionMinor, 1)
-	//glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-	//glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-	window, err := glfw.CreateWindow(640, 480, title, nil, nil)
-	if err != nil {
-		return &c, fmt.Errorf("failed to create window: %v", err)
+	supportedVersions := [][2]int{
+		// TODO: create matching shaders for these versions
+		//[2]int{4, 1},
+		//[2]int{3, 3},
+		[2]int{2, 1},
 	}
+
+	var err error
+	var window *glfw.Window
+	for _, v := range supportedVersions {
+		window, err = createWindow(v[0], v[1], title)
+		if err == nil {
+			// Successfully created window, break out of loop
+			break
+		}
+		// TODO: maybe only print this w/ a verbose logging option
+		fmt.Println("Warning:", err)
+	}
+
 	c.Window = window
 
 	c.Window.MakeContextCurrent()
@@ -69,7 +90,10 @@ func SetMode(title string, width, height int) (*Context, error) {
 		return &c, fmt.Errorf("failed to init glow: %v", err)
 	}
 
+	fmt.Println("OpenGL vendor", gl.GoStr(gl.GetString(gl.VENDOR)))
+	fmt.Println("OpenGL renderer", gl.GoStr(gl.GetString(gl.RENDERER)))
 	fmt.Println("OpenGL version", gl.GoStr(gl.GetString(gl.VERSION)))
+	fmt.Println("GLSL version", gl.GoStr(gl.GetString(gl.SHADING_LANGUAGE_VERSION)))
 
 	c.Program, err = newProgram(vertexShader, fragmentShader)
 	if err != nil {
