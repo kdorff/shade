@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// Package entity TODO doc
+// Package entity provies interfaces for game objects.
 
 package entity
 
@@ -20,12 +20,18 @@ import (
 	"github.com/hurricanerix/shade/shapes"
 )
 
-// Entity TODO doc
+// Entity is the interface for a basic game object.
 type Entity interface {
+	// Type returns the name of the struct implenting the interface.  This can be used to cast a pointer to the interface to a pointer of that struct.
 	Type() string
+	// Label returns an identifier useful to the program.
 	Label() string
-	Pos2() *mgl32.Vec3 // TODO: change this to Pos (will take a huge refactor)
+	// Pos2 returns the position of the entity. (TODO: rename to Pos after refactor)
+	Pos2() *mgl32.Vec3
+	// Boundry of the object for the purpose of collision detection, if nil, the entity is not intended to be considered when detecting collisions.
 	Bounds() *shapes.Shape
+	// Update the state of the entity.
 	Update(dt float32, g []Entity)
+	// Draw the entity.
 	Draw()
 }
