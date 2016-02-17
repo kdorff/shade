@@ -18,7 +18,6 @@ package clock
 import "time"
 
 type Clock struct {
-	Timer     *time.Timer
 	lastTime  time.Time
 	firstCall bool
 	count     int
@@ -27,7 +26,6 @@ type Clock struct {
 
 func New() (*Clock, error) {
 	c := Clock{
-		Timer:     time.NewTimer(time.Millisecond),
 		firstCall: true,
 	}
 
