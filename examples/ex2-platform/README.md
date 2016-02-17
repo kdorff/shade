@@ -1,4 +1,4 @@
-ex1-platform
+ex2-platform
 ============
 
 A working example of a simple platform style game demostrating all the features of the SDK.

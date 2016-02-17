@@ -21,7 +21,7 @@ import (
 	"runtime"
 
 	"github.com/hurricanerix/shade/display"
-	"github.com/hurricanerix/shade/examples/ex1-platform/game"
+	"github.com/hurricanerix/shade/examples/ex2-platform/game"
 	"github.com/hurricanerix/shade/splash"
 )
 
@@ -40,7 +40,7 @@ func init() {
 func main() {
 	flag.Parse()
 
-	screen, err := display.SetMode("ex1-platform", 640, 480)
+	screen, err := display.SetMode("ex2-platform", 640, 480)
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
 	}
