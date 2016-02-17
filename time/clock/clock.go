@@ -18,23 +18,48 @@ package clock
 import "time"
 
 type Clock struct {
-	Timer *time.Timer
+	Timer     *time.Timer
+	lastTime  time.Time
+	firstCall bool
+	count     int
+	tmp       float32
 }
 
 func New() (*Clock, error) {
 	c := Clock{
-		Timer: time.NewTimer(time.Millisecond),
+		Timer:     time.NewTimer(time.Millisecond),
+		firstCall: true,
 	}
 
 	return &c, nil
 }
 
-// Clock TODO doc
+// Tick updates the clock, ensuring that it is called at most limit times per second and returns the number of milliseconds since the last call.
+//
+// If limit is set to 0, then there should be no restriction on the number of calls per second.
 func (c *Clock) Tick(limit int) float32 {
-	<-c.Timer.C
-	// TODO: this is wrong, it should only restrict that the func is run at most _limit_ times a second.
-	// But for now I think it will work.
-	c.Timer.Reset(time.Millisecond / (1000 / time.Duration(limit)))
-	// TODO: this should return the amount of time since the last Tick
-	return 10.0
+	if c.count >= limit || c.tmp >= float32(time.Second/time.Millisecond) {
+		if c.tmp <= float32(time.Second/time.Millisecond) {
+			// TODO: fix sleep
+			//time.Sleep(time.Second - (time.Millisecond * time.Duration(c.tmp)))
+		}
+		c.tmp = 0
+		c.count = 0
+	}
+
+	t := time.Now()
+	if c.firstCall {
+		c.firstCall = false
+		c.lastTime = t
+	}
+
+	d := float32(t.Sub(c.lastTime)) / float32(time.Millisecond)
+
+	if limit >= 0 {
+		c.count += 1
+		c.tmp += d
+	}
+
+	c.lastTime = t
+	return d
 }
