@@ -79,6 +79,7 @@ func (c *Context) Main(screen *display.Context, config Config) {
 	if err != nil {
 		panic(err)
 	}
+	cam.Move(scene.Player.Pos)
 
 	clock, err := clock.New()
 	if err != nil {
@@ -122,7 +123,8 @@ func (c *Context) Main(screen *display.Context, config Config) {
 			scene.Player.HandleEvent(event, dt/1000.0)
 		}
 
-		cam.Move(mgl32.Vec3{scene.Player.Pos[0], scene.Player.Pos[1], 0.0})
+		//cam.Move(scene.Player.Pos)
+		cam.Follow(scene.Player.Pos, 0.1)
 
 		scene.Player.Update(dt/1000.0, scene.Walls)
 
