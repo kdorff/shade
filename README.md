@@ -10,6 +10,15 @@ While the above should work without needing to work with the OpenGL SDK, the pac
 Installing
 ----------
 
+Ubuntu requirements
+
+```
+# first install Go
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install git-core libgl1-mesa-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev
+```
+
 To install:
 
 NOTE: the first "go get" will produce an error because generated files are not generated yet.
@@ -26,7 +35,7 @@ $ go get github.com/hurricanerix/shade/...
 To test your install:
 
 ```
-cd $GOPATH/src/github.com/hurricanerix/examples/ex1-platform
+cd $GOPATH/src/github.com/hurricanerix/examples/ex2-platform
 go run main.go
 ```
 
