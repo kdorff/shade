@@ -12,25 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package sprite
+package entity
 
 import (
 	"math"
 
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/shapes"
 )
 
+// Collider
+type Collider interface {
+	Pos() *mgl32.Vec3
+	Bounds() *shapes.Shape
+}
+
 // Collision TODO doc
 type Collision struct {
-	Entity entity.Entity
-	Dir    mgl32.Vec3
+	Hit Collider
+	Dir mgl32.Vec3
 }
 
 // Collide TODO doc
-func Collide(t entity.Entity, g *[]entity.Entity, dokill bool) *[]Collision {
-	// TODO: maybe move this to entity package?
+func Collide(t Collider, g *[]Collider, dokill bool) *[]Collision {
 	var hits []Collision
 
 	if t == nil || g == nil {
@@ -41,7 +45,7 @@ func Collide(t entity.Entity, g *[]entity.Entity, dokill bool) *[]Collision {
 	if tb == nil {
 		return &hits
 	}
-	tp := t.Pos2()
+	tp := t.Pos()
 
 	var hit bool
 	var dir mgl32.Vec3
@@ -49,7 +53,7 @@ func Collide(t entity.Entity, g *[]entity.Entity, dokill bool) *[]Collision {
 	var eb *shapes.Shape
 	for _, e := range *g {
 		hit = false
-		ep = e.Pos2()
+		ep = e.Pos()
 		eb = e.Bounds()
 
 		if tb.Type == eb.Type && tb.Type == "rect" {
@@ -61,7 +65,7 @@ func Collide(t entity.Entity, g *[]entity.Entity, dokill bool) *[]Collision {
 		}
 
 		if hit {
-			hits = append(hits, Collision{Entity: e, Dir: dir})
+			hits = append(hits, Collision{Hit: e, Dir: dir})
 		}
 	}
 	return &hits

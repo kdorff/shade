@@ -15,23 +15,12 @@
 
 package entity
 
-import (
-	"github.com/go-gl/mathgl/mgl32"
-	"github.com/hurricanerix/shade/shapes"
-)
-
 // Entity is the interface for a basic game object.
 type Entity interface {
 	// Type returns the name of the struct implenting the interface.  This can be used to cast a pointer to the interface to a pointer of that struct.
 	Type() string
 	// Label returns an identifier useful to the program.
 	Label() string
-	// Pos2 returns the position of the entity. (TODO: rename to Pos after refactor)
-	Pos2() *mgl32.Vec3
-	// Boundry of the object for the purpose of collision detection, if nil, the entity is not intended to be considered when detecting collisions.
-	Bounds() *shapes.Shape
-	// Update the state of the entity.
-	Update(dt float32, g []Entity)
-	// Draw the entity.
+	Update(dt float32, g []Collider)
 	Draw()
 }

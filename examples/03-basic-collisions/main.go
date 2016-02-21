@@ -68,27 +68,21 @@ func main() {
 		panic(err)
 	}
 
-	objects := []entity.Entity{}
+	objects := []entity.Collider{}
 
 	blockSprite, err := loadSprite("assets/block32x32.png", "", 2, 1)
 	if err != nil {
 		panic(err)
 	}
 	blockSprite.Bind(screen.Program)
-	_, err = block.New(0, float32(windowWidth)/4, float32(windowHeight)/2, blockSprite, &objects)
-	if err != nil {
-		panic(err)
-	}
+	objects = append(objects, block.New(0, float32(windowWidth)/4, float32(windowHeight)/2, blockSprite))
 
 	ballSprite, err := loadSprite("assets/ball.png", "", 1, 1)
 	if err != nil {
 		panic(err)
 	}
 	ballSprite.Bind(screen.Program)
-	_, err = ball.New(float32(windowWidth)/2, float32(windowHeight)/2, ballSprite, &objects)
-	if err != nil {
-		panic(err)
-	}
+	objects = append(objects, ball.New(float32(windowWidth)/2, float32(windowHeight)/2, ballSprite))
 
 	//shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Height) / 2}, float32(s.Width)/2),
 	tmpSprites := []*sprite.Context{blockSprite, ballSprite}
@@ -129,33 +123,38 @@ func main() {
 				pl.NextShape()
 			}
 			if !event.KeyEvent {
-				pl.Pos[0] = event.X
-				pl.Pos[1] = float32(windowHeight) - event.Y
+				pl.SetPos(&mgl32.Vec3{event.X, float32(windowHeight) - event.Y, 1.0})
 			}
 		}
 
 		for _, e := range objects {
-			e.Draw()
-			if e.Type() == "block" {
-				tmp := e.(*block.Block)
-				msg = fmt.Sprintf("Pos: (%.0f,%.0f)\n", tmp.Pos[0], tmp.Pos[1])
-				msg += fmt.Sprintf("Data: [\n")
-				msg += fmt.Sprintf("  Left: %.0f\n", tmp.Shape.Data[0])
-				msg += fmt.Sprintf("  Right: %.0f\n", tmp.Shape.Data[1])
-				msg += fmt.Sprintf("  Top: %.0f\n", tmp.Shape.Data[2])
-				msg += fmt.Sprintf("  Bottom: %.0f\n", tmp.Shape.Data[3])
-				msg += fmt.Sprintf("]\n")
-				//_, h := font.SizeText(&efx, msg)
-				font.DrawText(mgl32.Vec3{0, float32(windowHeight) - 16, 0}, &efx, msg)
-			} else {
-				tmp := e.(*ball.Ball)
-				msg = fmt.Sprintf("Pos: (%.0f,%.0f)\n", tmp.Pos[0], tmp.Pos[1])
-				msg += fmt.Sprintf("Data: [\n")
-				msg += fmt.Sprintf("  Center: (%.0f, %.0f)\n", tmp.Shape.Data[0], tmp.Shape.Data[1])
-				msg += fmt.Sprintf("  Radius: %.0f\n", tmp.Shape.Data[2])
-				msg += fmt.Sprintf("]\n")
-				w, _ := font.SizeText(&efx, msg)
-				font.DrawText(mgl32.Vec3{float32(windowWidth) - w, float32(windowHeight) - 16, 0}, &efx, msg)
+			d, ok := e.(entity.Entity)
+			if ok {
+				d.Draw()
+
+				if d.Type() == "block" {
+					tmp := e.(*block.Block)
+					pos := tmp.Pos()
+					msg = fmt.Sprintf("Pos: (%.0f,%.0f)\n", pos[0], pos[1])
+					msg += fmt.Sprintf("Data: [\n")
+					msg += fmt.Sprintf("  Left: %.0f\n", tmp.Shape.Data[0])
+					msg += fmt.Sprintf("  Right: %.0f\n", tmp.Shape.Data[1])
+					msg += fmt.Sprintf("  Top: %.0f\n", tmp.Shape.Data[2])
+					msg += fmt.Sprintf("  Bottom: %.0f\n", tmp.Shape.Data[3])
+					msg += fmt.Sprintf("]\n")
+					//_, h := font.SizeText(&efx, msg)
+					font.DrawText(mgl32.Vec3{0, float32(windowHeight) - 16, 0}, &efx, msg)
+				} else {
+					tmp := e.(*ball.Ball)
+					pos := tmp.Pos()
+					msg = fmt.Sprintf("Pos: (%.0f,%.0f)\n", pos[0], pos[1])
+					msg += fmt.Sprintf("Data: [\n")
+					msg += fmt.Sprintf("  Center: (%.0f, %.0f)\n", tmp.Shape.Data[0], tmp.Shape.Data[1])
+					msg += fmt.Sprintf("  Radius: %.0f\n", tmp.Shape.Data[2])
+					msg += fmt.Sprintf("]\n")
+					w, _ := font.SizeText(&efx, msg)
+					font.DrawText(mgl32.Vec3{float32(windowWidth) - w, float32(windowHeight) - 16, 0}, &efx, msg)
+				}
 			}
 
 		}
@@ -163,14 +162,18 @@ func main() {
 		pl.Update(dt/1000.0, objects)
 		pl.Draw()
 
-		msg = fmt.Sprintf("(%.0f,%.0f)\n", pl.Pos[0], pl.Pos[1])
+		pos := pl.Pos()
+		msg = fmt.Sprintf("(%.0f,%.0f)\n", pos[0], pos[1])
 		if pl.Collision == nil {
 			msg += fmt.Sprintf("Collision: nil\n")
 		} else {
-			msg += fmt.Sprintf("Collision: {\n")
-			msg += fmt.Sprintf("  Type: %s\n", pl.Collision.Entity.Type())
-			msg += fmt.Sprintf("  Dir: (%.1f,%.1f,%.1f)\n", pl.Collision.Dir[0], pl.Collision.Dir[1], pl.Collision.Dir[2])
-			msg += fmt.Sprintf("}\n")
+			c, ok := pl.Collision.Hit.(entity.Entity)
+			if ok {
+				msg += fmt.Sprintf("Collision: {\n")
+				msg += fmt.Sprintf("  Type: %s\n", c.Type())
+				msg += fmt.Sprintf("  Dir: (%.1f,%.1f,%.1f)\n", pl.Collision.Dir[0], pl.Collision.Dir[1], pl.Collision.Dir[2])
+				msg += fmt.Sprintf("}\n")
+			}
 		}
 		b := pl.Bounds()
 
@@ -187,7 +190,8 @@ func main() {
 			msg += fmt.Sprintf("  Radius: %.0f\n", b.Data[2])
 			msg += fmt.Sprintf("]\n")
 		}
-		font.DrawText(mgl32.Vec3{pl.Pos[0], pl.Pos[1] - 16, 0}, &efx, msg)
+		pos = pl.Pos()
+		font.DrawText(mgl32.Vec3{pos[0], pos[1] - 16, 0}, &efx, msg)
 
 		screen.Flip()
 

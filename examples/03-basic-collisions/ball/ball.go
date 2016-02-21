@@ -31,25 +31,21 @@ func init() {
 
 // Ball TODO doc
 type Ball struct {
-	Pos    mgl32.Vec3
+	pos    mgl32.Vec3
 	Sprite *sprite.Context
 	Shape  *shapes.Shape
 }
 
 // New TODO doc
-func New(x, y float32, s *sprite.Context, group *[]entity.Entity) (*Ball, error) {
+func New(x, y float32, s *sprite.Context) *Ball {
 	// TODO should take a group in as a argument
 	b := Ball{
-		Pos:    mgl32.Vec3{x, y, 1.0},
+		pos:    mgl32.Vec3{x, y, 1.0},
 		Sprite: s,
 		Shape:  shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Height) / 2}, float32(s.Width)/2),
 	}
 
-	// TODO: this should probably be added outside of ball
-	if group != nil {
-		*group = append(*group, &b)
-	}
-	return &b, nil
+	return &b
 }
 
 func (b Ball) Type() string {
@@ -69,15 +65,15 @@ func (b Ball) Bounds() *shapes.Shape {
 	return b.Shape
 }
 
-func (b Ball) Pos2() *mgl32.Vec3 {
-	return &b.Pos
+func (b Ball) Pos() *mgl32.Vec3 {
+	return &b.pos
 }
 
 // Update TODO doc
-func (b *Ball) Update(dt float32, g []entity.Entity) {
+func (b *Ball) Update(dt float32, g []entity.Collider) {
 }
 
 // Draw TODO doc
 func (b Ball) Draw() {
-	b.Sprite.Draw(b.Pos, nil)
+	b.Sprite.Draw(b.pos, nil)
 }

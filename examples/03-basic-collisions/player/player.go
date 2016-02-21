@@ -31,10 +31,10 @@ func init() {
 
 // Ball TODO doc
 type Player struct {
-	Pos       mgl32.Vec3
+	pos       mgl32.Vec3
 	Sprites   []*sprite.Context
 	Shapes    []*shapes.Shape
-	Collision *sprite.Collision
+	Collision *entity.Collision
 	With      string
 	current   int
 }
@@ -43,7 +43,7 @@ type Player struct {
 func New(x, y float32, sprites []*sprite.Context, shps []*shapes.Shape, group *[]entity.Entity) (*Player, error) {
 	// TODO should take a group in as a argument
 	b := Player{
-		Pos:     mgl32.Vec3{x, y, 1.0},
+		pos:     mgl32.Vec3{x, y, 1.0},
 		Sprites: sprites,
 		Shapes:  shps,
 		current: 1,
@@ -64,6 +64,15 @@ func (p Player) Label() string {
 	return ""
 }
 
+func (p Player) Pos() *mgl32.Vec3 {
+	return &p.pos
+}
+
+// SetPos of player
+func (p *Player) SetPos(pos *mgl32.Vec3) {
+	p.pos = *pos
+}
+
 // Bind TODO doc
 func (p *Player) Bind(program uint32) error {
 	return p.Sprites[p.current].Bind(program)
@@ -73,22 +82,18 @@ func (p Player) Bounds() *shapes.Shape {
 	return p.Shapes[p.current]
 }
 
-func (p Player) Pos2() *mgl32.Vec3 {
-	return &p.Pos
-}
-
 // Update TODO doc
-func (p *Player) Update(dt float32, g []entity.Entity) {
+func (p *Player) Update(dt float32, g []entity.Collider) {
 	p.Collision = nil
 	p.With = ""
-	for _, c := range *sprite.Collide(p, &g, false) {
+	for _, c := range *entity.Collide(p, &g, false) {
 		p.Collision = &c
 	}
 }
 
 // Draw TODO doc
 func (p Player) Draw() {
-	p.Sprites[p.current].Draw(p.Pos, nil)
+	p.Sprites[p.current].Draw(p.pos, nil)
 }
 
 func (p *Player) NextShape() {
