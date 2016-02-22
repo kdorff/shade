@@ -12,13 +12,11 @@ Installing
 
 Linux (Debian based) Specific Instructions
 ```
-# first install Go
-sudo apt-get update
-sudo apt-get upgrade
+# Install Go 1.6
 sudo apt-get install git-core libgl1-mesa-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev
 ```
 
-Windows Specific Instructions
+Windows Specific Instructions (work in progress)
 ```
 https://git-scm.com/download/win
 https://golang.org/doc/install
