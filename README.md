@@ -10,13 +10,20 @@ While the above should work without needing to work with the OpenGL SDK, the pac
 Installing
 ----------
 
-Ubuntu requirements
-
+Linux (Debian based) Specific Instructions
 ```
 # first install Go
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install git-core libgl1-mesa-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev
+```
+
+Windows Specific Instructions
+```
+https://git-scm.com/download/win
+https://golang.org/doc/install
+https://cygwin.com/install.html
+http://www.glfw.org/
 ```
 
 To install:
