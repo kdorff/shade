@@ -35,7 +35,7 @@ func init() {
 
 // Player TODO doc
 type Player struct {
-	Pos      mgl32.Vec3
+	pos      mgl32.Vec3
 	Shape    *shapes.Shape
 	Sprite   *sprite.Context
 	Light    *light.Positional
@@ -48,43 +48,29 @@ type Player struct {
 }
 
 // New TODO doc
-func New(x, y float32, s *sprite.Context, group *[]entity.Entity) (*Player, error) {
+func New(x, y float32, s *sprite.Context) *Player {
 	// TODO should take a group in as a argument
 	p := Player{
-		Pos:    mgl32.Vec3{x, y, 1.0},
+		pos:    mgl32.Vec3{x, y, 1.0},
 		Shape:  shapes.NewRect(32, 96, 0, 96),
 		Sprite: s,
 		Facing: 2,
 	}
-
 	light := light.Positional{
-		Pos:   mgl32.Vec3{p.Pos[0], float32(s.Height), 50.0},
+		Pos:   mgl32.Vec3{p.pos[0], float32(s.Height), 50.0},
 		Color: mgl32.Vec4{0.7, 0.7, 1.0, 1.0},
 		Power: 10000,
 	}
 	p.Light = &light
-
-	// TODO: this should probably be added outside of player
-	if group != nil {
-		*group = append(*group, &p)
-	}
-	return &p, nil
+	return &p
 }
 
 func (p Player) Bounds() *shapes.Shape {
 	return p.Shape
 }
 
-func (p Player) Pos2() *mgl32.Vec3 {
-	return &p.Pos
-}
-
-func (p Player) Type() string {
-	return "player"
-}
-
-func (p Player) Label() string {
-	return ""
+func (p Player) Pos() *mgl32.Vec3 {
+	return &p.pos
 }
 
 // HandleEvent TODO doc
@@ -117,37 +103,37 @@ func (p *Player) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (p *Player) Update(dt float32, g []entity.Entity) {
-	lastPos := mgl32.Vec3{p.Pos[0], p.Pos[1], p.Pos[2]}
+func (p *Player) Update(dt float32, g []entity.Collider) {
+	lastPos := mgl32.Vec3{p.pos[0], p.pos[1], p.pos[2]}
 
 	if p.leftKey {
-		p.Pos[0] -= 300.0 * dt
-		p.Light.Pos[0] = p.Pos[0]
+		p.pos[0] -= 300.0 * dt
+		p.Light.Pos[0] = p.pos[0]
 		p.Facing = 1
 	}
 	if p.rightKey {
-		p.Pos[0] += 300.0 * dt
+		p.pos[0] += 300.0 * dt
 		p.Facing = 2
-		p.Light.Pos[0] = p.Pos[0] + float32(p.Sprite.Width)
+		p.Light.Pos[0] = p.pos[0] + float32(p.Sprite.Width)
 	}
 	if p.resting && p.jumpKey {
 		p.dy = 1500.0
 	}
 	p.dy = float32(math.Min(float64(1500.0), float64(p.dy-40.0)))
 
-	p.Pos[1] += p.dy * dt
+	p.pos[1] += p.dy * dt
 
-	newPos := &p.Pos
+	newPos := &p.pos
 	p.resting = false
 
-	if p.Pos[1] < 127 {
+	if p.pos[1] < 127 {
 		p.resting = true
-		p.Pos[1] = 128
+		p.pos[1] = 128
 		p.dy = 0.0
 	}
 
-	for _, c := range *sprite.Collide(p, &g, false) {
-		pos := c.Entity.Pos2()
+	for _, c := range *entity.Collide(p, &g, false) {
+		pos := c.Hit.Pos()
 
 		if c.Dir[0] > 0.5 {
 			newPos[0] = lastPos[0]
@@ -165,7 +151,7 @@ func (p *Player) Update(dt float32, g []entity.Entity) {
 			p.dy = 0.0
 		}
 	}
-	p.Light.Pos[1] = p.Pos[1] + float32(p.Sprite.Height)
+	p.Light.Pos[1] = p.pos[1] + float32(p.Sprite.Height)
 
 }
 
@@ -173,5 +159,5 @@ func (p *Player) Update(dt float32, g []entity.Entity) {
 func (p *Player) Draw() {
 	//e *sprite.Effects) {
 	//p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.Pos, e)
-	p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.Pos, nil)
+	p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.pos, nil)
 }

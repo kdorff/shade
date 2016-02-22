@@ -55,10 +55,7 @@ func Main(screen *display.Context) {
 	font.Sprite.Bind(screen.Program)
 	msg := "Shade SDK"
 
-	g, err := ghost.New(nil)
-	if err != nil {
-		panic(err)
-	}
+	g := ghost.New()
 	g.Bind(screen.Program)
 
 	total := float32(0.0)

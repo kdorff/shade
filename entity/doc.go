@@ -12,10 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package entity provies interfaces for game objects.
 package entity
-
-// Entity is the interface for a basic game object.
-type Entity interface {
-	Update(dt float32, g []Collider)
-	Draw()
-}

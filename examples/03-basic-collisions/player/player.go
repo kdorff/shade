@@ -56,14 +56,6 @@ func New(x, y float32, sprites []*sprite.Context, shps []*shapes.Shape, group *[
 	return &b, nil
 }
 
-func (p Player) Type() string {
-	return "ball"
-}
-
-func (p Player) Label() string {
-	return ""
-}
-
 func (p Player) Pos() *mgl32.Vec3 {
 	return &p.pos
 }

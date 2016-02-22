@@ -33,7 +33,7 @@ func init() {
 
 // Player TODO doc
 type Ghost struct {
-	Pos          mgl32.Vec3
+	pos          mgl32.Vec3
 	Sprite       *sprite.Context
 	Shape        *shapes.Shape
 	Light        *light.Positional
@@ -46,19 +46,19 @@ type Ghost struct {
 }
 
 // New TODO doc
-func New(group *[]entity.Entity) (*Ghost, error) {
-	// TODO should take a group in as a argument
+func New() *Ghost {
 	i, err := sprite.LoadAsset("assets/ghost.png")
 	if err != nil {
-		return nil, err
+		// TODO: move sprite loading out side of ghost
+		panic(err)
 	}
 	s, err := sprite.New(i, nil, 6, 3)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	c := Ghost{
-		Pos:          mgl32.Vec3{-32, 480.0/2 - float32(s.Height)/2, 1.0},
+		pos:          mgl32.Vec3{-32, 480.0/2 - float32(s.Height)/2, 1.0},
 		Sprite:       s,
 		Shape:        shapes.NewRect(0, float32(s.Width), 0, float32(s.Height)),
 		looking:      1,
@@ -75,27 +75,15 @@ func New(group *[]entity.Entity) (*Ghost, error) {
 	c.dx = 0.3
 	c.fx = 0.02
 
-	// TODO: this should probably be added outside of player
-	if group != nil {
-		*group = append(*group, &c)
-	}
-	return &c, nil
-}
-
-func (g Ghost) Type() string {
-	return "ghost"
-}
-
-func (g Ghost) Label() string {
-	return ""
+	return &c
 }
 
 func (g Ghost) Bounds() *shapes.Shape {
 	return g.Shape
 }
 
-func (g Ghost) Pos2() *mgl32.Vec3 {
-	return &g.Pos
+func (g Ghost) Pos() *mgl32.Vec3 {
+	return &g.pos
 }
 
 // Bind TODO doc
@@ -104,10 +92,10 @@ func (c *Ghost) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (c *Ghost) Update(dt float32, g []entity.Entity) {
-	c.Pos[0] += c.dx * dt
+func (c *Ghost) Update(dt float32, g []entity.Collider) {
+	c.pos[0] += c.dx * dt
 	c.frame += c.fx * dt
-	if c.Pos[0] >= 400 {
+	if c.pos[0] >= 400 {
 		c.dx = 0
 		c.looking = -1
 		c.dl = 0.01
@@ -118,15 +106,15 @@ func (c *Ghost) Update(dt float32, g []entity.Entity) {
 		c.AmbientColor[1] += c.dl
 		c.AmbientColor[2] += c.dl
 	}
-	c.Light.Pos[0] = c.Pos[0] + float32(c.Sprite.Width)*2
-	c.Light.Pos[1] = c.Pos[1] + float32(c.Sprite.Height)*2
+	c.Light.Pos[0] = c.pos[0] + float32(c.Sprite.Width)*2
+	c.Light.Pos[1] = c.pos[1] + float32(c.Sprite.Height)*2
 }
 
 // Draw TODO doc
 func (c *Ghost) Draw() {
 	//e *sprite.Effects) {
-	var x float32 = c.Pos[0]
-	var y float32 = c.Pos[1]
+	var x float32 = c.pos[0]
+	var y float32 = c.pos[1]
 
 	top := y + 64.0
 	middle := y + 32.0

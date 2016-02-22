@@ -48,14 +48,6 @@ func New(x, y float32, s *sprite.Context) *Ball {
 	return &b
 }
 
-func (b Ball) Type() string {
-	return "ball"
-}
-
-func (b Ball) Label() string {
-	return ""
-}
-
 // Bind TODO doc
 func (b *Ball) Bind(program uint32) error {
 	return b.Sprite.Bind(program)

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	_ "image/png"
 	"log"
+	"reflect"
 	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -132,7 +133,8 @@ func main() {
 			if ok {
 				d.Draw()
 
-				if d.Type() == "block" {
+				// TODO: Maybe compare the types rather than converted strings
+				if reflect.TypeOf(d).String() == "*block.Block" {
 					tmp := e.(*block.Block)
 					pos := tmp.Pos()
 					msg = fmt.Sprintf("Pos: (%.0f,%.0f)\n", pos[0], pos[1])
@@ -170,7 +172,7 @@ func main() {
 			c, ok := pl.Collision.Hit.(entity.Entity)
 			if ok {
 				msg += fmt.Sprintf("Collision: {\n")
-				msg += fmt.Sprintf("  Type: %s\n", c.Type())
+				msg += fmt.Sprintf("  Type: %T\n", c)
 				msg += fmt.Sprintf("  Dir: (%.1f,%.1f,%.1f)\n", pl.Collision.Dir[0], pl.Collision.Dir[1], pl.Collision.Dir[2])
 				msg += fmt.Sprintf("}\n")
 			}

@@ -58,9 +58,9 @@ func New(screen *display.Context) (Context, error) {
 }
 
 type Scene struct {
-	Sprites []entity.Entity
+	Sprites []sprite.Sprite
 	Player  *player.Player
-	Walls   []entity.Entity
+	Walls   []entity.Collider
 }
 
 // Main TODO doc
@@ -79,7 +79,7 @@ func (c *Context) Main(screen *display.Context, config Config) {
 	if err != nil {
 		panic(err)
 	}
-	cam.Move(scene.Player.Pos)
+	cam.Move(*scene.Player.Pos())
 
 	clock, err := clock.New()
 	if err != nil {
@@ -87,12 +87,7 @@ func (c *Context) Main(screen *display.Context, config Config) {
 	}
 
 	for _, s := range scene.Sprites {
-		switch s.Type() {
-		case "player":
-			s.(*player.Player).Bind(screen.Program)
-		case "block":
-			s.(*block.Block).Bind(screen.Program)
-		}
+		s.Bind(screen.Program)
 	}
 
 	font, err := fonts.SimpleASCII()
@@ -123,8 +118,8 @@ func (c *Context) Main(screen *display.Context, config Config) {
 			scene.Player.HandleEvent(event, dt/1000.0)
 		}
 
-		//cam.Move(scene.Player.Pos)
-		cam.Follow(scene.Player.Pos, 0.1)
+		//cam.Move(scene.Player.Pos())
+		cam.Follow(*scene.Player.Pos(), 0.1)
 
 		scene.Player.Update(dt/1000.0, scene.Walls)
 
@@ -136,14 +131,14 @@ func (c *Context) Main(screen *display.Context, config Config) {
 				Light:          *scene.Player.Light}
 		*/
 
-		for _, s := range scene.Sprites {
-			switch s.Type() {
-			case "player":
-				s.(*player.Player).Draw()
-			case "block":
-				s.(*block.Block).Draw()
+		for _, w := range scene.Walls {
+			e, ok := w.(entity.Entity)
+			if ok {
+				println("OKDRAW")
+				e.Draw()
 			}
 		}
+		scene.Player.Draw()
 
 		if config.DevMode {
 			deveff := sprite.Effects{
@@ -154,7 +149,7 @@ func (c *Context) Main(screen *display.Context, config Config) {
 			msg := "Dev Mode!\n"
 			msg += fmt.Sprintf("Camera Pos: %.0f, %.0f\n", cam.Pos[0], cam.Pos[1])
 			msg += fmt.Sprintf("Player {\n")
-			msg += fmt.Sprintf("  Pos: %.0f, %.0f\n", scene.Player.Pos[0], scene.Player.Pos[1])
+			msg += fmt.Sprintf("  Pos: %v\n", scene.Player.Pos())
 			msg += fmt.Sprintf("  Facing: %.0f\n", scene.Player.Facing)
 			msg += fmt.Sprintf("  Light: {\n")
 			msg += fmt.Sprintf("    Pos: %.0f, %.0f\n", scene.Player.Light.Pos[0], scene.Player.Light.Pos[1])
@@ -180,10 +175,12 @@ func loadMap(path string) (*Scene, error) {
 	if err != nil {
 		return &scene, err
 	}
+	scene.Sprites = append(scene.Sprites, playerSprite)
 	blockSprite, err := loadSpriteAsset("assets/block64x64.png", "assets/block64x64.normal.png", 1, 1)
 	if err != nil {
 		return &scene, err
 	}
+	scene.Sprites = append(scene.Sprites, blockSprite)
 
 	f, err := os.Open(path)
 	if err != nil {
@@ -207,25 +204,18 @@ func loadMap(path string) (*Scene, error) {
 		for _, c := range lines[i] {
 			switch c {
 			case '#':
-				_, err := block.New(float32(x), float32(y), blockSprite, &scene.Walls)
-				if err != nil {
-					panic(err)
-				}
+				scene.Walls = append(scene.Walls, block.New(float32(x), float32(y), blockSprite))
 			case 'S':
-				p, err := player.New(x, y, playerSprite, &scene.Sprites)
-				if err != nil {
-					panic(err)
-				}
-				scene.Player = p
+				scene.Player = player.New(x, y, playerSprite)
 			}
 			x += float32(blockSprite.Width)
 		}
 		x = 0
 		y += float32(blockSprite.Height)
 	}
-	for _, w := range scene.Walls {
-		scene.Sprites = append(scene.Sprites, w)
-	}
+	//for _, w := range scene.Walls {
+	//	scene.Sprites = append(scene.Sprites, w)
+	//}
 
 	return &scene, nil
 }

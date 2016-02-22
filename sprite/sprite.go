@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// Package sprite manages images
 
+// Package sprite manages images
 package sprite
 
 import (
@@ -26,7 +26,6 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/gen"
 	"github.com/hurricanerix/shade/light"
 )
@@ -38,10 +37,9 @@ func init() {
 
 // Sprite TODO doc
 type Sprite interface {
-	// TODO rename this to something more interfacer
-	Bind(uint32) error
-	Update(float32, []entity.Entity)
-	Draw(*Effects)
+	Bind(prog uint32) error
+	//Update(float32, []entity.Entity)
+	Draw(pos mgl32.Vec3, efx *Effects)
 }
 
 // Context TODO doc

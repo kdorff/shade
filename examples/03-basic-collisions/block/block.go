@@ -56,14 +56,6 @@ func (b Block) Pos() *mgl32.Vec3 {
 	return &b.pos
 }
 
-func (b Block) Type() string {
-	return "block"
-}
-
-func (b Block) Label() string {
-	return ""
-}
-
 // Bind TODO doc
 func (b *Block) Bind(program uint32) error {
 	return b.Sprite.Bind(program)
