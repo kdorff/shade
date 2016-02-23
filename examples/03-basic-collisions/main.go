@@ -16,10 +16,8 @@
 package main
 
 import (
-	"fmt"
 	_ "image/png"
 	"log"
-	"reflect"
 	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -76,30 +74,23 @@ func main() {
 		panic(err)
 	}
 	blockSprite.Bind(screen.Program)
-	objects = append(objects, block.New(0, float32(windowWidth)/4, float32(windowHeight)/2, blockSprite))
+	objects = append(objects, block.New(0, float32(windowWidth)/6, float32(windowHeight)/2, blockSprite, *font))
 
 	ballSprite, err := loadSprite("assets/ball.png", "", 1, 1)
 	if err != nil {
 		panic(err)
 	}
 	ballSprite.Bind(screen.Program)
-	objects = append(objects, ball.New(float32(windowWidth)/2, float32(windowHeight)/2, ballSprite))
+	objects = append(objects, ball.New(float32(windowWidth)/2, float32(windowHeight)/2, ballSprite, *font))
 
 	//shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Height) / 2}, float32(s.Width)/2),
-	tmpSprites := []*sprite.Context{blockSprite, ballSprite}
-	tmpShapes := []*shapes.Shape{
-		shapes.NewRect(0, float32(blockSprite.Width), 0, float32(blockSprite.Height)),
-		shapes.NewCircle(mgl32.Vec2{float32(ballSprite.Width) / 2, float32(ballSprite.Height) / 2}, float32(ballSprite.Width)/2),
+	tmpSprites := []sprite.Context{*blockSprite, *ballSprite}
+	tmpShapes := []shapes.Shape{
+		*shapes.NewRect(0, float32(blockSprite.Width), 0, float32(blockSprite.Height)),
+		*shapes.NewCircle(mgl32.Vec2{float32(ballSprite.Width) / 2, float32(ballSprite.Height) / 2}, float32(ballSprite.Width)/2),
 	}
-	pl, err := player.New(0, 0, tmpSprites, tmpShapes, nil)
-	if err != nil {
-		panic(err)
-	}
-	efx := sprite.Effects{
-		Scale: mgl32.Vec3{2.0, 2.0, 1.0},
-	}
+	pl := player.New(0, 0, tmpSprites, tmpShapes, *font)
 
-	var msg string
 	//	sprites.Bind(screen.Program)
 	for running := true; running; {
 		dt := clock.Tick(30)
@@ -124,76 +115,21 @@ func main() {
 				pl.NextShape()
 			}
 			if !event.KeyEvent {
-				pl.SetPos(&mgl32.Vec3{event.X, float32(windowHeight) - event.Y, 1.0})
+				pl.SetPos(mgl32.Vec3{event.X, float32(windowHeight) - event.Y, 1.0})
 			}
 		}
 
 		for _, e := range objects {
-			d, ok := e.(entity.Entity)
-			if ok {
-				d.Draw()
-
-				// TODO: Maybe compare the types rather than converted strings
-				if reflect.TypeOf(d).String() == "*block.Block" {
-					tmp := e.(*block.Block)
-					pos := tmp.Pos()
-					msg = fmt.Sprintf("Pos: (%.0f,%.0f)\n", pos[0], pos[1])
-					msg += fmt.Sprintf("Data: [\n")
-					msg += fmt.Sprintf("  Left: %.0f\n", tmp.Shape.Data[0])
-					msg += fmt.Sprintf("  Right: %.0f\n", tmp.Shape.Data[1])
-					msg += fmt.Sprintf("  Top: %.0f\n", tmp.Shape.Data[2])
-					msg += fmt.Sprintf("  Bottom: %.0f\n", tmp.Shape.Data[3])
-					msg += fmt.Sprintf("]\n")
-					//_, h := font.SizeText(&efx, msg)
-					font.DrawText(mgl32.Vec3{0, float32(windowHeight) - 16, 0}, &efx, msg)
-				} else {
-					tmp := e.(*ball.Ball)
-					pos := tmp.Pos()
-					msg = fmt.Sprintf("Pos: (%.0f,%.0f)\n", pos[0], pos[1])
-					msg += fmt.Sprintf("Data: [\n")
-					msg += fmt.Sprintf("  Center: (%.0f, %.0f)\n", tmp.Shape.Data[0], tmp.Shape.Data[1])
-					msg += fmt.Sprintf("  Radius: %.0f\n", tmp.Shape.Data[2])
-					msg += fmt.Sprintf("]\n")
-					w, _ := font.SizeText(&efx, msg)
-					font.DrawText(mgl32.Vec3{float32(windowWidth) - w, float32(windowHeight) - 16, 0}, &efx, msg)
-				}
+			if u, ok := e.(entity.Updater); ok {
+				u.Update(dt, nil)
 			}
-
+			if d, ok := e.(entity.Drawer); ok {
+				d.Draw()
+			}
 		}
 
 		pl.Update(dt/1000.0, objects)
 		pl.Draw()
-
-		pos := pl.Pos()
-		msg = fmt.Sprintf("(%.0f,%.0f)\n", pos[0], pos[1])
-		if pl.Collision == nil {
-			msg += fmt.Sprintf("Collision: nil\n")
-		} else {
-			c, ok := pl.Collision.Hit.(entity.Entity)
-			if ok {
-				msg += fmt.Sprintf("Collision: {\n")
-				msg += fmt.Sprintf("  Type: %T\n", c)
-				msg += fmt.Sprintf("  Dir: (%.1f,%.1f,%.1f)\n", pl.Collision.Dir[0], pl.Collision.Dir[1], pl.Collision.Dir[2])
-				msg += fmt.Sprintf("}\n")
-			}
-		}
-		b := pl.Bounds()
-
-		if b.Type == "rect" {
-			msg += fmt.Sprintf("Data: [\n")
-			msg += fmt.Sprintf("  Left: %.0f\n", b.Data[0])
-			msg += fmt.Sprintf("  Right: %.0f\n", b.Data[1])
-			msg += fmt.Sprintf("  Top: %.0f\n", b.Data[2])
-			msg += fmt.Sprintf("  Bottom: %.0f\n", b.Data[3])
-			msg += fmt.Sprintf("]\n")
-		} else {
-			msg += fmt.Sprintf("Data: [\n")
-			msg += fmt.Sprintf("  Center: (%.0f, %.0f)\n", b.Data[0], b.Data[1])
-			msg += fmt.Sprintf("  Radius: %.0f\n", b.Data[2])
-			msg += fmt.Sprintf("]\n")
-		}
-		pos = pl.Pos()
-		font.DrawText(mgl32.Vec3{pos[0], pos[1] - 16, 0}, &efx, msg)
 
 		screen.Flip()
 
