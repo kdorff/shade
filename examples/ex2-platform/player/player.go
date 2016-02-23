@@ -165,5 +165,5 @@ func (p *Player) Update(dt float32, group *[]entity.Entity) {
 func (p *Player) Draw() {
 	//e *sprite.Effects) {
 	//p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.Pos, e)
-	p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.pos, nil)
+	p.Sprite.DrawFrame(mgl32.Vec2{0, p.Facing}, p.pos, nil)
 }

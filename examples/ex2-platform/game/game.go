@@ -180,7 +180,7 @@ func (c *Context) Main(screen *display.Context, config Config) {
 func loadMap(path string) (*Scene, error) {
 	scene := Scene{}
 
-	playerSprite, err := loadSpriteAsset("assets/gopher128x128.png", "assets/gopher128x128.normal.png", 1, 2)
+	playerSprite, err := loadSpriteAsset("assets/gopher128x128.png", "assets/gopher128x128.normal.png", 3, 2)
 	if err != nil {
 		return &scene, err
 	}
