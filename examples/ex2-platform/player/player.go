@@ -40,7 +40,8 @@ type Player struct {
 	Sprite   *sprite.Context
 	Light    *light.Positional
 	Facing   float32
-	resting  bool
+	Resting  bool
+	Walking  bool
 	dy       float32
 	leftKey  bool
 	rightKey bool
@@ -105,18 +106,21 @@ func (p *Player) Bind(program uint32) error {
 // Update TODO doc
 func (p *Player) Update(dt float32, group *[]entity.Entity) {
 	lastPos := mgl32.Vec3{p.pos[0], p.pos[1], p.pos[2]}
+	p.Walking = false
 
 	if p.leftKey {
 		p.pos[0] -= 300.0 * dt
 		p.Light.Pos[0] = p.pos[0]
 		p.Facing = 1
+		p.Walking = true
 	}
 	if p.rightKey {
 		p.pos[0] += 300.0 * dt
 		p.Facing = 2
 		p.Light.Pos[0] = p.pos[0] + float32(p.Sprite.Width)
+		p.Walking = true
 	}
-	if p.resting && p.jumpKey {
+	if p.Resting && p.jumpKey {
 		p.dy = 1500.0
 	}
 	p.dy = float32(math.Min(float64(1500.0), float64(p.dy-40.0)))
@@ -124,10 +128,10 @@ func (p *Player) Update(dt float32, group *[]entity.Entity) {
 	p.pos[1] += p.dy * dt
 
 	newPos := &p.pos
-	p.resting = false
+	p.Resting = false
 
 	if p.pos[1] < 127 {
-		p.resting = true
+		p.Resting = true
 		p.pos[1] = 128
 		p.dy = 0.0
 	}
@@ -152,18 +156,22 @@ func (p *Player) Update(dt float32, group *[]entity.Entity) {
 			newPos[1] = pos[1]
 		} else if c.Dir[1] < -0.5 {
 			// Hit bottom of tile
-			p.resting = true
+			p.Resting = true
 			newPos[1] = pos[1] + 64 + 1
 			p.dy = 0.0
 		}
 	}
 	p.Light.Pos[1] = p.pos[1] + float32(p.Sprite.Height)
-
 }
 
 // Draw TODO doc
 func (p *Player) Draw() {
+	if !p.Walking || !p.Resting {
+		p.Sprite.DrawFrame(mgl32.Vec2{0, p.Facing}, p.pos, nil)
+		return
+	}
 	//e *sprite.Effects) {
 	//p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.Pos, e)
-	p.Sprite.DrawFrame(mgl32.Vec2{0, p.Facing}, p.pos, nil)
+	frame := float32(int(p.dy) % 2)
+	p.Sprite.DrawFrame(mgl32.Vec2{frame + 1, p.Facing}, p.pos, nil)
 }

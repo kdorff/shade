@@ -124,7 +124,7 @@ func (c *Context) Main(screen *display.Context, config Config) {
 
 		for _, e := range scene.Objects {
 			if u, ok := e.(entity.Updater); ok {
-				u.Update(dt, &scene.Objects)
+				u.Update(dt/1000, &scene.Objects)
 			}
 			if d, ok := e.(entity.Drawer); ok {
 				d.Draw()
@@ -163,6 +163,8 @@ func (c *Context) Main(screen *display.Context, config Config) {
 			msg += fmt.Sprintf("Player {\n")
 			msg += fmt.Sprintf("  Pos: %v\n", scene.Player.Pos())
 			msg += fmt.Sprintf("  Facing: %.0f\n", scene.Player.Facing)
+			msg += fmt.Sprintf("  Resting: %t\n", scene.Player.Resting)
+			msg += fmt.Sprintf("  Walking: %t\n", scene.Player.Walking)
 			msg += fmt.Sprintf("  Light: {\n")
 			msg += fmt.Sprintf("    Pos: %.0f, %.0f\n", scene.Player.Light.Pos[0], scene.Player.Light.Pos[1])
 			msg += fmt.Sprintf("  }\n")
