@@ -65,12 +65,12 @@ func New(x, y float32, s *sprite.Context) *Player {
 	return &p
 }
 
-func (p Player) Bounds() *shapes.Shape {
-	return p.Shape
+func (p Player) Bounds() shapes.Shape {
+	return *p.Shape
 }
 
-func (p Player) Pos() *mgl32.Vec3 {
-	return &p.pos
+func (p Player) Pos() mgl32.Vec3 {
+	return p.pos
 }
 
 // HandleEvent TODO doc
@@ -103,7 +103,7 @@ func (p *Player) Bind(program uint32) error {
 }
 
 // Update TODO doc
-func (p *Player) Update(dt float32, g []entity.Collider) {
+func (p *Player) Update(dt float32, group *[]entity.Entity) {
 	lastPos := mgl32.Vec3{p.pos[0], p.pos[1], p.pos[2]}
 
 	if p.leftKey {
@@ -132,7 +132,13 @@ func (p *Player) Update(dt float32, g []entity.Collider) {
 		p.dy = 0.0
 	}
 
-	for _, c := range *entity.Collide(p, &g, false) {
+	var cgroup []entity.Collider
+	for i := range *group {
+		if c, ok := (*group)[i].(entity.Collider); ok {
+			cgroup = append(cgroup, c)
+		}
+	}
+	for _, c := range entity.Collide(p, &cgroup, false) {
 		pos := c.Hit.Pos()
 
 		if c.Dir[0] > 0.5 {

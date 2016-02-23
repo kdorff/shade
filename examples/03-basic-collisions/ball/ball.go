@@ -40,7 +40,7 @@ type Ball struct {
 }
 
 // New TODO doc
-func New(x, y float32, s *sprite.Context, f fonts.Context) *Ball {
+func New(x, y float32, s *sprite.Context, f fonts.Context) Ball {
 	// TODO should take a group in as a argument
 	b := Ball{
 		pos:    mgl32.Vec3{x, y, 1.0},
@@ -49,7 +49,7 @@ func New(x, y float32, s *sprite.Context, f fonts.Context) *Ball {
 		Shape:  shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Height) / 2}, float32(s.Width)/2),
 	}
 
-	return &b
+	return b
 }
 
 // Bind TODO doc

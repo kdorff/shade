@@ -60,8 +60,6 @@ func main() {
 	}
 
 	objects := []entity.Entity{}
-	balls := []entity.Entity{}
-	walls := []entity.Entity{}
 
 	blockSprite, err := loadSprite("assets/block32x32.png", "", 2, 1)
 	if err != nil {
@@ -72,33 +70,14 @@ func main() {
 	for x := 0; float32(x) < screen.Width; x += 32 {
 		for y := 0; float32(y) < screen.Height; y += 32 {
 			if x == 0 || x == 640-32 || y == 0 || y == 480-32 {
-				_, err := block.New(float32(x), float32(y), blockSprite, &walls)
-				if err != nil {
-					panic(err)
-				}
+				objects = append(objects, block.New(float32(x), float32(y), blockSprite))
 			}
 		}
 	}
-	_, err = block.New(float32(blockSprite.Width)*4, float32(blockSprite.Height)*4, blockSprite, &walls)
-	if err != nil {
-		panic(err)
-	}
-	_, err = block.New(float32(blockSprite.Width)*4, windowHeight-float32(blockSprite.Height)*5, blockSprite, &walls)
-	if err != nil {
-		panic(err)
-	}
-	_, err = block.New(windowWidth-float32(blockSprite.Width)*5, float32(blockSprite.Height)*4, blockSprite, &walls)
-	if err != nil {
-		panic(err)
-	}
-	_, err = block.New(windowWidth-float32(blockSprite.Width)*5, windowHeight-float32(blockSprite.Height)*5, blockSprite, &walls)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, w := range walls {
-		objects = append(objects, w)
-	}
+	objects = append(objects, block.New(float32(blockSprite.Width)*4, float32(blockSprite.Height)*4, blockSprite))
+	objects = append(objects, block.New(float32(blockSprite.Width)*4, windowHeight-float32(blockSprite.Height)*5, blockSprite))
+	objects = append(objects, block.New(windowWidth-float32(blockSprite.Width)*5, float32(blockSprite.Height)*4, blockSprite))
+	objects = append(objects, block.New(windowWidth-float32(blockSprite.Width)*5, windowHeight-float32(blockSprite.Height)*5, blockSprite))
 
 	ballSprite, err := loadSprite("assets/ball.png", "", 1, 1)
 	if err != nil {
@@ -109,8 +88,7 @@ func main() {
 	rand.Seed(time.Now().Unix())
 	//rand.Seed(1)
 
-	b := addBall(screen.Width/2, screen.Height/2, ballSprite, &balls)
-	objects = append(objects, b)
+	objects = append(objects, addBall(screen.Width/2, screen.Height/2, ballSprite))
 
 	//	sprites.Bind(screen.Program)
 	for running := true; running; {
@@ -133,22 +111,16 @@ func main() {
 			}
 
 			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeySpace {
-				b := addBall(screen.Width/2, screen.Height/2, ballSprite, &balls)
-				objects = append(objects, b)
+				objects = append(objects, addBall(screen.Width/2, screen.Height/2, ballSprite))
 			}
 		}
 
-		for _, b := range balls {
-			bs := b.(*ball.Ball)
-			bs.Update(dt/1000.0, objects)
-			bs.Draw()
-		}
-		for _, o := range objects {
-			switch o.Type() {
-			case "ball":
-				o.(*ball.Ball).Draw()
-			case "block":
-				o.(*block.Block).Draw()
+		for _, e := range objects {
+			if u, ok := e.(entity.Updater); ok {
+				u.Update(dt/1000, &objects)
+			}
+			if d, ok := e.(entity.Drawer); ok {
+				d.Draw()
 			}
 		}
 
@@ -159,14 +131,11 @@ func main() {
 	}
 }
 
-func addBall(x, y float32, s *sprite.Context, g *[]entity.Entity) *ball.Ball {
+func addBall(x, y float32, s *sprite.Context) *ball.Ball {
 	speed := float32(rand.Intn(500) + 200)
 	angle := float32(rand.Intn(360))
-	b, err := ball.New(x, y, speed, angle, s, g)
-	if err != nil {
-		panic(err)
-	}
-	return b
+	ball := ball.New(x, y, speed, angle, s)
+	return &ball
 }
 
 func loadSprite(colorName, normalName string, framesWide, framesHigh int) (*sprite.Context, error) {

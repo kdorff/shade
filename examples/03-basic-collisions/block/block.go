@@ -41,7 +41,7 @@ type Block struct {
 }
 
 // New TODO doc
-func New(style, x, y float32, s *sprite.Context, f fonts.Context) *Block {
+func New(style, x, y float32, s *sprite.Context, f fonts.Context) Block {
 	b := Block{
 		pos:    mgl32.Vec3{x, y, 1},
 		Sprite: s,
@@ -49,7 +49,7 @@ func New(style, x, y float32, s *sprite.Context, f fonts.Context) *Block {
 		Style:  style,
 		Shape:  shapes.NewRect(0, float32(s.Width), 0, float32(s.Height)),
 	}
-	return &b
+	return b
 }
 
 func (b Block) Bounds() shapes.Shape {

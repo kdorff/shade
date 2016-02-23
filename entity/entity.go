@@ -27,7 +27,7 @@ type Entity interface{}
 
 // Updater ...
 type Updater interface {
-	Update(dt float32, group []Entity)
+	Update(dt float32, group *[]Entity)
 }
 
 // Drawer ...
@@ -47,8 +47,9 @@ type Collision struct {
 	Dir mgl32.Vec3
 }
 
-// Collide target with all enttities in group, returning all hits.
-func Collide(target Collider, group []Collider) (hits []Collision) {
+// Collide target with all enttities in group, returning all hits.  If cleanup is true
+// hits are also removed from the group.
+func Collide(target Collider, group *[]Collider, cleanup bool) (hits []Collision) {
 	if target == nil || group == nil {
 		return hits
 	}
@@ -62,10 +63,14 @@ func Collide(target Collider, group []Collider) (hits []Collision) {
 	var dir mgl32.Vec3
 	var ep mgl32.Vec3
 	var eb shapes.Shape
-	for _, e := range group {
+	for i := range *group {
+		if target == (*group)[i] {
+			// Don't match if target is in group
+			continue
+		}
 		hit = false
-		ep = e.Pos()
-		eb = e.Bounds()
+		ep = (*group)[i].Pos()
+		eb = (*group)[i].Bounds()
 
 		if tType == eb.Type && tType == "rect" {
 			hit, dir = rectTest(tPos, ep, tBounds, eb, true)
@@ -77,7 +82,7 @@ func Collide(target Collider, group []Collider) (hits []Collision) {
 		}
 
 		if hit {
-			hits = append(hits, Collision{Hit: e, Dir: dir})
+			hits = append(hits, Collision{Hit: (*group)[i], Dir: dir})
 		}
 	}
 	return hits

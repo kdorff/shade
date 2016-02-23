@@ -45,7 +45,8 @@ func init() {
 }
 
 func main() {
-	screen, err := display.SetMode("03-collisions", windowWidth, windowHeight)
+	// Setup
+	screen, err := display.SetMode("03-basic-collisions", windowWidth, windowHeight)
 	if err != nil {
 		log.Fatalln("failed to set display mode:", err)
 	}
@@ -67,7 +68,7 @@ func main() {
 		panic(err)
 	}
 
-	objects := []entity.Collider{}
+	objects := []entity.Entity{}
 
 	blockSprite, err := loadSprite("assets/block32x32.png", "", 2, 1)
 	if err != nil {
@@ -90,8 +91,8 @@ func main() {
 		*shapes.NewCircle(mgl32.Vec2{float32(ballSprite.Width) / 2, float32(ballSprite.Height) / 2}, float32(ballSprite.Width)/2),
 	}
 	pl := player.New(0, 0, tmpSprites, tmpShapes, *font)
+	objects = append(objects, &pl)
 
-	//	sprites.Bind(screen.Program)
 	for running := true; running; {
 		dt := clock.Tick(30)
 
@@ -121,15 +122,12 @@ func main() {
 
 		for _, e := range objects {
 			if u, ok := e.(entity.Updater); ok {
-				u.Update(dt, nil)
+				u.Update(dt, &objects)
 			}
 			if d, ok := e.(entity.Drawer); ok {
 				d.Draw()
 			}
 		}
-
-		pl.Update(dt/1000.0, objects)
-		pl.Draw()
 
 		screen.Flip()
 

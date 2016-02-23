@@ -11,56 +11,41 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// Package block TODO doc
 
-package block
+// Package ball manages a ball's state
+
+package ball
 
 import (
-	"runtime"
-
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/hurricanerix/shade/shapes"
+	"github.com/hurricanerix/shade/entity"
+	"github.com/hurricanerix/shade/examples/ex1-pong/player"
 	"github.com/hurricanerix/shade/sprite"
 )
 
-func init() {
-	// GLFW event handling must run on the main OS thread
-	runtime.LockOSThread()
-}
-
-// Player TODO doc
-type Block struct {
+// Ball state
+type Ball struct {
 	pos    mgl32.Vec3
+	Owner  *player.Player
 	Sprite *sprite.Context
-	Shape  *shapes.Shape
 }
 
-// New TODO doc
-func New(x, y float32, s *sprite.Context) *Block {
-	b := Block{
-		pos:    mgl32.Vec3{x, y, 1.0},
+func New(pos, dir mgl32.Vec3, owner *player.Player, s *sprite.Context) *Ball {
+	b := Ball{
+		pos:    pos,
 		Sprite: s,
-		Shape:  shapes.NewRect(0, float32(s.Width), 0, float32(s.Height)),
+		Owner:  owner,
 	}
 	return &b
 }
 
-func (b Block) Bounds() shapes.Shape {
-	return *b.Shape
-}
-
-func (b Block) Pos() mgl32.Vec3 {
+func (b Ball) Pos() mgl32.Vec3 {
 	return b.pos
 }
 
-// Bind TODO doc
-func (b *Block) Bind(program uint32) error {
-	return b.Sprite.Bind(program)
+func (b *Ball) Update(dt float32, g *[]entity.Entity) {
 }
 
-// Draw TODO doc
-func (b Block) Draw() {
-	//e *sprite.Effects) {
-	//b.Sprite.Draw(b.Pos, e)
-	b.Sprite.Draw(b.pos, nil)
+func (b Ball) Draw() {
+	b.Sprite.DrawFrame(mgl32.Vec2{0, 0}, b.pos, nil)
 }

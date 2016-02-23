@@ -32,36 +32,24 @@ func init() {
 
 // Ball TODO doc
 type Ball struct {
-	Pos    mgl32.Vec3
+	pos    mgl32.Vec3
 	Sprite *sprite.Context
-	Shape  *shapes.Shape
+	Shape  shapes.Shape
 	dx     float32
 	dy     float32
 }
 
 // New TODO doc
-func New(x, y, speed, angle float32, s *sprite.Context, group *[]entity.Entity) (*Ball, error) {
+func New(x, y, speed, angle float32, s *sprite.Context) Ball {
 	// TODO should take a group in as a argument
 	b := Ball{
-		Pos:    mgl32.Vec3{x, y, 1.0},
+		pos:    mgl32.Vec3{x, y, 1.0},
 		Sprite: s,
-		Shape:  shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Width) / 2}, float32(s.Width)/2),
+		Shape:  *shapes.NewCircle(mgl32.Vec2{float32(s.Width) / 2, float32(s.Width) / 2}, float32(s.Width)/2),
 	}
-
 	b.dx = float32(math.Cos(float64(angle))) * speed
 	b.dy = float32(math.Sin(float64(angle))) * speed
-
-	// TODO: this should probably be added outside of ball
-	*group = append(*group, &b)
-	return &b, nil
-}
-
-func (b Ball) Type() string {
-	return "ball"
-}
-
-func (b Ball) Label() string {
-	return ""
+	return b
 }
 
 // Bind TODO doc
@@ -69,64 +57,66 @@ func (b *Ball) Bind(program uint32) error {
 	return b.Sprite.Bind(program)
 }
 
-func (b Ball) Bounds() *shapes.Shape {
+func (b Ball) Bounds() shapes.Shape {
 	return b.Shape
 }
 
-func (b Ball) Pos2() *mgl32.Vec3 {
-	return &b.Pos
+func (b Ball) Pos() mgl32.Vec3 {
+	return b.pos
 }
 
 // Update TODO doc
-func (b *Ball) Update(dt float32, g []entity.Entity) {
-	lastPos := mgl32.Vec3{b.Pos[0], b.Pos[1], b.Pos[2]}
+func (b *Ball) Update(dt float32, group *[]entity.Entity) {
+	lastPos := mgl32.Vec3{b.pos[0], b.pos[1], b.pos[2]}
 	switchDx := false
 	switchDy := false
 
-	b.Pos[0] += b.dx * dt
-	b.Pos[1] += b.dy * dt
+	b.pos[0] += b.dx * dt
+	b.pos[1] += b.dy * dt
 
-	for _, c := range *sprite.Collide(b, &g, false) {
-		eb := c.Entity.Bounds()
-		if eb == nil {
-			continue
+	var cgroup []entity.Collider
+	for i := range *group {
+		if c, ok := (*group)[i].(entity.Collider); ok {
+			cgroup = append(cgroup, c)
 		}
-		ep := c.Entity.Pos2()
-		if ep == nil {
-			continue
-		}
+	}
+
+	for _, c := range entity.Collide(b, &cgroup, false) {
+
+		eb := c.Hit.Bounds()
+		//ep := c.Hit.Pos()
 
 		if math.Abs(float64(c.Dir[0])) > math.Abs(float64(c.Dir[1])) {
 			switchDx = true
 			if eb.Type == "circle" {
-				c.Entity.(*Ball).dx *= -1
+				c.Hit.(*Ball).dx *= -1
 			}
 		} else if math.Abs(float64(c.Dir[1])) > math.Abs(float64(c.Dir[0])) {
 			switchDy = true
 			if eb.Type == "circle" {
-				c.Entity.(*Ball).dx *= -1
-				c.Entity.(*Ball).dy *= -1
+				c.Hit.(*Ball).dx *= -1
+				c.Hit.(*Ball).dy *= -1
 			}
 		} else {
 			switchDx = true
 			switchDy = true
 			if eb.Type == "circle" {
-				c.Entity.(*Ball).dx *= -1
-				c.Entity.(*Ball).dy *= -1
+				c.Hit.(*Ball).dx *= -1
+				c.Hit.(*Ball).dy *= -1
 			}
 		}
 	}
 	if switchDx {
-		b.Pos[0] = lastPos[0]
+		b.pos[0] = lastPos[0]
 		b.dx *= -1
 	}
 	if switchDy {
-		b.Pos[1] = lastPos[1]
+		b.pos[1] = lastPos[1]
 		b.dy *= -1
 	}
 }
 
 // Draw TODO doc
 func (b Ball) Draw() {
-	b.Sprite.Draw(b.Pos, nil)
+	b.Sprite.Draw(b.pos, nil)
 }

@@ -60,7 +60,8 @@ func New(screen *display.Context) (Context, error) {
 type Scene struct {
 	Sprites []sprite.Sprite
 	Player  *player.Player
-	Walls   []entity.Collider
+	Objects []entity.Entity
+	//Walls   []entity.Collider
 }
 
 // Main TODO doc
@@ -79,7 +80,7 @@ func (c *Context) Main(screen *display.Context, config Config) {
 	if err != nil {
 		panic(err)
 	}
-	cam.Move(*scene.Player.Pos())
+	cam.Move(scene.Player.Pos())
 
 	clock, err := clock.New()
 	if err != nil {
@@ -119,9 +120,18 @@ func (c *Context) Main(screen *display.Context, config Config) {
 		}
 
 		//cam.Move(scene.Player.Pos())
-		cam.Follow(*scene.Player.Pos(), 0.1)
+		cam.Follow(scene.Player.Pos(), 0.1)
 
-		scene.Player.Update(dt/1000.0, scene.Walls)
+		for _, e := range scene.Objects {
+			if u, ok := e.(entity.Updater); ok {
+				u.Update(dt, &scene.Objects)
+			}
+			if d, ok := e.(entity.Drawer); ok {
+				d.Draw()
+			}
+		}
+
+		//scene.Player.Update(dt/1000.0, scene.Walls)
 
 		/*
 			effect := sprite.Effects{
@@ -131,14 +141,16 @@ func (c *Context) Main(screen *display.Context, config Config) {
 				Light:          *scene.Player.Light}
 		*/
 
-		for _, w := range scene.Walls {
-			e, ok := w.(entity.Entity)
-			if ok {
-				println("OKDRAW")
-				e.Draw()
+		/*
+			for _, w := range scene.Walls {
+				e, ok := w.(entity.Entity)
+				if ok {
+					println("OKDRAW")
+					e.Draw()
+				}
 			}
-		}
-		scene.Player.Draw()
+			scene.Player.Draw()
+		*/
 
 		if config.DevMode {
 			deveff := sprite.Effects{
@@ -167,9 +179,6 @@ func (c *Context) Main(screen *display.Context, config Config) {
 // sprites, player, collidable
 func loadMap(path string) (*Scene, error) {
 	scene := Scene{}
-
-	//scene.Sprites = []entity.Entity
-	//scene.Walls = []entity.Entity
 
 	playerSprite, err := loadSpriteAsset("assets/gopher128x128.png", "assets/gopher128x128.normal.png", 1, 2)
 	if err != nil {
@@ -204,18 +213,16 @@ func loadMap(path string) (*Scene, error) {
 		for _, c := range lines[i] {
 			switch c {
 			case '#':
-				scene.Walls = append(scene.Walls, block.New(float32(x), float32(y), blockSprite))
+				scene.Objects = append(scene.Objects, block.New(float32(x), float32(y), blockSprite))
 			case 'S':
 				scene.Player = player.New(x, y, playerSprite)
+				scene.Objects = append(scene.Objects, scene.Player)
 			}
 			x += float32(blockSprite.Width)
 		}
 		x = 0
 		y += float32(blockSprite.Height)
 	}
-	//for _, w := range scene.Walls {
-	//	scene.Sprites = append(scene.Sprites, w)
-	//}
 
 	return &scene, nil
 }

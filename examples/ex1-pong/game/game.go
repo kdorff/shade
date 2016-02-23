@@ -16,6 +16,7 @@
 package game
 
 import (
+	"fmt"
 	"runtime"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -23,9 +24,13 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/camera"
 	"github.com/hurricanerix/shade/display"
+	"github.com/hurricanerix/shade/entity"
 	"github.com/hurricanerix/shade/events"
+	"github.com/hurricanerix/shade/examples/ex1-pong/ball"
+	"github.com/hurricanerix/shade/examples/ex1-pong/player"
 	"github.com/hurricanerix/shade/fonts"
 	"github.com/hurricanerix/shade/sprite"
+	"github.com/hurricanerix/shade/time/clock"
 )
 
 func init() {
@@ -56,16 +61,32 @@ func (c *Context) Main(screen *display.Context, config Config) {
 	if err != nil {
 		panic(err)
 	}
-	cam.Offset = mgl32.Vec2{200, 100}
-	cam.TopStop = 64 * 6.5 // TODO: should be 64 x 14
-	cam.RightStop = 64 * 54
-	cam.LeftStop = 1
 	cam.Bind(c.Screen.Program)
 
-	//clock, err := clock.New()
-	//if err != nil {
-	//panic(err)
-	//}
+	clock, err := clock.New()
+	if err != nil {
+		panic(err)
+	}
+
+	paddleSprite, err := loadSpriteAsset("assets/paddle.png", "", 1, 3)
+	if err != nil {
+		panic(err)
+	}
+	paddleSprite.Bind(screen.Program)
+
+	ballSprite, err := loadSpriteAsset("assets/ball.png", "", 1, 1)
+	if err != nil {
+		panic(err)
+	}
+	ballSprite.Bind(screen.Program)
+
+	var objects []entity.Entity
+	player1 := player.New(cam.Left+15, screen.Height/4, paddleSprite)
+	objects = append(objects, player1)
+	player2 := player.New(cam.Right-15, screen.Height/4, paddleSprite)
+	objects = append(objects, player2)
+	ball := ball.New(mgl32.Vec3{screen.Width / 4, screen.Height / 2, 0.0}, mgl32.Vec3{0, 1, 0}, player1, ballSprite)
+	objects = append(objects, ball)
 
 	font, err := fonts.SimpleASCII()
 	if err != nil {
@@ -77,7 +98,7 @@ func (c *Context) Main(screen *display.Context, config Config) {
 
 		screen.Fill(0, 0, 0)
 
-		//dt := clock.Tick(30)
+		dt := clock.Tick(30)
 
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -94,6 +115,15 @@ func (c *Context) Main(screen *display.Context, config Config) {
 			}
 		}
 
+		for _, e := range objects {
+			if u, ok := e.(entity.Updater); ok {
+				u.Update(dt, &objects)
+			}
+			if d, ok := e.(entity.Drawer); ok {
+				d.Draw()
+			}
+		}
+
 		if config.DevMode {
 			deveff := sprite.Effects{
 				EnableLighting: false,
@@ -101,6 +131,10 @@ func (c *Context) Main(screen *display.Context, config Config) {
 				Tint:           mgl32.Vec4{1.0, 1.0, 1.0, 1.0},
 			}
 			msg := "Dev Mode!\n"
+			msg += fmt.Sprintf("Player1: %v\n", player1.Pos())
+			msg += fmt.Sprintf("Player2: %v\n", player2.Pos())
+			msg += fmt.Sprintf("Ball: %v\n", ball.Pos())
+			msg += fmt.Sprintf("Owner: %v\n", ball.Owner)
 			font.DrawText(mgl32.Vec3{cam.Left + 20, cam.Top - 40, 0}, &deveff, msg)
 		}
 		screen.Flip()

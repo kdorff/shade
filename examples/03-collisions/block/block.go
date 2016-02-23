@@ -31,30 +31,28 @@ func init() {
 
 // Player TODO doc
 type Block struct {
-	Pos    mgl32.Vec3
+	pos    mgl32.Vec3
 	Sprite *sprite.Context
-	Shape  *shapes.Shape
+	Shape  shapes.Shape
 }
 
 // New TODO doc
-func New(x, y float32, s *sprite.Context, group *[]entity.Entity) (*Block, error) {
+func New(x, y float32, s *sprite.Context) Block {
 	// TODO should take a group in as a argument
 	b := Block{
-		Pos:    mgl32.Vec3{x, y, 1},
+		pos:    mgl32.Vec3{x, y, 1},
 		Sprite: s,
-		Shape:  shapes.NewRect(0, float32(s.Width), 0, float32(s.Height)),
+		Shape:  *shapes.NewRect(0, float32(s.Width), 0, float32(s.Height)),
 	}
-	// TODO: this should probably be added outside of player
-	*group = append(*group, &b)
-	return &b, nil
+	return b
 }
 
-func (b Block) Bounds() *shapes.Shape {
+func (b Block) Bounds() shapes.Shape {
 	return b.Shape
 }
 
-func (b Block) Pos2() *mgl32.Vec3 {
-	return &b.Pos
+func (b Block) Pos() mgl32.Vec3 {
+	return b.pos
 }
 
 func (b Block) Type() string {
@@ -77,5 +75,5 @@ func (b *Block) Update(dt float32, g []entity.Entity) {
 
 // Draw TODO doc
 func (b Block) Draw() {
-	b.Sprite.Draw(mgl32.Vec3{b.Pos[0], b.Pos[1], 0.0}, nil)
+	b.Sprite.Draw(mgl32.Vec3{b.pos[0], b.pos[1], 0.0}, nil)
 }

@@ -73,10 +73,16 @@ func (p Player) Bounds() shapes.Shape {
 }
 
 // Update TODO doc
-func (p *Player) Update(dt float32, g []entity.Collider) {
+func (p *Player) Update(dt float32, group *[]entity.Entity) {
 	p.Collision = nil
 	p.With = ""
-	for _, c := range entity.Collide(*p, g) {
+	var cgroup []entity.Collider
+	for i := range *group {
+		if c, ok := (*group)[i].(entity.Collider); ok {
+			cgroup = append(cgroup, c)
+		}
+	}
+	for _, c := range entity.Collide(p, &cgroup, false) {
 		p.Collision = &c
 	}
 }
