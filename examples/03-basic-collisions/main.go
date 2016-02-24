@@ -111,6 +111,11 @@ func main() {
 				running = false
 			}
 			if (event.Type == events.KeyDown || event.Type == events.KeyRepeat) && event.Key == glfw.KeySpace {
+				// Change the shape when the spacebar is pressed
+				pl.NextShape()
+			}
+			if event.Type == events.MouseButtonUp && event.MouseButton == glfw.MouseButton1 {
+				// Change the shape if the mouse button is pressed
 				pl.NextShape()
 			}
 			if event.Type == events.CursorPosition {

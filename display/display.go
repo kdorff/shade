@@ -90,6 +90,7 @@ func SetMode(title string, width, height int) (*Context, error) {
 
 	c.Window.MakeContextCurrent()
 	c.Window.SetKeyCallback(events.KeyCallback)
+	c.Window.SetMouseButtonCallback(events.MouseButtonCallback)
 	c.Window.SetCursorPosCallback(events.CursorPositionCallback)
 	c.Window.SetCloseCallback(events.WindowCloseCallback)
 
