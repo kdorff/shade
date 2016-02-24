@@ -110,17 +110,8 @@ func main() {
 				// Handle window close
 				running = false
 			}
-			if (event.Type == events.KeyDown || event.Type == events.KeyRepeat) && event.Key == glfw.KeySpace {
-				// Change the shape when the spacebar is pressed
-				pl.NextShape()
-			}
-			if event.Type == events.MouseButtonUp && event.MouseButton == glfw.MouseButton1 {
-				// Change the shape if the mouse button is pressed
-				pl.NextShape()
-			}
-			if event.Type == events.CursorPosition {
-				pl.SetPos(mgl32.Vec3{event.X, float32(windowHeight) - event.Y, 1.0})
-			}
+
+			pl.Handle(event)
 		}
 
 		for _, e := range objects {

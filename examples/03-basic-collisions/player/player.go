@@ -19,8 +19,10 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/hurricanerix/shade/entity"
+	"github.com/hurricanerix/shade/events"
 	"github.com/hurricanerix/shade/fonts"
 	"github.com/hurricanerix/shade/shapes"
 	"github.com/hurricanerix/shade/sprite"
@@ -52,6 +54,23 @@ func New(x, y float32, sprites []sprite.Context, shapes []shapes.Shape, font fon
 		current: 1,
 	}
 	return b
+}
+
+// Handle events
+func (p *Player) Handle(event events.Event) {
+	if (event.Type == events.KeyDown || event.Type == events.KeyRepeat) && event.Key == glfw.KeySpace {
+		// Change the shape when the spacebar is pressed
+		p.NextShape()
+	}
+	if event.Type == events.MouseButtonUp && event.MouseButton == glfw.MouseButton1 {
+		// Change the shape if the mouse button is pressed
+		p.NextShape()
+	}
+	if event.Type == events.CursorPosition {
+		//yypp.SetPos(mgl32.Vec3{event.X, float32(windowHeight) - event.Y, 1.0})
+		p.SetPos(mgl32.Vec3{event.X, event.Y, 1.0})
+	}
+
 }
 
 func (p Player) Pos() mgl32.Vec3 {
