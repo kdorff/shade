@@ -32,21 +32,24 @@ type Handler interface {
 }
 
 const (
-	CursorPosition = iota
-	KeyDown        = iota
-	KeyUp          = iota
-	KeyRepeat      = iota
-	WindowClose    = iota
+	CursorPosition  = iota
+	KeyDown         = iota
+	KeyUp           = iota
+	KeyRepeat       = iota
+	WindowClose     = iota
+	MouseButtonDown = iota
+	MouseButtonUp   = iota
 )
 
 type Event struct {
-	Type     int
-	Window   *glfw.Window
-	Key      glfw.Key
-	Scancode int
-	Mods     glfw.ModifierKey
-	X        float32
-	Y        float32
+	Type        int
+	Window      *glfw.Window
+	Key         glfw.Key
+	Scancode    int
+	Mods        glfw.ModifierKey
+	X           float32
+	Y           float32
+	MouseButton glfw.MouseButton
 }
 
 var events []Event
@@ -56,13 +59,14 @@ func Get() []Event {
 	var elist []Event
 	for i := range events {
 		elist = append(elist, Event{
-			Type:     events[i].Type,
-			Window:   events[i].Window,
-			Key:      events[i].Key,
-			Scancode: events[i].Scancode,
-			Mods:     events[i].Mods,
-			X:        events[i].X,
-			Y:        events[i].Y,
+			Type:        events[i].Type,
+			Window:      events[i].Window,
+			Key:         events[i].Key,
+			Scancode:    events[i].Scancode,
+			Mods:        events[i].Mods,
+			X:           events[i].X,
+			Y:           events[i].Y,
+			MouseButton: events[i].MouseButton,
 		})
 	}
 	events = nil
@@ -105,4 +109,20 @@ func WindowCloseCallback(w *glfw.Window) {
 		Type:   WindowClose,
 		Window: w,
 	})
+}
+
+// MouseButtonCallback  TODO: doc
+func MouseButtonCallback(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
+	e := Event{
+		Window:      w,
+		MouseButton: button,
+		Mods:        mods,
+	}
+	switch action {
+	case glfw.Press:
+		e.Type = MouseButtonUp
+	case glfw.Release:
+		e.Type = MouseButtonDown
+	}
+	events = append(events, e)
 }
