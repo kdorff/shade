@@ -78,22 +78,22 @@ func (p Player) Pos() mgl32.Vec3 {
 func (p *Player) Handle(event events.Event) {
 	// TODO: move this to SDK to handle things like holding Left & Right at the same time correctly
 
-	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyLeft {
+	if (event.Type == events.KeyDown || event.Type == events.KeyRepeat) && event.Key == glfw.KeyLeft {
 		p.leftKey = true
 	}
-	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyRight {
+	if (event.Type == events.KeyDown || event.Type == events.KeyRepeat) && event.Key == glfw.KeyRight {
 		p.rightKey = true
 	}
-	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeySpace {
+	if (event.Type == events.KeyDown || event.Type == events.KeyRepeat) && event.Key == glfw.KeySpace {
 		p.jumpKey = true
 	}
-	if event.Action == glfw.Release && event.Key == glfw.KeyLeft {
+	if event.Type == events.KeyUp && event.Key == glfw.KeyLeft {
 		p.leftKey = false
 	}
-	if event.Action == glfw.Release && event.Key == glfw.KeyRight {
+	if event.Type == events.KeyUp && event.Key == glfw.KeyRight {
 		p.rightKey = false
 	}
-	if event.Action == glfw.Release && event.Key == glfw.KeySpace {
+	if event.Type == events.KeyUp && event.Key == glfw.KeySpace {
 		p.jumpKey = false
 	}
 }
