@@ -99,18 +99,16 @@ func main() {
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-		// TODO refector events to be cleaner
-		if screen.Window.ShouldClose() {
-			running = !screen.Window.ShouldClose()
-		}
-
 		for _, event := range events.Get() {
-			if event.Action == glfw.Press && event.Key == glfw.KeyEscape {
-				running = false
-				event.Window.SetShouldClose(true)
+			if event.Type == events.KeyUp && event.Key == glfw.KeyEscape {
+				// Send window close event
+				screen.Close()
 			}
-
-			if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeySpace {
+			if event.Type == events.WindowClose {
+				// Handle window close
+				running = false
+			}
+			if (event.Type == events.KeyDown || event.Type == events.KeyRepeat) && event.Key == glfw.KeySpace {
 				objects = append(objects, addBall(screen.Width/2, screen.Height/2, ballSprite))
 			}
 		}

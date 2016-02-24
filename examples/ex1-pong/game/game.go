@@ -103,15 +103,14 @@ func (c *Context) Main(screen *display.Context, config Config) {
 		// TODO move this somewhere else (maybe a Clear method of display
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-		// TODO refector events to be cleaner
-		if screen.Window.ShouldClose() {
-			running = !screen.Window.ShouldClose()
-		}
-
 		for _, event := range events.Get() {
-			if event.Action == glfw.Press && event.Key == glfw.KeyEscape {
+			if event.Type == events.KeyUp && event.Key == glfw.KeyEscape {
+				// Send window close event
+				screen.Close()
+			}
+			if event.Type == events.WindowClose {
+				// Handle window close
 				running = false
-				event.Window.SetShouldClose(true)
 			}
 		}
 
