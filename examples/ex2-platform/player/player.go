@@ -46,6 +46,7 @@ type Player struct {
 	leftKey  bool
 	rightKey bool
 	jumpKey  bool
+	whichLeg int
 }
 
 // New TODO doc
@@ -142,23 +143,26 @@ func (p *Player) Update(dt float32, group *[]entity.Entity) {
 			cgroup = append(cgroup, c)
 		}
 	}
-	for _, c := range entity.Collide(p, &cgroup, false) {
+	collides := entity.Collide(p, &cgroup, false)
+	for _, c := range collides {
 		pos := c.Hit.Pos()
+		s := c.Hit.Bounds().Data
 
-		if c.Dir[0] > 0.5 {
-			newPos[0] = lastPos[0]
-		} else if c.Dir[0] < -0.5 {
+		if (c.Dir[1] > -0.7 || c.Dir[1] < 0.7) && (c.Dir[0] < -0.7 || c.Dir[0] > 0.7) {
 			newPos[0] = lastPos[0]
 		}
 
-		if c.Dir[1] > 0.5 {
-			// Hit top of tile
-			newPos[1] = pos[1]
-		} else if c.Dir[1] < -0.5 {
-			// Hit bottom of tile
-			p.Resting = true
-			newPos[1] = pos[1] + 64 + 1
-			p.dy = 0.0
+		if c.Dir[0] > -0.7 || c.Dir[0] < 0.7 {
+			if c.Dir[1] > 0.9 {
+				// Hit top of tile
+				newPos[1] = pos[1] - (s[3] + p.Shape.Data[3]) - 1
+				p.dy = 0.0
+			} else if c.Dir[1] < -0.9 {
+				// Hit bottom of tile
+				p.Resting = true
+				newPos[1] = pos[1] + s[1] + 1
+				p.dy = 0.0
+			}
 		}
 	}
 	p.Light.Pos[1] = p.pos[1] + float32(p.Sprite.Height)
@@ -168,10 +172,16 @@ func (p *Player) Update(dt float32, group *[]entity.Entity) {
 func (p *Player) Draw() {
 	if !p.Walking || !p.Resting {
 		p.Sprite.DrawFrame(mgl32.Vec2{0, p.Facing}, p.pos, nil)
-		return
+	} else {
+		frame := float32(int(p.dy) % 2)
+		switch {
+		case p.whichLeg == 0:
+			p.whichLeg = 1
+		case p.whichLeg == 1:
+			p.whichLeg = 2
+		case p.whichLeg == 2:
+			p.whichLeg = 1
+		}
+		p.Sprite.DrawFrame(mgl32.Vec2{frame + float32(p.whichLeg), p.Facing}, p.pos, nil)
 	}
-	//e *sprite.Effects) {
-	//p.Sprite.DrawFrame(mgl32.Vec2{1, p.Facing}, p.Pos, e)
-	frame := float32(int(p.dy) % 2)
-	p.Sprite.DrawFrame(mgl32.Vec2{frame + 1, p.Facing}, p.pos, nil)
 }
