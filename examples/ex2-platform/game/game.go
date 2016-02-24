@@ -116,7 +116,11 @@ func (c *Context) Main(screen *display.Context, config Config) {
 				running = false
 				event.Window.SetShouldClose(true)
 			}
-			scene.Player.HandleEvent(event, dt/1000.0)
+			for _, e := range scene.Objects {
+				if h, ok := e.(events.Handler); ok {
+					h.Handle(event)
+				}
+			}
 		}
 
 		//cam.Move(scene.Player.Pos())

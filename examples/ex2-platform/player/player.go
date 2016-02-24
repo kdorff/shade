@@ -74,8 +74,8 @@ func (p Player) Pos() mgl32.Vec3 {
 	return p.pos
 }
 
-// HandleEvent TODO doc
-func (p *Player) HandleEvent(event events.Event, dt float32) {
+// Handle TODO doc
+func (p *Player) Handle(event events.Event) {
 	// TODO: move this to SDK to handle things like holding Left & Right at the same time correctly
 
 	if (event.Action == glfw.Press || event.Action == glfw.Repeat) && event.Key == glfw.KeyLeft {

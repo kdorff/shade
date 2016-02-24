@@ -26,6 +26,11 @@ func init() {
 	runtime.LockOSThread()
 }
 
+// Handler for events
+type Handler interface {
+	Handle(event Event)
+}
+
 type Event struct {
 	Window   *glfw.Window
 	KeyEvent bool
