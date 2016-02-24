@@ -75,12 +75,13 @@ func Get() []Event {
 
 // CursorPositionCallback TODO doc
 func CursorPositionCallback(w *glfw.Window, x, y float64) {
+	_, h := w.GetSize()
 	// TODO: these are from the top/left should be bottom/left to match sprite drawing
 	events = append(events, Event{
 		Type:   CursorPosition,
 		Window: w,
 		X:      float32(x),
-		Y:      float32(y),
+		Y:      float32(h) - float32(y),
 	})
 }
 
