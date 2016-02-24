@@ -38,6 +38,12 @@ type Context struct {
 	Program uint32
 }
 
+// Signal to close the window
+func (c *Context) Close() {
+	c.Window.SetShouldClose(true)
+	events.WindowCloseCallback(c.Window)
+}
+
 func createWindow(major, minor int, title string) (*glfw.Window, error) {
 	glfw.WindowHint(glfw.Resizable, glfw.False)
 	glfw.WindowHint(glfw.ContextVersionMajor, major)
@@ -85,6 +91,7 @@ func SetMode(title string, width, height int) (*Context, error) {
 	c.Window.MakeContextCurrent()
 	c.Window.SetKeyCallback(events.KeyCallback)
 	c.Window.SetCursorPosCallback(events.CursorPositionCallback)
+	c.Window.SetCloseCallback(events.WindowCloseCallback)
 
 	if err := gl.Init(); err != nil {
 		return &c, fmt.Errorf("failed to init glow: %v", err)
