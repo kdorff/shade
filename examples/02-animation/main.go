@@ -95,9 +95,7 @@ func main() {
 		a.DrawFrame(frame, pos, nil)
 
 		screen.Flip()
-
-		// TODO refector events to be cleaner
-		glfw.PollEvents()
+		events.Poll()
 	}
 
 }

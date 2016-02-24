@@ -98,9 +98,8 @@ func Main(screen *display.Context) {
 		g.Draw()
 
 		screen.Flip()
+		events.Poll()
 
-		// TODO refector events to be cleaner
-		glfw.PollEvents()
 		if total > 3000.0 {
 			running = false
 		}

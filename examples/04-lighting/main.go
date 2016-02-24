@@ -76,11 +76,11 @@ func main() {
 		}
 
 		for _, event := range events.Get() {
-			if event.KeyEvent && event.Action == glfw.Press && event.Key == glfw.KeyEscape {
+			if event.Type == events.KeyDown && event.Key == glfw.KeyEscape {
 				running = false
 				event.Window.SetShouldClose(true)
 			}
-			if !event.KeyEvent {
+			if event.Type == events.CursorPosition {
 				light.Pos[0] = event.X
 				light.Pos[1] = float32(windowHeight) - event.Y
 			}
@@ -99,9 +99,7 @@ func main() {
 		face.Draw(pos, &e)
 
 		screen.Flip()
-
-		// TODO refector events to be cleaner
-		glfw.PollEvents()
+		events.Poll()
 	}
 
 }

@@ -175,9 +175,8 @@ func (c *Context) Main(screen *display.Context, config Config) {
 			font.DrawText(mgl32.Vec3{cam.Left + 20, cam.Top - 40, 0}, &deveff, msg)
 		}
 		screen.Flip()
+		events.Poll()
 
-		// TODO refector events to be cleaner
-		glfw.PollEvents()
 	}
 }
 

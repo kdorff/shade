@@ -76,9 +76,8 @@ func main() {
 		s.Draw(mgl32.Vec3{windowWidth/2 - float32(s.Width)/2, windowHeight/2 - float32(s.Height)/2, 0.0}, nil)
 
 		screen.Flip()
+		events.Poll()
 
-		// TODO refector events to be cleaner
-		glfw.PollEvents()
 	}
 
 }
