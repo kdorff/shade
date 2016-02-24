@@ -21,9 +21,9 @@ import (
 )
 
 func TestCircle1(t *testing.T) {
-	var circleCenterX float32 = 10
-	var circleCenterY float32 = 15
-	var circleRadius  float32 = 20
+	circleCenterX := float32 (10)
+	circleCenterY := float32 (15)
+	circleRadius := float32 (20)
 	center := mgl32.Vec2{circleCenterX, circleCenterY}
 	circle := NewCircle(center, circleRadius)
 	if (circle.Type != "circle") {
