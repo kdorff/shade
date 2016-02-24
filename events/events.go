@@ -126,3 +126,7 @@ func MouseButtonCallback(w *glfw.Window, button glfw.MouseButton, action glfw.Ac
 	}
 	events = append(events, e)
 }
+
+func Poll() {
+	glfw.PollEvents()
+}

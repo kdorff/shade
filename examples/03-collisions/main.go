@@ -123,9 +123,7 @@ func main() {
 		}
 
 		screen.Flip()
-
-		// TODO refector events to be cleaner
-		glfw.PollEvents()
+		events.Poll()
 	}
 }
 
