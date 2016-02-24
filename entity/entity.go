@@ -157,14 +157,46 @@ func mixedTest(ap, bp mgl32.Vec3, ab, bb shapes.Shape, ignoreZ bool) (bool, mgl3
 	return result, dir
 }
 
+/**
+ * Test obtaining collision vector direction.
+ * See: http://www.vobarian.com/collisions/2dcollisions2.pdf
+ *
+ * Find unit normal and unit tangent vectors. The unit normal vector is a
+ * vector which has a magnitude of 1 and a direction that is normal 
+ * (perpendicular) to the surfaces of the objects at the point of collision.
+ * The unit tangent vector is a vector with a magnitude of 1 which is
+ * tangent to the circles' surfaces at the point of collision.
+ *
+ * First find a normal vector. This is done by taking a vector whose 
+ * components are the difference between the coordinates of the centers 
+ * of the circles. Let x1, x2, y1, and y2 be the x and y coordinates of 
+ * the centers of the circles. (It does not matter which circle is 
+ * labeled 1 or 2; the end result will be the same.) Then the normal 
+ * vector n is:
+ *
+ * n→  =〈 x_2 − x_1, y_2 − y_1 〉
+ *
+ * Next, find the unit vector of n→, which we will call un→.
+ * This is done by dividing by the magnitude of n→:
+ * 
+ * un→ =  n→ / (sqrt(n_x^2 + n_y^2))
+ */
 func getDir(aPos, bPos mgl32.Vec3) mgl32.Vec3 {
-	bPos[0] -= aPos[0]
-	bPos[1] -= aPos[1]
-	bPos[2] -= aPos[2]
-	m := float32(math.Sqrt(float64((bPos[0] * bPos[0]) + (bPos[1] * bPos[1]))))
-	if m == 0 {
+	xdiff := bPos[0] - aPos[0]
+	ydiff := bPos[1] - aPos[1]
+	//zdiff := bPos[2] - aPos[2]
+	// Note:
+	// The 3rd value, which is often magnitude, here is maybe or maybe not
+	// a z value. If it IS a z value, one probably must include the zdiff^2
+	// in the denominator sum, I believe.
+	denominator := float32(math.Sqrt(float64((xdiff * xdiff) + (ydiff * ydiff))))
+	if denominator == 0 {
+		// Is this a reasonable answer? I realize divide by zero is bad
+		// but what are the side effects of doing this?
 		return mgl32.Vec3{}
 	}
-	uv := mgl32.Vec3{bPos[0] / m, bPos[1] / m, bPos[2] / m}
+	uv := mgl32.Vec3{xdiff / denominator, 
+		ydiff / denominator,
+		1 /*zdiff / denominator*/}
 	return uv
 }
