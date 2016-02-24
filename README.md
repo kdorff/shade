@@ -13,7 +13,7 @@ Installing
 Linux (Debian based) Specific Instructions
 ```
 # Install Go 1.6
-sudo apt-get install git-core libgl1-mesa-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev
+$ sudo apt-get install git-core libgl1-mesa-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev
 ```
 
 Windows Specific Instructions (work in progress)
@@ -25,6 +25,14 @@ http://www.glfw.org/
 ```
 
 To install:
+
+Dependencies
+
+```
+$ go get -u github.com/jteeuwen/go-bindata/...
+$ go get github.com/go-gl/gl/v{3.2,3.3,4.1,4.4,4.5}-{core,compatibility}/gl
+$ go get github.com/go-gl/gl/v3.3-core/gl
+```
 
 NOTE: the first "go get" will produce an error because generated files are not generated yet.
 
