@@ -31,12 +31,19 @@ type Handler interface {
 	Handle(event Event)
 }
 
+const (
+	CursorPosition = iota
+	KeyDown        = iota
+	KeyUp          = iota
+	KeyRepeat      = iota
+	WindowClose    = iota
+)
+
 type Event struct {
+	Type     int
 	Window   *glfw.Window
-	KeyEvent bool
 	Key      glfw.Key
 	Scancode int
-	Action   glfw.Action
 	Mods     glfw.ModifierKey
 	X        float32
 	Y        float32
@@ -49,11 +56,10 @@ func Get() []Event {
 	var elist []Event
 	for i := range events {
 		elist = append(elist, Event{
+			Type:     events[i].Type,
 			Window:   events[i].Window,
-			KeyEvent: events[i].KeyEvent,
 			Key:      events[i].Key,
 			Scancode: events[i].Scancode,
-			Action:   events[i].Action,
 			Mods:     events[i].Mods,
 			X:        events[i].X,
 			Y:        events[i].Y,
@@ -67,21 +73,36 @@ func Get() []Event {
 func CursorPositionCallback(w *glfw.Window, x, y float64) {
 	// TODO: these are from the top/left should be bottom/left to match sprite drawing
 	events = append(events, Event{
-		Window:   w,
-		KeyEvent: false,
-		X:        float32(x),
-		Y:        float32(y),
+		Type:   CursorPosition,
+		Window: w,
+		X:      float32(x),
+		Y:      float32(y),
 	})
 }
 
 // KeyCallback TODO doc
 func KeyCallback(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-	events = append(events, Event{
+	e := Event{
 		Window:   w,
-		KeyEvent: true,
 		Key:      key,
 		Scancode: scancode,
-		Action:   action,
 		Mods:     mods,
+	}
+	switch action {
+	case glfw.Press:
+		e.Type = KeyDown
+	case glfw.Release:
+		e.Type = KeyUp
+	case glfw.Repeat:
+		e.Type = KeyRepeat
+	}
+	events = append(events, e)
+}
+
+// WindowCloseCallback TODO doc
+func WindowCloseCallback(w *glfw.Window) {
+	events = append(events, Event{
+		Type:   WindowClose,
+		Window: w,
 	})
 }
